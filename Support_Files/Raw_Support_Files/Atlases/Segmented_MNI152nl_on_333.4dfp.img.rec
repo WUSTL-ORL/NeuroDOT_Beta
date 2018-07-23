@@ -1,0 +1,14 @@
+rec Segmented_MNI152nl_on_333.4dfp.img Tue Aug 28 11:34:36 CDT 2012 samirah
+t4img_4dfp none Segmented_MNI152nl Segmented_MNI152nl_on_333 -O333 -n
+$Id: t4img_4dfp,v 1.9 2009/03/05 04:30:54 avi Exp $
+rec Segmented_MNI152nl_on_333.4dfp.img  Tue Aug 28 11:34:35 2012  samirah@localhost.localdomain Linux 2.6.32-220.7.1.el6.x86_64 x86_64
+t4imgs_4dfp Segmented_MNI152nl_on_333.lst Segmented_MNI152nl_on_333 -O333 -n 
+$Id: t4imgs_4dfp.c,v 1.36 2011/04/09 00:19:16 avi Exp $
+littleendian
+resampling by nearest-neighbor interpolation
+sub
+Segmented_MNI152nl	t4=
+endsub
+Segmented_MNI152nl.4dfp.img.rec not found
+endrec Tue Aug 28 11:34:36 2012  samirah
+endrec Tue Aug 28 11:34:36 CDT 2012 samirah
