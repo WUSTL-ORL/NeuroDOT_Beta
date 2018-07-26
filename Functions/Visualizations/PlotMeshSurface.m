@@ -92,12 +92,16 @@ else
     end
 end
 
-if ~isfield(params,'Cmap'), params.Cmap='gray';end
+if ~isfield(params,'Cmap'), params.Cmap=struct;end
+if ~isfield(params.Cmap,'P'), params.Cmap.P='gray';end
 if ~isfield(params,'alpha'), params.alpha=1;end % Transparency
 if ~isfield(params,'OL'), params.OL=0;end
 if ~isfield(params,'reg'), params.reg=1;end
 if ~isfield(params,'TC'),params.TC=0;end  
 if ~isfield(params,'PD'), params.PD=0;end
+if ~isfield(params,'EdgesON'), params.EdgesON=1;end
+if ~isfield(params,'EdgeColor'), params.EdgeColor='k';end
+if ~params.EdgesON, params.EdgeColor='none';end
 
 
 %% Get face centers of elements for S/D pairs.
@@ -123,7 +127,7 @@ end
 if ~isfield(m,'data')       % NO DATA
     if ~isfield(m,'region') % no data, no regions
         FaceColor = [0.25, 0.25, 0.25];
-        EdgeColor = 'k';%[0.25, 0.25, 0.25];%BkgdColor;
+        EdgeColor = params.EdgeColor;
         FaceLighting = 'flat';
         AmbientStrength = 0.5;        
         h = patch('Faces', m.elements, 'Vertices',m.nodes,...
@@ -135,15 +139,15 @@ if ~isfield(m,'data')       % NO DATA
         params.PD=1;
         params.TC=1;
         params.DR=max(m.region(:));
-        tempCmap=params.Cmap;
-        params.Cmap=eval([tempCmap, '(', num2str(params.DR), ');']);
-        EdgeColor =  'k';%params.BG; % or 'none'
+        tempCmap=params.Cmap.P;
+        params.Cmap.P=eval([tempCmap, '(', num2str(params.DR), ');']);
+        EdgeColor = params.EdgeColor;
         FaceColor = 'flat';
         FaceLighting = 'gouraud';
         AmbientStrength = 0.25;
         DiffuseStrength = 0.75; % or 0.75
         SpecularStrength = 0.1;        
-        FV_CData=params.Cmap(mode(reshape(m.region(m.elements(:)),[],3),2),:);        
+        FV_CData=params.Cmap.P(mode(reshape(m.region(m.elements(:)),[],3),2),:);        
         h = patch('Faces', m.elements, 'Vertices', m.nodes,...
             'EdgeColor', EdgeColor, 'FaceColor', FaceColor,...
             'FaceVertexCData', FV_CData, 'FaceLighting', FaceLighting,...
@@ -157,7 +161,7 @@ else                        % DATA
     else                    % with regions
         FV_CData = applycmap(m.data, m.region, params);
     end
-    EdgeColor =  'k';%params.BG; % or 'none'
+    EdgeColor = params.EdgeColor;
     FaceColor = 'interp';
     FaceLighting = 'gouraud';
     AmbientStrength = 0.25;

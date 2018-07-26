@@ -55,15 +55,15 @@ for lambda=1:numc
         reshape(squeeze(Gd(lambda,:,:)),1,detnum,numpt));
 end
 
-else                % FD caseAfd_RHS = dot(grad(Gs),grad(Gd))
+else                % FD case --> Afd_numerator = dot(grad(Gs),grad(Gd))
     for lambda=1:numc
         disp(['Creating Adjoint for Lambda ',num2str(lambda)])
+        foos = zeros(dim.nVx,dim.nVy,dim.nVz);
+        food = zeros(dim.nVx,dim.nVy,dim.nVz);
         for srcInd = 1:srcnum
-            foos = zeros(dim.nVx,dim.nVy,dim.nVz);
             foos(dim.Good_Vox) = squeeze(Gs(lambda,srcInd,:));
             [gGsx,gGsy,gGsz] = gradient(foos);
             for detInd = 1:detnum
-                food = zeros(dim.nVx,dim.nVy,dim.nVz);
                 food(dim.Good_Vox) = squeeze(Gd(lambda,detInd,:));
                 [gGdx,gGdy,gGdz] = gradient(food);
                 A(lambda,srcInd,detInd,:) =...
