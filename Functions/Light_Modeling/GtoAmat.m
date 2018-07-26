@@ -1,4 +1,4 @@
-function [A,dim]=GtoAmat_CW(Gs,Gd,mesh,dc,flags)
+function [A,dim]=GtoAmat(Gs,Gd,mesh,dc,flags)
 
 % This function take a set of Green's functions and a mesh and creates an
 % A-matrix.
@@ -39,22 +39,22 @@ flags.GV=1;
 
 %% Interpolate  
 disp('>Finding Voxel Grid and Cropping Limits')
-[vox,dim]=getvox_CW(mesh.nodes,cat(2,Gs,Gd),flags);
+[vox,dim]=getvox(mesh.nodes,cat(2,Gs,Gd),flags);
 
 disp('>Finding Mesh to Voxel Converstion')
 [t,p] = tsearchn(mesh.nodes,mesh.elements,reshape(vox,[],3));
 
 disp('>Interpolating Greens Functions')
-Gs=voxel_CW(Gs,t,p,mesh.elements,dim);
-Gd=voxel_CW(Gd,t,p,mesh.elements,dim);
+Gs=voxel(Gs,t,p,mesh.elements,dim);
+Gd=voxel(Gd,t,p,mesh.elements,dim);
 
 disp('>Interpolating Optical Properties')
-dc=voxel_CW(dc,t,p,mesh.elements,dim);
+dc=voxel(dc,t,p,mesh.elements,dim);
 
 
 %% Create dim.Good_Vox
 if flags.GV==1
-    [Gs,Gd,dc,dim]=Make_Good_Vox_CW(Gs,Gd,dc,dim,mesh,flags);
+    [Gs,Gd,dc,dim]=Make_Good_Vox(Gs,Gd,dc,dim,mesh,flags);
 end
 
 
@@ -67,7 +67,7 @@ clear vox p t
 
 %% Create A-matrix
 disp('>Making A-Matrix')
-[A,Gsd]=g2a_U87(Gs,Gd,dc,dim,flags);
+[A,Gsd]=g2a(Gs,Gd,dc,dim,flags);
 clear Gs Gd 
 disp('>Saving A-Matrix')
 save(['A_',flags.tag],'A','dim','flags','Gsd','-v7.3')

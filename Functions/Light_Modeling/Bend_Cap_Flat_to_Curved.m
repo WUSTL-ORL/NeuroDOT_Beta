@@ -1,7 +1,10 @@
-function mesh=PrepareMeshForNIRFAST_CW(mesh,meshname,tpos3)
-
-% This function writes to disc the necessary *.meas, *.source, and *.link
-% files needed for NIRFAST to solve the fwd light problem.
+function tpos3=Bend_Cap_Flat_to_Curved(tpos,hrad,type,aX)
+%
+% This function bends a 2D cap (tpos) around a given single radius 
+% of curvature (hrad), assuming either spherical symmetry (type=='hem') or
+% cylindrical symmetry (type=='cyl'). If 'cyl', must also include
+% the preferred axis (aX) for the cylinder ('x',or,'y')
+% The origin is placed at the center of mass of the tpos points.
 %
 % 
 % Copyright (c) 2017 Washington University 
@@ -30,42 +33,44 @@ function mesh=PrepareMeshForNIRFAST_CW(mesh,meshname,tpos3)
 % IN BREACH OF CONTRACT, TORT OR OTHERWISE, EVEN IF SUCH PARTY IS 
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
+%%
+Npos=size(tpos,1);
+CofM=mean(tpos,1);
+tpos3=zeros(Npos,3);
+if ~exist('aX','var'),aX='y';end
 
-%% Check NIRFAST-style files are present, else make them
-if ~exist([meshname,'.node'],'file')
-save_mesh(mesh,meshname);
+
+switch type
+    case 'hem'
+        for n=1:Npos
+            x=tpos(n,1)-CofM(1);
+            y=tpos(n,2)-CofM(2);
+            r0=sqrt(x^2+y^2); % Distance from Origin
+            theta=r0/hrad;
+            phi=atan2(x,y);
+            tpos3(n,:)=hrad*[sin(theta)*cos(phi),...
+                sin(theta)*sin(phi),cos(theta)]+[CofM,0];
+        end
+        
+    case 'cyl'
+        switch aX
+            case 'y'
+        for n=1:Npos
+            x=tpos(n,1)-CofM(1);
+            y=tpos(n,2)-CofM(2);
+            dTheta=x/hrad;
+            X=x*cos(dTheta/2);
+            Z=x*sin(dTheta/2);
+            tpos3(n,:)=[X,y,-Z]+[CofM,0];
+        end
+            case 'x'
+        for n=1:Npos
+            y=tpos(n,1)-CofM(1);
+            x=tpos(n,2)-CofM(2);
+            dTheta=x/hrad;
+            X=x*cos(dTheta/2);
+            Z=x*sin(dTheta/2);
+            tpos3(n,:)=[X,y,-Z]+[CofM,0];
+        end
+        end
 end
-
-
-%% Make .meas file
-% This is just a dummy measurement, since we don't use NIRFAST's detectors
-fid=fopen([meshname,'.meas'],'w');
-fprintf(fid,'%f %f %f\n',mean(mesh.nodes(:,1)),...
-    mean(mesh.nodes(:,2)),mean(mesh.nodes(:,3)));
-fclose(fid);
-
-
-%% Make .link file
-% This is also just a placeholder since everything links to the one "detector"
-fid=fopen([meshname,'.link'],'w');
-for i=1:size(tpos3,1)
-    fprintf(fid,'%f\n',1);
-end
-fclose(fid);
-
-
-%% Make Source/Detector File
-% Here in the .source file, we list all sources and detectors.
-% This way, we always use NIRFAST's source Green's function, which use a
-% better treatment of the boundary conditions.
-% Later we will unwrap source and detector Green's functions.
-% Structure: [xpos ypos zpos]
-fid=fopen([meshname,'.source'],'w');
-for j=1:size(tpos3,1)
-    fprintf(fid,'%f %f %f\n',tpos3(j,1),tpos3(j,2),tpos3(j,3));
-end
-fclose(fid);
-
-
-%% Load in full mesh
-mesh=load_mesh([meshname]);

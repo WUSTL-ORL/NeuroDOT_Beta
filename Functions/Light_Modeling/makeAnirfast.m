@@ -1,4 +1,4 @@
-function [A,dim,Gs,Gd,dc]=makeAnirfast_CW(mesh,flags)
+function [A,dim,Gs,Gd,dc]=makeAnirfast(mesh,flags)
 
 % This function (1) Calculates the green's functions, and 
 %               (2) generates the A-matrix.  
@@ -78,10 +78,10 @@ for lambda=1:2
                 labels.(floop),' **'])
         end
         
-        a(roi)=op.(['mua_',labels.(floop)])(lambda);
-        kappa(roi)=1/(3*(op.(['mua_',labels.(floop)])(lambda)+...
+        a(roi)=op.(['mua_',labels.(floop)])(lambda);                % mua
+        kappa(roi)=1/(3*(op.(['mua_',labels.(floop)])(lambda)+...   % D.C.
             op.(['musp_',labels.(floop)])(lambda)));
-        ri(roi)=op.(['n_',labels.(floop)])(lambda);
+        ri(roi)=op.(['n_',labels.(floop)])(lambda);                 % Ind. of Ref.
     end
     
     mesh.mua=a;
@@ -95,9 +95,10 @@ for lambda=1:2
     dc(lambda,:)=mesh.kappa;
     toc(TimeWL)
 end
-% pause
 
-G(G<0)=0; % Fix negative values for CW case
+if flags.Hz==0
+    G(G<0)=0; % Fix negative values for CW case
+end
 Gs=single(G(:,1:flags.srcnum,:));
 Gd=single(G(:,(flags.srcnum+1):end,:));
 
@@ -109,7 +110,7 @@ clear G
 
 %% (3) Create A matrix from Green's Funcions, mesh, and optical props.
 if flags.makeA
-[A,dim]=GtoAmat_CW(Gs,Gd,mesh,dc,flags);
+[A,dim]=GtoAmat(Gs,Gd,mesh,dc,flags);
 else
     A=[];
     dim=[];

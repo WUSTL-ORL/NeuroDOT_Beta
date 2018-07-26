@@ -32,6 +32,32 @@ function PlotMeshSurface(mesh, params)
 % Dependencies: APPLYCMAP
 % 
 % See Also: PLOTSLICES, PLOTCAP, CAP_FITTER.
+% 
+% Copyright (c) 2017 Washington University 
+% Created By: Adam T. Eggebrecht
+% Eggebrecht et al., 2014, Nature Photonics; Zeff et al., 2007, PNAS.
+%
+% Washington University hereby grants to you a non-transferable, 
+% non-exclusive, royalty-free, non-commercial, research license to use 
+% and copy the computer code that is provided here (the Software).  
+% You agree to include this license and the above copyright notice in 
+% all copies of the Software.  The Software may not be distributed, 
+% shared, or transferred to any third party.  This license does not 
+% grant any rights or licenses to any other patents, copyrights, or 
+% other forms of intellectual property owned or controlled by Washington 
+% University.
+% 
+% YOU AGREE THAT THE SOFTWARE PROVIDED HEREUNDER IS EXPERIMENTAL AND IS 
+% PROVIDED AS IS, WITHOUT ANY WARRANTY OF ANY KIND, EXPRESSED OR 
+% IMPLIED, INCLUDING WITHOUT LIMITATION WARRANTIES OF MERCHANTABILITY 
+% OR FITNESS FOR ANY PARTICULAR PURPOSE, OR NON-INFRINGEMENT OF ANY 
+% THIRD-PARTY PATENT, COPYRIGHT, OR ANY OTHER THIRD-PARTY RIGHT.  
+% IN NO EVENT SHALL THE CREATORS OF THE SOFTWARE OR WASHINGTON 
+% UNIVERSITY BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, OR 
+% CONSEQUENTIAL DAMAGES ARISING OUT OF OR IN ANY WAY CONNECTED WITH 
+% THE SOFTWARE, THE USE OF THE SOFTWARE, OR THIS AGREEMENT, WHETHER 
+% IN BREACH OF CONTRACT, TORT OR OTHERWISE, EVEN IF SUCH PARTY IS 
+% ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 
 %% Parameters and Initialization
@@ -47,7 +73,7 @@ if ~isfield(params, 'orientation')
 end
 
 if ~isfield(params, 'BG')  ||  isempty(params.BG)
-    params.BG = [0.8, 0.8, 0.8];%'w';%
+    params.BG = 'w';%[0.8, 0.8, 0.8];%
 end
 
 if ~isfield(params, 'fig_size')  ||  isempty(params.fig_size)
@@ -66,7 +92,7 @@ else
     end
 end
 
-if ~isfield(params,'Cmap'), params.Cmap='jet';end
+if ~isfield(params,'Cmap'), params.Cmap='gray';end
 if ~isfield(params,'alpha'), params.alpha=1;end % Transparency
 if ~isfield(params,'OL'), params.OL=0;end
 if ~isfield(params,'reg'), params.reg=1;end
@@ -97,7 +123,7 @@ end
 if ~isfield(m,'data')       % NO DATA
     if ~isfield(m,'region') % no data, no regions
         FaceColor = [0.25, 0.25, 0.25];
-        EdgeColor = [0.25, 0.25, 0.25];%BkgdColor;
+        EdgeColor = 'k';%[0.25, 0.25, 0.25];%BkgdColor;
         FaceLighting = 'flat';
         AmbientStrength = 0.5;        
         h = patch('Faces', m.elements, 'Vertices',m.nodes,...
@@ -111,7 +137,7 @@ if ~isfield(m,'data')       % NO DATA
         params.DR=max(m.region(:));
         tempCmap=params.Cmap;
         params.Cmap=eval([tempCmap, '(', num2str(params.DR), ');']);
-        EdgeColor =  params.BG; % or 'none'
+        EdgeColor =  'k';%params.BG; % or 'none'
         FaceColor = 'flat';
         FaceLighting = 'gouraud';
         AmbientStrength = 0.25;
@@ -184,7 +210,7 @@ if new_fig
 end
 
 if isfield(params,'side')
-    switch side
+    switch params.side
         case 'post'
             light('Position',[-500,-20,0],'Style','local');
             light('Position',[500,-20,0],'Style','local');
@@ -198,7 +224,7 @@ if isfield(params,'side')
             light('Position',[200,200,0],'Style','local');
             light('Position',[100,500,100],'Style','local');
         case 'coronal'
-            if ~any(mapS.nodes(:)<0)
+            if ~any(m.nodes(:)<0)
                 light('Position',[-500,-20,100],'Style','local');
                 light('Position',[500,-20,100],'Style','local');
                 light('Position',[100,-200,200],'Style','local');
@@ -207,7 +233,7 @@ if isfield(params,'side')
                 light('Position',[200,200,0],'Style','local');
                 light('Position',[100,500,100],'Style','local');
             else
-                mm=mean(mapS.nodes);
+                mm=mean(m.nodes);
                 x=-mm(1);y=mm(2);z=-mm(3);
                 light('Position',[-(x+400),y-150,z],'Style','local');
                 light('Position',[x+400,y-150,z],'Style','local');

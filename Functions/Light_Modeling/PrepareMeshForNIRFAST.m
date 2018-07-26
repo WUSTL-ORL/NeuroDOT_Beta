@@ -1,7 +1,7 @@
-function [Gs,Gd,dc,dim]=Make_Good_Vox_CW(Gs,Gd,dc,dim,mesh,flags)
-%
-% To keep filesizes under some control, remove voxels with below threshold
-% sensitivity. dim.Good_Vox provides efficient bookkeeping.
+function mesh=PrepareMeshForNIRFAST(mesh,meshname,tpos3)
+
+% This function writes to disc the necessary *.meas, *.source, and *.link
+% files needed for NIRFAST to solve the fwd light problem.
 %
 % 
 % Copyright (c) 2017 Washington University 
@@ -31,38 +31,41 @@ function [Gs,Gd,dc,dim]=Make_Good_Vox_CW(Gs,Gd,dc,dim,mesh,flags)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 
-%% Find threshold
-Vthresh=flags.gthresh*0.1;
-[Ncol,Nd,Nvox]=size(Gd);
-Ns=size(Gs,2);
-Gd=reshape(Gd,Ncol*Nd,Nvox);
-Gs=reshape(Gs,Ncol*Ns,Nvox);
-
-voxlevelT=max(squeeze(sum(abs(Gd),1))+squeeze(sum(abs(Gs),1)),[],1); % Max vox Gs&Gd
-
-
-%% Find voxels below threshold
-Kill=find(voxlevelT<Vthresh*max(voxlevelT));
-
-dim.Good_Vox=setdiff([1:Nvox],Kill);
-Gd=reshape(Gd,Ncol,Nd,Nvox);
-Gs=reshape(Gs,Ncol,Ns,Nvox);
-Gd=Gd(:,:,dim.Good_Vox);
-Gs=Gs(:,:,dim.Good_Vox);
-dc=dc(:,dim.Good_Vox);
-
-clear KillD KillS Kill
-
-%% Include spatial info for Good_Vox for quick refs
-dim.Ngv=length(dim.Good_Vox);
-[x,y,z]=ind2sub([dim.nVx,dim.nVy,dim.nVz],dim.Good_Vox');
-dim.GVdIdx=[x,y,z];                                 % dim xyz indices
-clear x y z
-
-dim.GVdCoord=change_space_coords(dim.GVdIdx,dim,'coord'); % 3D space coords
-dim.tpos=mesh.source.coord;                         % mesh xyz indices
-
-if strcmp(flags.head,'info')
-dim.tposC=change_space_coords(dim.tpos,flags.info,'coord');     % 3D space coords
-dim.tposDim=change_space_coords(dim.tposC,dim,'idxC');    % dim xyz index space
+%% Check NIRFAST-style files are present, else make them
+if ~exist([meshname,'.node'],'file')
+save_mesh(mesh,meshname);
 end
+
+
+%% Make .meas file
+% This is just a dummy measurement, since we don't use NIRFAST's detectors
+fid=fopen([meshname,'.meas'],'w');
+fprintf(fid,'%f %f %f\n',mean(mesh.nodes(:,1)),...
+    mean(mesh.nodes(:,2)),mean(mesh.nodes(:,3)));
+fclose(fid);
+
+
+%% Make .link file
+% This is also just a placeholder since everything links to the one "detector"
+fid=fopen([meshname,'.link'],'w');
+for i=1:size(tpos3,1)
+    fprintf(fid,'%f\n',1);
+end
+fclose(fid);
+
+
+%% Make Source/Detector File
+% Here in the .source file, we list all sources and detectors.
+% This way, we always use NIRFAST's source Green's function, which use a
+% better treatment of the boundary conditions.
+% Later we will unwrap source and detector Green's functions.
+% Structure: [xpos ypos zpos]
+fid=fopen([meshname,'.source'],'w');
+for j=1:size(tpos3,1)
+    fprintf(fid,'%f %f %f\n',tpos3(j,1),tpos3(j,2),tpos3(j,3));
+end
+fclose(fid);
+
+
+%% Load in full mesh
+mesh=load_mesh([meshname]);

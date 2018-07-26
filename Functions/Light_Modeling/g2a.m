@@ -1,11 +1,12 @@
-function [A,Gsd]=g2a_CW(Gs,Gd,dc,dim,flags)
+function [A,Gsd]=g2a(Gs,Gd,dc,dim,flags)
 
 % g2a(): Make A-Matrix with Adjoint Method and Rytov Approximation
 % Gs    Green's functions for sources
 % Gd    Green's functions for detectors
 % dc    Diffusion coefficient
 % dim   space meta data structure
-%
+% flags structure containing parameters, including Hz for mod freq of
+%           source light.
 % 
 % Copyright (c) 2017 Washington University 
 % Created By: Adam T. Eggebrecht
@@ -45,12 +46,33 @@ measnum=srcnum*detnum;
 A=zeros(numc,srcnum,detnum,numpt,'single');
 
 
-%% Adjoint Formulation and Normalization: Acw_numerator = Gs*Gd
+%% Adjoint Formulation and Normalization: 
+if flags.Hz==0      % CW case --> Acw_numerator = Gs*Gd
 for lambda=1:numc
     disp(['Creating Adjoint for Lambda ',num2str(lambda)])
     A(lambda,:,:,:)=bsxfun(@times,...
         reshape(squeeze(Gs(lambda,:,:)),srcnum,1,numpt),...
         reshape(squeeze(Gd(lambda,:,:)),1,detnum,numpt));
+end
+
+else                % FD case --> Afd_numerator = dot(grad(Gs),grad(Gd))
+    for lambda=1:numc
+        disp(['Creating Adjoint for Lambda ',num2str(lambda)])
+        for srcInd = 1:srcnum
+            foos = zeros(dim.nVx,dim.nVy,dim.nVz);
+            foos(dim.Good_Vox) = squeeze(Gs(lambda,srcInd,:));
+            [gGsx,gGsy,gGsz] = gradient(foos);
+            for detInd = 1:detnum
+                food = zeros(dim.nVx,dim.nVy,dim.nVz);
+                food(dim.Good_Vox) = squeeze(Gd(lambda,detInd,:));
+                [gGdx,gGdy,gGdz] = gradient(food);
+                A(lambda,srcInd,detInd,:) =...
+                    gGsx(dim.Good_Vox).*gGdx(dim.Good_Vox)+...
+                    gGsy(dim.Good_Vox).*gGdy(dim.Good_Vox)+...
+                    gGsz(dim.Good_Vox).*gGdz(dim.Good_Vox);
+            end
+        end
+    end    
 end
 
 A=reshape(A,numc,measnum,numpt);
@@ -59,13 +81,14 @@ A=reshape(A,numc,measnum,numpt);
 %% Calculate Gsd
 % Acw_denominator = Gs(d)
 disp('Calculating Gsd')
-[~,Gdidx]=max(Gd,[],3); %Gs(d)
+[~,Gdidx]=max(abs(Gd),[],3); %Gs(d)
 Gsd=zeros(numc,measnum);
 for lambda=1:numc
     for j=1:srcnum
         Gsd(lambda,j:srcnum:end)=Gs(lambda,j,Gdidx(lambda,:));
     end
 end
+
 
 %% Normalize Rytov with Gsd and interp with vol and diff coef
 for lambda=1:numc

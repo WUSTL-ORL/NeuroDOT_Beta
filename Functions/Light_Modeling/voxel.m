@@ -1,4 +1,4 @@
-function Mout=voxel_CW(M,t,p,elements,dim)
+function Mout=voxel(M,t,p,elements,dim)
 
 % Voxelate data (M) based on a node space (described by t,p,elements) into
 % a space defined by dim.

@@ -1,4 +1,4 @@
-function [vox,dim]=getvox_CW(nodes,G,flags)
+function [vox,dim]=getvox(nodes,G,flags)
 
 % Find voxel grid and limits.  Voxel grid is defined as a subset of the
 % volume voxellated space.
@@ -29,6 +29,15 @@ function [vox,dim]=getvox_CW(nodes,G,flags)
 % THE SOFTWARE, THE USE OF THE SOFTWARE, OR THIS AGREEMENT, WHETHER 
 % IN BREACH OF CONTRACT, TORT OR OTHERWISE, EVEN IF SUCH PARTY IS 
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+%% Parameters and Initialization
+if ~isfield(flags,'gthresh'),flags.gthresh=1e-5;end
+if ~isfield(flags,'voxmm'),flags.voxmm=1;end
+if ~isfield(flags.info,'nVx'),flags.info.nVx=102;end
+if ~isfield(flags.info,'nVy'),flags.info.nVy=145;end
+if ~isfield(flags.info,'nVz'),flags.info.nVz=58;end
+if ~isfield(flags.info,'center'),flags.info.center=[50,-73,-80];end
+if ~isfield(flags.info,'mmppix'),flags.info.mmppix=[1,-1,-1];end
 
 
 %% Determine Threshold and nodes within the threshold range

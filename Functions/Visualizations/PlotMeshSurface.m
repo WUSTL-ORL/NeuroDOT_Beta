@@ -73,7 +73,7 @@ if ~isfield(params, 'orientation')
 end
 
 if ~isfield(params, 'BG')  ||  isempty(params.BG)
-    params.BG = [0.8, 0.8, 0.8];%'w';%
+    params.BG = 'w';%[0.8, 0.8, 0.8];%
 end
 
 if ~isfield(params, 'fig_size')  ||  isempty(params.fig_size)
@@ -92,7 +92,7 @@ else
     end
 end
 
-if ~isfield(params,'Cmap'), params.Cmap='jet';end
+if ~isfield(params,'Cmap'), params.Cmap='gray';end
 if ~isfield(params,'alpha'), params.alpha=1;end % Transparency
 if ~isfield(params,'OL'), params.OL=0;end
 if ~isfield(params,'reg'), params.reg=1;end
@@ -123,7 +123,7 @@ end
 if ~isfield(m,'data')       % NO DATA
     if ~isfield(m,'region') % no data, no regions
         FaceColor = [0.25, 0.25, 0.25];
-        EdgeColor = [0.25, 0.25, 0.25];%BkgdColor;
+        EdgeColor = 'k';%[0.25, 0.25, 0.25];%BkgdColor;
         FaceLighting = 'flat';
         AmbientStrength = 0.5;        
         h = patch('Faces', m.elements, 'Vertices',m.nodes,...
@@ -137,7 +137,7 @@ if ~isfield(m,'data')       % NO DATA
         params.DR=max(m.region(:));
         tempCmap=params.Cmap;
         params.Cmap=eval([tempCmap, '(', num2str(params.DR), ');']);
-        EdgeColor =  params.BG; % or 'none'
+        EdgeColor =  'k';%params.BG; % or 'none'
         FaceColor = 'flat';
         FaceLighting = 'gouraud';
         AmbientStrength = 0.25;
@@ -157,7 +157,7 @@ else                        % DATA
     else                    % with regions
         FV_CData = applycmap(m.data, m.region, params);
     end
-    EdgeColor =  params.BG; % or 'none'
+    EdgeColor =  'k';%params.BG; % or 'none'
     FaceColor = 'interp';
     FaceLighting = 'gouraud';
     AmbientStrength = 0.25;
