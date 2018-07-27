@@ -320,9 +320,9 @@ ylabel(ylist{a}, 'Color', LineColor, 'FontSize', 10)
 
 % Flip axes tick labels as necessary.
 if  xflip(a)
-    h.XTickLabel = flip(h.XTickLabel); % This is mainly window dressing, flips the labels but not the data.
+    h.XTickLabel = flip(h.XTickLabel); % flips the labels but not the data.
     incr = mean(diff(h.XTick));
-    dif = incr + max(h.XTick(:)) - xdimlist{a}; % As such, this formula fixes the positions of the labels.
+    dif = incr + max(h.XTick(:)) - xdimlist{a}; % fixes the positions of the labels.
     h.XTick = h.XTick - dif  + 1;
     h.XTickLabel(h.XTick == 1) = [];
     h.XTick(h.XTick == 1) = [];

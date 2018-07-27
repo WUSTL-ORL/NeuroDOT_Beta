@@ -72,8 +72,8 @@ if ~isfield(params, 'orientation')
     params.orientation = 's';
 end
 
-if ~isfield(params, 'BG')  ||  isempty(params.BG)
-    params.BG = 'w';%[0.8, 0.8, 0.8];%
+if ~isfield(params, 'BGC')  ||  isempty(params.BGC)
+    params.BGC = [1,1,1]; % Background color of figure
 end
 
 if ~isfield(params, 'fig_size')  ||  isempty(params.fig_size)
@@ -93,6 +93,11 @@ else
 end
 
 if ~isfield(params,'Cmap'), params.Cmap=struct;end
+if ~isstruct(params.Cmap)
+    temp = params.Cmap;
+    params.Cmap = [];
+    params.Cmap.P = temp;
+end
 if ~isfield(params.Cmap,'P'), params.Cmap.P='gray';end
 if ~isfield(params,'alpha'), params.alpha=1;end % Transparency
 if ~isfield(params,'OL'), params.OL=0;end
@@ -102,7 +107,7 @@ if ~isfield(params,'PD'), params.PD=0;end
 if ~isfield(params,'EdgesON'), params.EdgesON=1;end
 if ~isfield(params,'EdgeColor'), params.EdgeColor='k';end
 if ~params.EdgesON, params.EdgeColor='none';end
-
+params.cbmode=0; % colorbar ticks not yet supported. update outside fctn.
 
 %% Get face centers of elements for S/D pairs.
 switch size(mesh.elements, 2)
@@ -126,6 +131,7 @@ end
     
 if ~isfield(m,'data')       % NO DATA
     if ~isfield(m,'region') % no data, no regions
+        cb=0;
         FaceColor = [0.25, 0.25, 0.25];
         EdgeColor = params.EdgeColor;
         FaceLighting = 'flat';
@@ -141,6 +147,8 @@ if ~isfield(m,'data')       % NO DATA
         params.DR=max(m.region(:));
         tempCmap=params.Cmap.P;
         params.Cmap.P=eval([tempCmap, '(', num2str(params.DR), ');']);
+        cb=1;
+        CMAP=params.Cmap.P;
         EdgeColor = params.EdgeColor;
         FaceColor = 'flat';
         FaceLighting = 'gouraud';
@@ -157,10 +165,12 @@ if ~isfield(m,'data')       % NO DATA
     
 else                        % DATA
     if ~isfield(m,'region') % no regions
-        FV_CData = applycmap(underlay, [], params);
-    else                    % with regions
-        FV_CData = applycmap(m.data, m.region, params);
+        if ~isfield(params,'BG'),params.BG=[0.25, 0.25, 0.25];end
+        [FV_CData,CMAP] = applycmap(m.data, [], params);
+    else                    % with regions: grayscale underlay
+        [FV_CData,CMAP] = applycmap(m.data, m.region, params);
     end
+    cb=1;
     EdgeColor = params.EdgeColor;
     FaceColor = 'interp';
     FaceLighting = 'gouraud';
@@ -175,7 +185,7 @@ else                        % DATA
 end
         
         
-set(gca, 'Color', params.BG);%, 'XTick', [], 'YTick', [], 'ZTick', []);
+set(gca, 'Color', params.BGC);%, 'XTick', [], 'YTick', [], 'ZTick', []);
 
 switch params.orientation
     case 's'
@@ -251,5 +261,16 @@ if isfield(params,'side')
             
     end
 end
+
+
+% Add a colorbar.
+if cb
+    colormap(CMAP)
+    h2 = colorbar('Color', LineColor);
+    if params.cbmode
+        set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);
+    end
+end
+
 
 %

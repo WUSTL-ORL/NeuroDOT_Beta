@@ -43,7 +43,7 @@ lp2data = lowpass(SSRdata, 0.5, info.system.framerate);
 [rdata, info] = resample_tts(lp2data, info, 1, 1e-5);
 
 %% Block Averaging
-badata = BlockAverage(rdata, info, 2);
+badata = BlockAverage(rdata, info.paradigm.synchpts(info.paradigm.Pulse_2), 30);
 
 preprocessed = badata;
 
@@ -53,19 +53,17 @@ if ~exist('A', 'var')
     load('A_Adult_96x92.mat') % Contains A-matrix, dims, infoA.
 end
 
-for i = 1:2
-    keep = (info.pairs.WL == i) & (info.pairs.r2d <= 42) & info.MEAS.GI;
-    iA = [];
-    iA_smoothed = [];
-    
+for j = 1:2
+    keep = (info.pairs.WL == j) & (info.pairs.r2d <= 42) & info.MEAS.GI;
+        
     %% Invert A-Matrix
     iA = Tikhonov_invert_Amat(A(keep, :), 0.01, 0.1);
     
     %% Smooth Inverted A-Matrix
-    iA_smoothed = smooth_Amat(iA, dim, 5, 1.2);
+    iA_smoothed = smooth_Amat(iA, dim, 5);
     
     %% Reconstruct Image Volume
-    cortex_mu_a(:, :, i) = reconstruct_img(preprocessed(keep, :), iA_smoothed);
+    cortex_mu_a(:, :, j) = reconstruct_img(preprocessed(keep, :), iA_smoothed);
 end
 
 %% Spectroscopy
@@ -194,8 +192,8 @@ cortex_HbOvol = normalize2range_tts(cortex_HbOvol, 1:4);
 % % % PlotGray(ndata, info, params)
 % % % 
 % % % % Go to voxel space.
-% % % cortex_mu_a_vol1 = Good_Vox2vol(cortex_mu_a(:, :, 1), dim);
-% % % cortex_mu_a_vol2 = Good_Vox2vol(cortex_mu_a(:, :, 2), dim);
+% % % cortex_mu_a_vol1 = Good_Vox2vol(cortex_Hb(:, :, 1), dim);
+% % % cortex_mu_a_vol2 = Good_Vox2vol(cortex_Hb(:, :, 2), dim);
 % % % 
 % % % cortex_mu_a_vol1 = normalize2range_tts(cortex_mu_a_vol1, 1:4);
 % % % cortex_mu_a_vol2 = normalize2range_tts(cortex_mu_a_vol2, 1:4);

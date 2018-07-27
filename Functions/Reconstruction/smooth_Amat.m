@@ -64,6 +64,6 @@ parfor k = 1:Nm
 end
 
 %% Shut down pool so this can be re-run.
-delete(gcp('nocreate'))
+% delete(gcp('nocreate'))
 
 %

@@ -72,7 +72,7 @@ preprocessed = badata;
 % % % 
 % % % PlotGray(lmdata, info, params)
 % % % 
-% % % params.ylimits = [];
+% % % params.ylimits Good_Vox2vol= [];
 % % % params.yscale = [];
 % % % 
 % % % % Noisy channels.
