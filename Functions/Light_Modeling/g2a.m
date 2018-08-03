@@ -37,6 +37,21 @@ function [A,Gsd]=g2a(Gs,Gd,dc,dim,flags)
 
 %% Parameters and Initialization
 if ~isfield(flags,'Hz'),flags.Hz=0;end
+if ~isfield(flags,'compute_mua'), flags.compute_mua=1;end
+if ~isfield(flags,'compute_mus'), flags.compute_mus=0;end
+    
+if flags.Hz~=0 && flags.compute_mua && flags.compute_mus
+    % If both, make A as a structure
+    flagsD=flags;
+    flagsD.compute_mua=0;
+    [A.mus.A,A.mus.Gsd]=g2a(Gs,Gd,dc,dim,flagsD); % Scattering
+    
+    flagsA=flags;
+    flagsA.compute_mus=0;
+    [A.mua.A,A.mua.Gsd]=g2a(Gs,Gd,dc,dim,flagsA); % Absorption
+    Gsd=[];
+    return
+end
 numc=size(Gs,1);
 srcnum=size(Gs,2);
 detnum=size(Gd,2);
@@ -47,32 +62,33 @@ A=zeros(numc,srcnum,detnum,numpt,'single');
 
 
 %% Adjoint Formulation and Normalization: 
-if flags.Hz==0      % CW case --> Acw_numerator = Gs*Gd
-for lambda=1:numc
-    disp(['Creating Adjoint for Lambda ',num2str(lambda)])
-    A(lambda,:,:,:)=bsxfun(@times,...
-        reshape(squeeze(Gs(lambda,:,:)),srcnum,1,numpt),...
-        reshape(squeeze(Gd(lambda,:,:)),1,detnum,numpt));
-end
+if flags.Hz==0 || flags.compute_mua == 1    
+    for lambda=1:numc
+        disp(['Creating Adjoint for Lambda ',num2str(lambda)])
+        A(lambda,:,:,:)=bsxfun(@times,...
+            reshape(squeeze(Gs(lambda,:,:)),srcnum,1,numpt),...
+            reshape(squeeze(Gd(lambda,:,:)),1,detnum,numpt));
+    end
 
-else                % FD case --> Afd_numerator = dot(grad(Gs),grad(Gd))
+elseif flags.compute_mus              
     for lambda=1:numc
         disp(['Creating Adjoint for Lambda ',num2str(lambda)])
         foos = zeros(dim.nVx,dim.nVy,dim.nVz); % careful: may be large.
         food = zeros(dim.nVx,dim.nVy,dim.nVz);
         for srcInd = 1:srcnum
             foos(dim.Good_Vox) = squeeze(Gs(lambda,srcInd,:));
-            [gGsx,gGsy,gGsz] = gradient(foos);
+            [gGsx,gGsy,gGsz] = gradient(foos,dim.sV);
             for detInd = 1:detnum
                 food(dim.Good_Vox) = squeeze(Gd(lambda,detInd,:));
-                [gGdx,gGdy,gGdz] = gradient(food);
+                [gGdx,gGdy,gGdz] = gradient(food,dim.sV);
                 A(lambda,srcInd,detInd,:) =...
-                    gGsx(dim.Good_Vox).*gGdx(dim.Good_Vox)+...
+                    -(gGsx(dim.Good_Vox).*gGdx(dim.Good_Vox)+...
                     gGsy(dim.Good_Vox).*gGdy(dim.Good_Vox)+...
-                    gGsz(dim.Good_Vox).*gGdz(dim.Good_Vox);
+                    gGsz(dim.Good_Vox).*gGdz(dim.Good_Vox));
             end
         end
     end    
+else A=[];Gsd=[];return
 end
 
 A=reshape(A,numc,measnum,numpt);

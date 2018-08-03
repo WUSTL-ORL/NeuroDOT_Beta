@@ -73,8 +73,8 @@ else
     Y_amp0=abs(mean(data_in,2));
     Y_ph0=angle(mean(data_in,2));
     
-    Y_Ry_amp=-log(bsxfun(@rdivide, abs(data_in), Y_amp0));
-    Y_Ry_ph=-(bsxfun(@minus, angle(data_in), Y_ph0));
+    Y_Ry_amp=-log(bsxfun(@rdivide, abs(data), Y_amp0));
+    Y_Ry_ph=-(bsxfun(@minus, Y_ph, Y_ph0));
     
     data_out=Y_Ry_amp.*exp(1i.*Y_Ry_ph);
 end

@@ -1,4 +1,4 @@
-function PlotCapMeanLL(data, info, params)
+function PlotCapPhysiology(data, info, params)
 
 % PLOTCAPMEANLL A visualization of mean light levels overlaid on a cap
 % grid.

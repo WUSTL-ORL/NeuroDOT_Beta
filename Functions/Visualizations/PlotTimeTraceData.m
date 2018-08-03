@@ -2,10 +2,10 @@ function h = PlotTimeTraceData(data, time, params)
 
 % PLOTTIMETRACEDATA A basic time traces plotting function.
 %
-%   PLOTTIMETRACEDATA(data, info) takes a light-level array "data" of the
+%   PLOTTIMETRACEDATA(data, time) takes a light-level array "data" of the
 %   MEAS x TIME format, and plots its time traces.
 %
-%   PLOTTIMETRACEDATA(data, info, params) allows the user to specify
+%   PLOTTIMETRACEDATA(data, time, params) allows the user to specify
 %   parameters for plot creation.
 % 
 %   h = PLOTTIMETRACEDATA(...) passes the handles of the plot line objects

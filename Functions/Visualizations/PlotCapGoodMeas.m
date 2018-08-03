@@ -83,7 +83,8 @@ end
 if ~isfield(params, 'mode')  ||  isempty(params.mode)
     params.mode = 'good';
 end
-if ~isfield(info, 'MEAS')  ||  (isfield(info, 'MEAS')  &&  ~istablevar(info.MEAS, 'GI'))
+if ~isfield(info, 'MEAS')  ||  (isfield(info, 'MEAS')  && ...
+        ~istablevar(info.MEAS, 'GI'))
     GM = ones(Nm, 1);
 else
     GM = info.MEAS.GI;
@@ -127,7 +128,7 @@ switch params.dimension
         end
 end
 switch params.mode
-    case 'good'
+    case {'good','both'}
         modeGM = GM;
         SDLineColor = 'g';
         l_Thickness = 0.5 * ones(numel(lvar), 1);
@@ -139,7 +140,8 @@ end
 % Keep this here, needs fig size from above, and need to spawn figure for
 % plotting lines onto.
 if ~isfield(params, 'fig_handle')  ||  isempty(params.fig_handle)
-    params.fig_handle = figure('Color', BkgdColor, 'Position', params.fig_size);
+    params.fig_handle = figure('Color', BkgdColor, ...
+        'Position', params.fig_size);
     new_fig = 1;
 else
     switch params.fig_handle.Type
@@ -154,15 +156,28 @@ end
 hold on
 params2 = params; params2.mode = 'text';
 SrcRGB = repmat(SMarkerColor, Ns, 1); DetRGB = repmat(DMarkerColor, Nd, 1);
-PlotCapData(SrcRGB, DetRGB, info, params2)
+switch params.mode
+    case {'good','bad'}
+        PlotCapData(SrcRGB, DetRGB, info, params2);
+        tcell{1} = [upper(params.mode(1)), params.mode(2:end), ' Measurements'];
+        tcell{end+1} = '';
+        
+    case {'both'}
+        tcell{1} = ['Both Good and Bad Measurements'];
+        tcell{end+1} = '';
+        params.mode='bad';
+        PlotCapGoodMeas(info, params);
+end
 
 %% Plot GM Lines.
 for l = lvar
     % Ignore WLs.
     switch use_NNx_RxD
         case 'RxD'
-            keep_NNx_RxD = (info.pairs.(['r', lower(params.dimension)]) >= params.rlimits(l, 1))...
-                &  (info.pairs.(['r', lower(params.dimension)]) <= params.rlimits(l, 2));
+            keep_NNx_RxD = (info.pairs.(['r', lower(params.dimension)]) >= ...
+                params.rlimits(l, 1))...
+                &  (info.pairs.(['r', lower(params.dimension)]) <= ...
+                params.rlimits(l, 2));
         case 'NNx'
             keep_NNx_RxD = info.pairs.NN == l;
         case 'all'
@@ -197,7 +212,8 @@ end
 % number of unique Det/Src for each Src/Det's GMs.
 switch use_NNx_RxD
     case {'RxD', 'all'}
-        keep_NNx_RxD = info.pairs.(['r', lower(params.dimension)]) <= thr_NNx_RxD;
+        keep_NNx_RxD = info.pairs.(['r', lower(params.dimension)]) <= ...
+            thr_NNx_RxD;
     case 'NNx'
         keep_NNx_RxD = info.pairs.NN <= thr_NNx_RxD;
 end
@@ -206,7 +222,8 @@ for s = 1:Ns
     N_GM_Src = numel(unique(info.pairs.Det(keep)));
     
     % Total number of meas's for this Src.
-    tot_Srcs = numel(unique(info.pairs.Det((info.pairs.Src == s)  &  keep_NNx_RxD)));
+    tot_Srcs = numel(unique(info.pairs.Det((info.pairs.Src == s)  & ...
+        keep_NNx_RxD)));
     if (N_GM_Src / tot_Srcs) < (1 - thr)
         switch params.dimension
             case '2D'
@@ -222,7 +239,8 @@ for d = 1:Nd
     keep = (info.pairs.Det == d)  &  keep_NNx_RxD  &  GM;
     N_GM_Det = numel(unique(info.pairs.Src(keep)));
     
-    tot_Dets = numel(unique(info.pairs.Src((info.pairs.Det == d)  &  keep_NNx_RxD)));
+    tot_Dets = numel(unique(info.pairs.Src((info.pairs.Det == d)  & ...
+        keep_NNx_RxD)));
     if (N_GM_Det / tot_Dets) < (1 - thr)
         switch params.dimension
             case '2D'
@@ -236,8 +254,8 @@ for d = 1:Nd
 end
 
 %% Add Title
-tcell{1} = [upper(params.mode(1)), params.mode(2:end), ' Measurements'];
-tcell{end+1} = '';
+% tcell{1} = [upper(params.mode(1)), params.mode(2:end), ' Measurements'];
+% tcell{end+1} = '';
 for l = lvar
     tcell{end} = [tcell{end}, num2str(N_GMs(l)), '/', num2str(N_Tots(l)),...
         ' (', num2str(100 * (N_GMs(l) / N_Tots(l)), '%2.0f'), '%) '];
@@ -253,12 +271,14 @@ for l = lvar
         tcell{end} = [tcell{end}, ', '];
     end
 end
-tcell{end+1} = [num2str(N_bad_SD), ' Srcs or Dets have >', num2str(100 * thr), '% of Bad Measurements'];
+tcell{end+1} = [num2str(N_bad_SD), ' Srcs or Dets have >', ...
+    num2str(100 * thr), '% of Bad Measurements'];
 switch use_NNx_RxD
     case 'NNx'
         tcell{end} = [tcell{end}, ' \leq NN', num2str(thr_NNx_RxD)];
     case 'RxD'
-        tcell{end} = [tcell{end}, ', r', lower(params.dimension), ' \leq ', num2str(thr_NNx_RxD)];
+        tcell{end} = [tcell{end}, ', r', lower(params.dimension), ...
+            ' \leq ', num2str(thr_NNx_RxD)];
 end
 
 title(tcell, 'Color', LineColor, 'FontSize', 11)

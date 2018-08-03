@@ -113,7 +113,8 @@ end
 if ~isfield(params, 'useGM')  ||  isempty(params.useGM)
     params.useGM = 0;
 end
-if ~params.useGM  ||  ~isfield(info, 'MEAS')  ||  (isfield(info, 'MEAS')  &&  ~istablevar(info.MEAS, 'GI'))
+if ~params.useGM  ||  ~isfield(info, 'MEAS')  ||  ...
+        (isfield(info, 'MEAS')  &&  ~istablevar(info.MEAS, 'GI'))
     GM = ones(Nm, 1);
 else
     GM = info.MEAS.GI;

@@ -42,7 +42,9 @@ lp2data = lowpass(SSRdata, 0.5, info.system.framerate);
 [rdata, info] = resample_tts(lp2data, info, 1, 1e-5);
 
 %% Block Averaging
-badata = BlockAverage(rdata, info, 2);
+badata = BlockAverage(rdata, info.paradigm.synchpts(info.paradigm.Pulse_2), 30);
+
+% badata = BlockAverage(rdata, info, 2);
 % badata = BlockAverage(rdata, info, 2, 34);
 
 preprocessed = badata;

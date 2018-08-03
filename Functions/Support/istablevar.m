@@ -45,7 +45,11 @@ function tf = istablevar(table, varname)
 % 
 %       ans =
 %           1
-% 
+%   Because structures are indexed like tables, if the input is a structure 
+%   and not a table, the function will return true if the variable names
+%   are fields in the structure of table.
+%
+%
 % See Also: IS*, ISFIELD.
 % 
 % Copyright (c) 2017 Washington University 
@@ -75,7 +79,10 @@ function tf = istablevar(table, varname)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 if ~istable(table)
-    error('Input "table" is not a table.')
+    if isstruct (table)
+        tf=isfield(table,varname);
+        return
+    end
 end
 
 if ~ischar(varname)  &&  ~iscellstr(varname)

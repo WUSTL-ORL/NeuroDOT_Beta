@@ -13,9 +13,16 @@
 % addpath(genpath(installpath))
 
 %% PREPROCESSING PIPELINE
+
 %% S-D Measurements
 clear; close all; clc
-load('Data/NeuroDOT_Base_HW_Sample_1.mat')
+load('Data/NeuroDOT_Base_HW_Sample_1.mat'); % data, info, flags
+
+
+%% General data QC with synchpts if present
+Plot_RawData_Time_Traces_Overview(data,info);   % Time traces
+Plot_RawData_Cap_DQC(data,info);                % Cap-relevant views
+Plot_RawData_Metrics_I_DQC(data,info)
 
 %% Logmean Light Levels
 lmdata = logmean(data);

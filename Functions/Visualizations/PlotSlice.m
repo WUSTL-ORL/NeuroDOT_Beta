@@ -122,9 +122,7 @@ else
             set(gcf, 'CurrentAxes', params.fig_handle);
     end
 end
-if ~isfield(params, 'CH')  ||  isempty(params.CH)
-    params.CH = 1;
-end
+
 if ~isfield(params, 'cbmode')  ||  isempty(params.cbmode)
     params.cbmode = 0;
 end
@@ -337,7 +335,7 @@ if  yflip(a)
 end
 
 % Add a colorbar.
-colormap(CMAP)
+colormap(gca,CMAP)
 h2 = colorbar('Color', LineColor);
 if params.cbmode
     set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);

@@ -37,6 +37,9 @@ function iA = Tikhonov_invert_Amat(A, lambda1, lambda2)
 
 
 %% Parameters and Initialization.
+if ~isreal(A)                   % If complex A, sep into [Re;Im] first
+    A=cat(1,real(A),imag(A));
+end
 [Nm, Nvox] = size(A);
 if exist('lambda2','var')
     svr=1;
