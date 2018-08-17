@@ -45,11 +45,11 @@ disp('>Finding Mesh to Voxel Converstion')
 [t,p] = tsearchn(mesh.nodes,mesh.elements,reshape(vox,[],3));
 
 disp('>Interpolating Greens Functions')
-Gs=voxel(Gs,t,p,mesh.elements,dim);
-Gd=voxel(Gd,t,p,mesh.elements,dim);
+Gs=voxel(Gs,t,p,mesh.elements);
+Gd=voxel(Gd,t,p,mesh.elements);
 
 disp('>Interpolating Optical Properties')
-dc=voxel(dc,t,p,mesh.elements,dim);
+dc=voxel(dc,t,p,mesh.elements);
 
 
 %% Create dim.Good_Vox
@@ -62,7 +62,7 @@ end
 disp('Saving Voxellated Green''s Functions')
 save(['GFunc_',flags.tag,'_VOX.mat'],'Gs','Gd','dim','flags',...
     't','p','dc','vox','-v7.3')
-clear vox p t
+clear vox p t mesh
 
 
 %% Create A-matrix

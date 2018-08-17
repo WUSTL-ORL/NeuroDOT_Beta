@@ -67,6 +67,8 @@ end
 if isstruct(param)
     if isfield(param,'r0')
 mesh.region(mesh.region==0)=param.r0; 
+    else
+mesh.region(mesh.region==0)=5; 
     end
 else
 mesh.region(mesh.region==0)=1; 

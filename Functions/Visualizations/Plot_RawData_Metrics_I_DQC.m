@@ -38,7 +38,7 @@ function Plot_RawData_Metrics_I_DQC(data,info,params)
 if ~exist('params','var'), params=struct;end
 if ~isfield(params,'bthresh'),params.bthresh=0.075;end
 if ~isfield(params,'rlimits')
-    params.rlimits=[10,20;21,35;36,43];
+    params.rlimits=[1,20;21,35;36,43];
 elseif size(params.rlimits,1)==1
     params.rlimits=cat(1,params.rlimits,[21,35;36,43]);
 elseif size(params.rlimits,1)==2

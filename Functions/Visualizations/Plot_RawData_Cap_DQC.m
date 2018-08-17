@@ -37,14 +37,14 @@ function Plot_RawData_Cap_DQC(data,info,params)
 if ~exist('params','var'), params=struct;end
 if ~isfield(params,'bthresh'),params.bthresh=0.075;end
 if ~isfield(params,'rlimits')
-    params.rlimits=[10,20;21,35;36,43];
+    params.rlimits=[1,20;21,35;36,43];
 elseif size(params.rlimits,1)==1
     params.rlimits=cat(1,params.rlimits,[21,35;36,43]);
 elseif size(params.rlimits,1)==2
     params.rlimits=cat(1,params.rlimits,[36,43]);
 end
 Rlimits=params.rlimits;
-if ~isfield(params, 'mode'),params.mode = 'both';end
+if ~isfield(params, 'mode'),params.mode = 'good';end
 
 params.fig_handle=figure('Units','Normalized',...
     'Position',[0.1,0.1,0.75,0.8],'Color','k');

@@ -189,16 +189,16 @@ for k = params.Nwls
        Ny_fix=size(l_img,1)-size(WL_img,1);
            switch sign(Ny_fix)
                case 1
-                   WL_img=cat(1,WL_img,zeros(Ny_fix,size(WL_img,2)));
+                   WL_img=cat(1,WL_img,zeros(NY_fix,size(WL_img,2)));
                case -1
-                   l_img=cat(1,l_img,zeros(abs(Ny_fix),size(l_img,2)));                   
+                   WL_img=cat(1,WL_img,zeros(NY_fix,size(WL_img,2)));                   
            end
     end
-    WL_img = [WL_img, params.climits(1)*ones(size(WL_img, 1),xspacing),...
-          l_img];
+    WL_img = [WL_img, params.climits(1) * ones(size(l_img, 1)...
+        - yspacing, xspacing), l_img(yspacing + 1:end, :)];
     xs(end+1, :) = size(WL_img);
 end
-final_img = WL_img(:, (xspacing + 1):end);
+final_img = WL_img(:, xspacing + 1:end);
 
 if ~isempty(final_img)  &&  (nnz(final_img) > 0)
     PlotGrayData(final_img, params)%, pulse)
@@ -226,11 +226,12 @@ axis tight
 colorbar(gca, 'Color', LineColor)
 
 %% Labels.
+tcell{1} = 'Gray Plot';
 if strcmp(use_NNx_RxD, 'all')
-    tcell{1} = ['All r', lower(params.dimension)];
+    tcell{1} = [tcell{1}, ', All r', lower(params.dimension), ' and NN'];
 end
 if params.useGM
-    tcell{1} = ['GM'];
+    tcell{1} = [tcell{1}, ', GM'];
 end
 tcell{end+1} = '';
 title(tcell, 'Color', LineColor)
@@ -241,23 +242,23 @@ xlabel('Time (data points)')
 a = gca;
 ys(:, 2) = [];
 ys = unique(ys);
-a.YTick = [];%mean([ys, [0; ys(1:end - 1) + yspacing]], 2);
-% switch use_NNx_RxD
-%     case 'NNx'
-%         a.YTickLabel = cellstr(num2str(params.Nnns(:), '\\bf NN%d\r'));
-%     case 'RxD'
-%         a.YTickLabel = cellstr(num2str(params.rlimits,...
-%             ['\\bf %d \\leq r', lower(params.dimension), ' \\leq %d\r']));
-%         a.YTickLabelRotation = 90;
-%     case 'both'
-%         a.YTickLabel = cellstr([num2str(params.rlimits,...
-%             ['\\bf %d \\leq r', lower(params.dimension), ' \\leq %d\r']),...
-%             repmat(', ', lvar(end), 1), num2str(params.Nnns(:), 'NN%d\r')]);
-%         a.YTickLabelRotation = 90;
-%     case 'all'
-%         a.YTickLabel = 'All r and NN';
-%         a.YTickLabelRotation = 90;
-% end
+a.YTick = mean([ys, [0; ys(1:end - 1) + yspacing]], 2);
+switch use_NNx_RxD
+    case 'NNx'
+        a.YTickLabel = cellstr(num2str(params.Nnns(:), '\\bf NN%d\r'));
+    case 'RxD'
+        a.YTickLabel = cellstr(num2str(params.rlimits,...
+            ['\\bf %d \\leq r', lower(params.dimension), ' \\leq %d\r']));
+        a.YTickLabelRotation = 90;
+    case 'both'
+        a.YTickLabel = cellstr([num2str(params.rlimits,...
+            ['\\bf %d \\leq r', lower(params.dimension), ' \\leq %d\r']),...
+            repmat(', ', lvar(end), 1), num2str(params.Nnns(:), 'NN%d\r')]);
+        a.YTickLabelRotation = 90;
+    case 'all'
+        a.YTickLabel = 'All r and NN';
+        a.YTickLabelRotation = 90;
+end
 
 xs(:, 1) = [];
 xs = mean([xs - xspacing, [0; xs(1:end-1)]], 2);

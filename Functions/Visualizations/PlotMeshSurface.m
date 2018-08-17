@@ -148,7 +148,7 @@ if ~isfield(m,'data')       % NO DATA
     else                      % data are regions               
         params.PD=1;
         params.TC=1;
-        params.DR=max(m.region(:));
+        params.DR=max(m.region(:))+1;
         tempCmap=params.Cmap.P;
         params.Cmap.P=eval([tempCmap, '(', num2str(params.DR), ');']);
         cb=1;

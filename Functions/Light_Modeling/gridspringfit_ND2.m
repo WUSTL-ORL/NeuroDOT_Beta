@@ -29,6 +29,8 @@ function tpos=gridspringfit_ND2(mesh,rad,spos3,dpos3,anchorpts,anchor)
 %
 
 %% Set Parameters
+if ~exist('anchorpts','var'),anchorpts=[];end
+if ~exist('anchor','var'),anchor=[];end
 k.h=1;          % Head Spring constant
 k.a=1.5;        % Anchor Spring constant
 k.nn=1.5; %1;         % Nearest Neighbor Spring constant

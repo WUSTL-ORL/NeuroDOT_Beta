@@ -131,16 +131,22 @@ switch flags.Nsys
         
         % %% Check data measurement number compared to info file
         if size(data,1)~=size(info.pairs,1)
-            InfoList=unique([info.pairs.Src,info.pairs.Det],'rows','stable');            
+            InfoList=unique([info.pairs.Src,info.pairs.Det],'rows','stable');
+            
             Nd=size(info.optodes.dpos3,1);
             Ns=size(info.optodes.spos3,1);
             Dlist=[];
-            for j=1:Nd
-                Dlist=cat(1,Dlist,[(1:Ns)',repmat(j,[Ns,1])]);
+            for j=1:info.io.Nd
+                Dlist=cat(1,Dlist,[(1:info.io.Ns)',repmat(j,[info.io.Ns,1])]);
             end
             [Ia,Ib]=ismember(Dlist,InfoList,'rows');Ib(Ib==0)=[];
+            
+            data=reshape(data,info.io.Ns*info.io.Nd, info.io.Nwl, info.io.Nt);
             data=data(Ia,:,:);
+            data = reshape(data, [], info.io.Nt);
         end
+
+        
         data = reshape(data, [], L);
         
     case 3

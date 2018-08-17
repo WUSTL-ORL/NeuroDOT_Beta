@@ -42,10 +42,25 @@ function info_out = FindGoodMeas(data, info_in, bthresh)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %% Parameters and Initialization.
-info_out = info_in;
+if ~exist('info_in','var')
+    info_out=struct;
+else
+    info_out = info_in;
+end
+
+if ~isfield(info_out,'paradigm'),info_out.paradigm=struct;end
 
 if ~exist('bthresh', 'var')
     bthresh = 0.075; % Empirically derived threshold value.
+end
+dims = size(data);
+Nt = dims(end); % Assumes time is always the last dimension.
+NDtf = (ndims(data) > 2);
+
+
+%% N-D Input.
+if NDtf
+    data = reshape(data, [], Nt);
 end
 
 %% Crop data to synchpts if necessary.

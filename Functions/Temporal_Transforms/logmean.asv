@@ -8,14 +8,19 @@ function data_out = logmean(data_in)
 %   in the same MEAS x TIME format.
 %
 %   The formal equation for the LOGMEAN operation is:
-%        y_{out} = -log(y_{in} / <y_{in}>)
+%        Y_{out} = -log(phi_{in} / <phi_{in}>)
 %
-%   If the data is complex (as in the frequency domain case), Y is
-%   converted into amplitude and phase for the Rytov approximation:
-%       Y_amp=abs(y_{in});
-%       Y_phase=angle(y_{in});
-%       <Y_amp>=abs(mean(y_{in}));
-%       <Y_phase>=angle(mean(y_{in}));
+%   If the raw optical data phi is complex (as in the frequency domain 
+%   case), Y behaves a bit differently. Phi can be defined in terms of Real
+%   and Imaginary parts: Phi = Re(Phi) + 1i.*Im(Phi), or in terms of it's
+%   magnitude (A) and phase (theta): Phi = A.*exp(1i.*theta).
+%   The temporal average of Phi (what we use for baseline) is best
+%   calculated on the Real/Imaginary decription: 
+%       <phi>=mean(data_in,2) = A_o*exp(i*(th_o));
+%   Taking the logarithm of complex ratio:
+%
+%       Y_Rytov=-log(phi/<phi>)=-log[A*exp(i*th)/A_o*exp(i*th_o)]
+%                              =-log(A
 %
 %       Y_Rytov_amp=-log(Y_amp / <Y_amp>);
 %       Y_Rytov_phase=-(Y_phase - <Y_phase>);
@@ -73,8 +78,8 @@ else
     Y_amp0=abs(mean(data_in,2));
     Y_ph0=angle(mean(data_in,2));
     
-    Y_Ry_amp=-log(bsxfun(@rdivide, abs(data), Y_amp0));
-    Y_Ry_ph=-(bsxfun(@minus, Y_ph, Y_ph0));
+    Y_Ry_amp=-log(bsxfun(@rdivide, abs(data_in), Y_amp0));
+    Y_Ry_ph=-(bsxfun(@minus, angle(data_in), Y_ph0));
     
     data_out=Y_Ry_amp.*exp(1i.*Y_Ry_ph);
 end

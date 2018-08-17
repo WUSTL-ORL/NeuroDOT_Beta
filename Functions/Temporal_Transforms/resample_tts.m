@@ -97,8 +97,10 @@ correction = bsxfun(@plus, alpha_full, beta);
 data_out = rawresamp - correction;
 
 %% Fix synch pts to new framerate.
+if isfield(info_in,'paradigm')
 info_out.paradigm.synchpts = round(N .* info_out.paradigm.synchpts ./ D);
 info_out.paradigm.synchpts(info_out.paradigm.synchpts == 0) = 1;
+end
 
 %% N-D Output.
 if NDtf

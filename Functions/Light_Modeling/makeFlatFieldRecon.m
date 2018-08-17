@@ -1,8 +1,5 @@
-function Mout=voxel(M,t,p,elements)
+function [Asens]=makeFlatFieldRecon(A,iA)
 
-% Voxelate data (M) based on a node space (described by t,p,elements) into
-% a space defined by dim.
-%
 % 
 % Copyright (c) 2017 Washington University 
 % Created By: Adam T. Eggebrecht
@@ -30,25 +27,13 @@ function Mout=voxel(M,t,p,elements)
 % IN BREACH OF CONTRACT, TORT OR OTHERWISE, EVEN IF SUCH PARTY IS 
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
-%% Initialize and prepare
-dims = size(M);
-M2=reshape(M,[],dims(end));
-Nm=size(M2,1);
-Nvox=size(t,1);
-Mout=zeros(Nm,Nvox); % Noptodes*Ncolors, Nvox
 
-%% Voxellate only for voxels that actually contain nodes of the mesh
-keep=~isnan(t);
-Nkeep=sum(keep);
-elementList=elements(t(keep),:);
+%% Flat Field Perturbation
+ff=ones(size(A,2),1);
 
-% Interpolate
-for n=1:Nm                                % For each measurement
-    Jam = zeros(Nkeep,4);
-    for j = 1:Nkeep                         % For each good voxel
-        Jam(j,:) = M2(n,elementList(j,:));
-    end
-    Mout(n,keep) = sum(p(keep,:).*Jam,2);
-end
+%% Simulated Measurements
+ysim=A*ff;
 
-Mout=reshape(Mout,[dims(1:(end-1)),Nvox]);
+%% Flat Field Reconstruction
+Asens=iA*ysim;
+

@@ -92,8 +92,6 @@ for pairs = [temp{1}'; temp{2}']
             for j=MarkIdx:maxIdx
                 msg=strcat(msg,temp{1,1}(j),'_',temp{1,2}(j),'_');
             end
-            io.(lower(key)) =msg;
-            return
         otherwise
             if ~any(isstrprop(val, 'alpha')) % Keep values with letters as strings
                 val2 = str2double(val);

@@ -8,19 +8,29 @@ function data_out = logmean(data_in)
 %   in the same MEAS x TIME format.
 %
 %   The formal equation for the LOGMEAN operation is:
-%        y_{out} = -log(y_{in} / <y_{in}>)
+%        Y_{out} = -log(phi_{in} / <phi_{in}>)
 %
-%   If the data is complex (as in the frequency domain case), Y is
-%   converted into amplitude and phase for the Rytov approximation:
-%       Y_amp=abs(y_{in});
-%       Y_phase=angle(y_{in});
-%       <Y_amp>=abs(mean(y_{in}));
-%       <Y_phase>=angle(mean(y_{in}));
+%   If the raw optical data phi is complex (as in the frequency domain 
+%   case), Y behaves a bit differently. Phi can be defined in terms of Real
+%   and Imaginary parts: Phi = Re(Phi) + 1i.*Im(Phi), or in terms of it's
+%   magnitude (A) and phase (theta): Phi = A.*exp(1i.*theta).
+%   The temporal average of Phi (what we use for baseline) is best
+%   calculated on the Real/Imaginary decription: 
 %
-%       Y_Rytov_amp=-log(Y_amp / <Y_amp>);
-%       Y_Rytov_phase=-(Y_phase - <Y_phase>);
+%       Phi_o=<phi>=mean(data_in,2) = A_o*exp(i*(th_o));
 %
-%       y_{out} = Y_Rytov_amp .* exp(i.*Y_Rytov_phase);
+%   Taking the logarithm of complex ratio:
+%
+%       Y_Rytov=-log(phi/<phi>)=-log[A*exp(i*th)/A_o*exp(i*th_o)]
+%                              =-[log(A/A_o) + i(th-th_o)];
+%
+%       Y_Rytov_Re=-log(abs(data_in/Phi_o));
+%       Y_Rytov_Im=-angle(data_in/Phi_o);
+%
+%   Though this looks like 1 complex number, these components of Y should
+%   not mix, so the imaginary component will be tacked onto the end of the
+%   measurement list to keep them separate.
+%
 %
 %   Example: If data = [1, 10, 100; exp(1), 10*exp(1), 100*exp(1)];
 %
@@ -67,21 +77,22 @@ if NDtf
 end
 
 %% Perform Logmean.
+Phi_o=mean(data_in, 2);
+X=bsxfun(@rdivide, data_in, Phi_o);
+
 if ~isZ % All Real
-    data_out = -log(bsxfun(@rdivide, data_in, mean(data_in, 2)));
+    data_out = -log(X);
 else
-    Y_amp0=abs(mean(data_in,2));
-    Y_ph0=angle(mean(data_in,2));
+    Y_Rytov_Re=-log(abs(X));
+    Y_Rytov_Im=-angle(X);
     
-    Y_Ry_amp=-log(bsxfun(@rdivide, abs(data_in), Y_amp0));
-    Y_Ry_ph=-(bsxfun(@minus, angle(data_in), Y_ph0));
-    
-    data_out=Y_Ry_amp.*exp(1i.*Y_Ry_ph);
+    data_out=cat(1,Y_Rytov_Re,Y_Rytov_Im);
+    dims(1)=2*dims(1);
 end
 
 %% N-D Output.
 if NDtf
-    data_out = reshape(data_out, dims);
+    data_out = reshape(data_out,dims);
 end
 
 

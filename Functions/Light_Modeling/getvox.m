@@ -36,6 +36,7 @@ if ~isfield(flags,'voxmm'),flags.voxmm=1;end
 if ~isfield(flags.info,'nVx'),flags.info.nVx=102;end
 if ~isfield(flags.info,'nVy'),flags.info.nVy=145;end
 if ~isfield(flags.info,'nVz'),flags.info.nVz=58;end
+if ~isfield(flags.info,'acq'),flags.info.acq='sagittal';end
 if ~isfield(flags.info,'center'),flags.info.center=[50,-73,-80];end
 if ~isfield(flags.info,'mmppix'),flags.info.mmppix=[1,-1,-1];end
 
@@ -74,9 +75,33 @@ zmax=zmax-1;
 dim=struct('xmin',xmin,'xmax',xmax,...
     'ymin',ymin,'ymax',ymax,'zmin',zmin,'zmax',zmax);
 
+switch sign(min(nodes(:)))
+    case -1 % coordinate based mesh nodes
+% Have to flip x bc coord (mesh) vs indexing (vox) conventions.
+dim.xv=dim.xmax:(-flags.voxmm):dim.xmin;
+dim.yv=dim.ymin:flags.voxmm:dim.ymax;
+dim.zv=dim.zmin:flags.voxmm:dim.zmax;
+
+MPR111 = change_space_coords(...
+    [flags.info.nVx,flags.info.nVy,flags.info.nVz], ...
+    flags.info,'coord');
+dim111=[dim.xv(end),dim.yv(end),dim.zv(end)];
+dr=(MPR111-dim111);
+dim.center=flags.info.center+dr;
+
+
+    case 1 % index based mesh nodes
 dim.xv=dim.xmin:flags.voxmm:dim.xmax;
 dim.yv=dim.ymin:flags.voxmm:dim.ymax;
 dim.zv=dim.zmin:flags.voxmm:dim.zmax;
+
+MPRsize=[flags.info.nVx,flags.info.nVy,flags.info.nVz];
+centerMPR=flags.info.center;
+dr=[MPRsize(1)-(dim.xmax+1),MPRsize(2)-(dim.ymax+1),...
+    MPRsize(3)-(dim.zmax+1)];
+dim.center=centerMPR-(dr.*flags.info.mmppix);
+
+end
 
 dim.nVx=numel(dim.xv);
 dim.nVy=numel(dim.yv);
@@ -84,14 +109,9 @@ dim.nVz=numel(dim.zv);
 dim.nVt=dim.nVx*dim.nVy*dim.nVz;
 
 dim.sV=flags.voxmm;
-
+dim.acq=flags.info.acq;
 dim.mmppix=[flags.voxmm,-flags.voxmm,-flags.voxmm];
-MPRsize=[flags.info.nVx,flags.info.nVy,flags.info.nVz];
-centerMPR=flags.info.center;
-dim.mmppix=flags.voxmm.*flags.info.mmppix;
-dr=[MPRsize(1)-(dim.xmax+1),MPRsize(2)-(dim.ymax+1),...
-    MPRsize(3)-(dim.zmax+1)];
-dim.center=centerMPR-(dr.*flags.info.mmppix);
+
 
 
 %% Construct vox

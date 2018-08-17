@@ -48,7 +48,8 @@ info_out = [];
 switch conversion
     case 'ND1 to ND2'
         %% Build "info.paradigm".
-        WANTparadigm = {'synchpts', 'synchtype', 'Pulse_1', 'Pulse_2', 'Pulse_3', 'Pulse_4'};
+        WANTparadigm = {'synchpts', 'synchtype', 'Pulse_1', 'Pulse_2',...
+            'Pulse_3', 'Pulse_4'};
         NEWparadigm = WANTparadigm;
         for str = [WANTparadigm; NEWparadigm]
             tf = strcmp(str{1}, inames);
@@ -57,7 +58,8 @@ switch conversion
                 inames(tf) = [];
             end
         end
-        if isfield(info_out, 'paradigm')  &&  isfield(info_out.paradigm, 'synchpts')
+        if isfield(info_out, 'paradigm')  &&  isfield(info_out.paradigm,...
+                'synchpts')
             info_out.paradigm.init_synchpts = info_out.paradigm.synchpts;
         end
         
@@ -100,7 +102,7 @@ switch conversion
         tf = strcmp(rname, inames);
         if ~any(tf)
             tf = strcmp('Rad', inames);
-            rname = 'Rad;'
+            rname = 'Rad';
         end
         if any(tf)
             WANTirad = {'meas', 'nn1', 'nn2', 'nn3', 'nn4', 'nn5'};
@@ -122,8 +124,8 @@ switch conversion
                 end
                 info_out.pairs = [info_out.pairs; info_out.pairs];
                 
-                % This section assumes WLs of 750 and 850, and a continuous wave modulation
-                % scheme. Can be changed if necessary.
+                % This section assumes WLs of 750 and 850, and a continuous 
+                % wave modulation scheme. Can be changed if necessary.
                 info_out.pairs.WL(1:Nm, 1) = 1;
                 info_out.pairs.WL(Nm+1:Nm*2, 1) = 2;
                 info_out.pairs.lambda(1:Nm, 1) = wl1_default;
@@ -136,8 +138,8 @@ switch conversion
                         if isfield(info_out.optodes, ['spos', dd])...
                                 &&  isfield(info_out.optodes, ['dpos', dd])
                             info_out.pairs.(['r', dd, 'd'])(k) =...
-                                norm(info_out.optodes.(['spos', dd])(info_out.pairs.Src(k))...
-                                - info_out.optodes.(['dpos', dd])(info_out.pairs.Det(k)));
+                                norm([info_out.optodes.(['spos', dd])(info_out.pairs.Src(k),:)-...
+                                 info_out.optodes.(['dpos', dd])(info_out.pairs.Det(k),:)]);
                         end
                     end
                 end

@@ -62,6 +62,8 @@ end
 
 %% Average blocks and return.
 data_out = mean(blocks, 3);
+data_out = bsxfun(@minus,data_out,mean(data_out,2));
+
 
 %% N-D Output.
 if NDtf
