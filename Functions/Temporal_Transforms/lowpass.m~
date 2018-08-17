@@ -1,15 +1,15 @@
-function data_out = highpass(data_in, omegaHz, frate)
+function data_out = lowpass(data_in, omegaHz, frate)
 
-% HIGHPASS Applies a zero-phase digital highpass filter.
+% LOWPASS Applies a zero-phase digital lowpass filter.
 %
-%   data_out = HIGHPASS(data_in, omegaHz, frate) takes a light-level array
+%   data_out = LOWPASS(data_in, omegaHz, frate) takes a light-level array
 %   "data_in" in the MEAS x TIME format and applies to it a
-%   forward-backward zero-phase digital highpass filter at a Nyquist cutoff
+%   forward-backward zero-phase digital lowpass filter at a Nyquist cutoff
 %   frequency of "omegaHz * (2 * frate)", returning it as "data_out".
 % 
 %   This function also removes the linear component of the input data.
 %
-% See Also: LOWPASS, LOGMEAN, FILTFILT.
+% See Also: HIGHPASS, LOGMEAN, FILTFILT.
 % 
 % Copyright (c) 2017 Washington University 
 % Created By: Adam T. Eggebrecht
@@ -53,24 +53,34 @@ Nm=size(data_in,1);
 
 %% Calculate Nyquist frequency and build filter.
 omegaNy = omegaHz * (2 / frate);
-[b, a] = butter(poles, omegaNy, 'high');
+[b, a] = butter(poles, omegaNy, 'low');
 
 %% Detrend.
 data_in=bsxfun(@minus,data_in,mean(data_in,2)); % remove mean
-d0 = data_in(:, 1); % start point
-dF = data_in(:, Nt); % end point
-beta = -d0;
-
-alpha = (d0 - dF) ./ (Nt - 1); % slope for linear fit
-alpha_full = bsxfun(@times, [0:(Nt - 1)], alpha);
-correction = bsxfun(@plus, alpha_full, beta); % correction for linear
-data_in = data_in + correction;
+% d0 = data_in(:, 1); % start point
+% dF = data_in(:, Nt); % end point
+% beta = -d0;
+% 
+% alpha = (d0 - dF) ./ (Nt - 1); % slope for linear fit
+% alpha_full = bsxfun(@times, [0:(Nt - 1)], alpha);
+% correction = bsxfun(@plus, alpha_full, beta); % correction for linear
+% data_in = data_in + correction;
 data_in=cat(2,zeros(Nm,Npad),data_in,zeros(Nm,Npad));
 
 %% Forward-backward filter data for each measurement.
 data_out = filtfilt(b, a, data_in')';
 data_out=data_out(:,(Npad+1):(end-Npad));
-data_out=bsxfun(@minus,data_out,mean(data_out,2)); % remove mean
+%% Detrend.
+data_in=bsxfun(@minus,data_in,mean(data_in,2)); % remove mean
+% d0 = data_in(:, 1); % start point
+% dF = data_in(:, Nt); % end point
+% beta = -d0;
+% 
+% alpha = (d0 - dF) ./ (Nt - 1); % slope for linear fit
+% alpha_full = bsxfun(@times, [0:(Nt - 1)], alpha);
+% correction = bsxfun(@plus, alpha_full, beta); % correction for linear
+% data_in = data_in + correction;
+data_in=cat(2,zeros(Nm,Npad),data_in,zeros(Nm,Npad));
 
 %% N-D Output.
 if NDtf

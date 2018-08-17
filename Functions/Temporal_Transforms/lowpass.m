@@ -39,6 +39,7 @@ function data_out = lowpass(data_in, omegaHz, frate)
 
 %% Parameters and Initialization.
 poles = 5;
+Npad=10000;
 
 dims = size(data_in);
 Nt = dims(end); % Assumes time is always the last dimension.
@@ -48,23 +49,39 @@ NDtf = (ndims(data_in) > 2);
 if NDtf
     data_in = reshape(data_in, [], Nt);
 end
+Nm=size(data_in,1);
 
 %% Calculate Nyquist frequency and build filter.
 omegaNy = omegaHz * (2 / frate);
 [b, a] = butter(poles, omegaNy, 'low');
 
 %% Detrend.
-d0 = data_in(:, 1); % start point
-dF = data_in(:, Nt); % end point
-beta = -d0;
-
-alpha = (d0 - dF) ./ (Nt - 1); % slope for linear fit
-alpha_full = bsxfun(@times, [0:(Nt - 1)], alpha);
-correction = bsxfun(@plus, alpha_full, beta); % correction for linear
-data_in = data_in + correction;
+data_in=bsxfun(@minus,data_in,mean(data_in,2)); % remove mean
+% d0 = data_in(:, 1); % start point
+% dF = data_in(:, Nt); % end point
+% beta = -d0;
+% 
+% alpha = (d0 - dF) ./ (Nt - 1); % slope for linear fit
+% alpha_full = bsxfun(@times, [0:(Nt - 1)], alpha);
+% correction = bsxfun(@plus, alpha_full, beta); % correction for linear
+% data_in = data_in + correction;
+data_in=cat(2,zeros(Nm,Npad),data_in,zeros(Nm,Npad));
 
 %% Forward-backward filter data for each measurement.
 data_out = filtfilt(b, a, data_in')';
+data_out=data_out(:,(Npad+1):(end-Npad));
+
+%% Detrend.
+% d0 = data_out(:, 1); % start point
+% dF = data_out(:, Nt); % end point
+% beta = -d0;
+% 
+% alpha = (d0 - dF) ./ (Nt - 1); % slope for linear fit
+% alpha_full = bsxfun(@times, [0:(Nt - 1)], alpha);
+% correction = bsxfun(@plus, alpha_full, beta); % correction for linear
+% data_out = data_out + correction;
+data_out=bsxfun(@minus,data_out,mean(data_out,2)); % remove mean
+
 
 %% N-D Output.
 if NDtf
