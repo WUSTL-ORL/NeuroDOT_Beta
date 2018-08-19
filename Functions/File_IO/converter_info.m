@@ -73,6 +73,9 @@ switch conversion
                 inames(tf) = [];
             end
         end
+        if ~isfield(info_out.system,'framerate')
+            info_out.system.framerate=info_out.system.init_framerate;
+        end
         
         %% Build "info.optodes".
         if isfield(info_in, 'pad')

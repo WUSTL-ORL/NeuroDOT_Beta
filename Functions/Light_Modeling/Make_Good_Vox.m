@@ -44,7 +44,7 @@ voxlevelT=max(squeeze(sum(abs(Gd),1))+squeeze(sum(abs(Gs),1)),[],1); % Max vox G
 %% Find voxels below threshold
 Kill=find(voxlevelT<Vthresh*max(voxlevelT));
 
-dim.Good_Vox=setdiff([1:Nvox],Kill);
+dim.Good_Vox=setdiff([1:Nvox],Kill)';
 Gd=reshape(Gd,Ncol,Nd,Nvox);
 Gs=reshape(Gs,Ncol,Ns,Nvox);
 Gd=Gd(:,:,dim.Good_Vox);
@@ -53,16 +53,6 @@ dc=dc(:,dim.Good_Vox);
 
 clear KillD KillS Kill
 
-%% Include spatial info for Good_Vox for quick refs
+%% Include grid coordinates from mesh
 dim.Ngv=length(dim.Good_Vox);
-[x,y,z]=ind2sub([dim.nVx,dim.nVy,dim.nVz],dim.Good_Vox');
-dim.GVdIdx=[x,y,z];                                 % dim xyz indices
-clear x y z
-
-dim.GVdCoord=change_space_coords(dim.GVdIdx,dim,'coord'); % 3D space coords
 dim.tpos=mesh.source.coord;                         % mesh xyz indices
-
-if strcmp(flags.head,'info')
-dim.tposC=change_space_coords(dim.tpos,flags.info,'coord');     % 3D space coords
-dim.tposDim=change_space_coords(dim.tposC,dim,'idxC');    % dim xyz index space
-end

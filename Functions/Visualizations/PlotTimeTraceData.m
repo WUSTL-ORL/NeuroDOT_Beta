@@ -99,6 +99,7 @@ if NDtf
 end
 
 %% Plot Data.
+if isempty(data),data=zeros(size(time));end
 h = plot(time, data', 'LineWidth', 1); % Plot mean of measurements vs. time.
 
 %% Format Plot.

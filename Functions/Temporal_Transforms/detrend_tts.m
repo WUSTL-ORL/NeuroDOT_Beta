@@ -48,6 +48,9 @@ end
 %% Detrend.
 data_out = detrend(data_in')';
 
+%% Remove mean
+data_out=bsxfun(@minus,data_out,mean(data_out,2)); 
+
 %% N-D Output.
 if NDtf
     data_out = reshape(data_out, dims);

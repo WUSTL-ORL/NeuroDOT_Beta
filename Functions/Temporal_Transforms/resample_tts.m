@@ -55,7 +55,8 @@ NDtf = (ndims(data_in) > 2);
 
 if ~exist('framerate', 'var')  ||  isempty(framerate)
     if isfield(info_in, 'system')  &&  ~isempty(info_in.system)...
-            && isfield(info_in.system, 'framerate')  &&  ~isempty(info_in.system.framerate)
+            && isfield(info_in.system, 'framerate') ...
+            && ~isempty(info_in.system.framerate)
         framerate = info_in.system.framerate;
     end
 end
@@ -98,7 +99,7 @@ data_out = rawresamp - correction;
 
 %% Fix synch pts to new framerate.
 if isfield(info_in,'paradigm')
-info_out.paradigm.synchpts = round(N .* info_out.paradigm.synchpts ./ D);
+info_out.paradigm.synchpts = round(N .* info_out.paradigm.init_synchpts ./ D);
 info_out.paradigm.synchpts(info_out.paradigm.synchpts == 0) = 1;
 end
 

@@ -223,7 +223,9 @@ keep=info.pairs.r3d>=min(params.rlimits(:)) & ...
         info.pairs.r3d<=max(params.rlimits(:)) & ...
         info.MEAS.GI & info.pairs.lambda==max(wls);
 subplot(3,6,[5,6,11,12],'Position',[0.72,0.36,0.25,0.605])
+if sum(keep)
 semilogy([ti:tf]./fr,squeeze(data(keep,ti:tf)))
+end
 set(gca,'XColor','w','YColor','w','Color','k')
 axis([[ti,tf]./fr,1e-1,1e0])
 title(['\Phi(t) ',num2str(wls(2)),' nm, GI: Rsd from ',...

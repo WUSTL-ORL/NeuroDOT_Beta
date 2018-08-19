@@ -37,13 +37,13 @@ function aux = ReadAux(info, filename, pn)
 
 %% Find all files that match in this folder.
 pn_new = pn;
-while ~isletter(pn_new(1))
-    pn_new = pn(2:end);
-end
-
-if isempty(pn_new)
-    pn_new = pn;
-end
+% while ~isletter(pn_new(1))
+%     pn_new = pn(2:end);
+% end
+% 
+% if isempty(pn_new)
+%     pn_new = pn;
+% end
 % pn
 
 temp = what(pn_new); % Strips out the '\'.

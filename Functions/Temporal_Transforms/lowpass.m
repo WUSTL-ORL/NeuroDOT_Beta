@@ -1,4 +1,4 @@
-function data_out = lowpass(data_in, omegaHz, frate)
+function data_out = lowpass(data_in, omegaHz,frate,params)
 
 % LOWPASS Applies a zero-phase digital lowpass filter.
 %
@@ -38,8 +38,13 @@ function data_out = lowpass(data_in, omegaHz, frate)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %% Parameters and Initialization.
-poles = 5;
-Npad=10000;
+if ~exist('params','var'),params=struct;end
+if isfield(params,'poles'),poles=params.poles;else, poles=5;end
+if isfield(params,'pad'),Npad=params.pad;else, Npad=1e2;end
+if isfield(params,'detrend'),DoDetrend=params.detrend;else,DoDetrend=1;end
+if isfield(params,'DoPad'),DoPad=params.DoPad;else,DoPad=1;end
+if ~DoPad, Npad=0;end
+
 
 dims = size(data_in);
 Nt = dims(end); % Assumes time is always the last dimension.
@@ -55,16 +60,15 @@ Nm=size(data_in,1);
 omegaNy = omegaHz * (2 / frate);
 [b, a] = butter(poles, omegaNy, 'low');
 
+%% Remove mean
+data_in=bsxfun(@minus,data_in,mean(data_in,2)); 
+
 %% Detrend.
-data_in=bsxfun(@minus,data_in,mean(data_in,2)); % remove mean
-% d0 = data_in(:, 1); % start point
-% dF = data_in(:, Nt); % end point
-% beta = -d0;
-% 
-% alpha = (d0 - dF) ./ (Nt - 1); % slope for linear fit
-% alpha_full = bsxfun(@times, [0:(Nt - 1)], alpha);
-% correction = bsxfun(@plus, alpha_full, beta); % correction for linear
-% data_in = data_in + correction;
+if DoDetrend
+data_in = detrend(data_in')';
+end
+
+%% Zero pad
 data_in=cat(2,zeros(Nm,Npad),data_in,zeros(Nm,Npad));
 
 %% Forward-backward filter data for each measurement.
@@ -72,16 +76,12 @@ data_out = filtfilt(b, a, data_in')';
 data_out=data_out(:,(Npad+1):(end-Npad));
 
 %% Detrend.
-% d0 = data_out(:, 1); % start point
-% dF = data_out(:, Nt); % end point
-% beta = -d0;
-% 
-% alpha = (d0 - dF) ./ (Nt - 1); % slope for linear fit
-% alpha_full = bsxfun(@times, [0:(Nt - 1)], alpha);
-% correction = bsxfun(@plus, alpha_full, beta); % correction for linear
-% data_out = data_out + correction;
-data_out=bsxfun(@minus,data_out,mean(data_out,2)); % remove mean
+if DoDetrend
+data_out = detrend(data_out')';
+end
 
+%% Remove mean
+data_out=bsxfun(@minus,data_out,mean(data_out,2)); 
 
 %% N-D Output.
 if NDtf

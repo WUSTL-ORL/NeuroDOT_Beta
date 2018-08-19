@@ -49,7 +49,7 @@ function [data, info, synch, aux, framepts] = Load_AcqDecode_Data(filename)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %% Parameters and Initialization.
-% This is the sample rate of the MOTU system ORL uses. Can be changed
+% This is the sample rate of the ADCs used in the ORL. Can be changed
 % manually as needed, but we have no formal plans just yet to elaborate
 % upon this code.
 sample_rate = 96000;

@@ -38,10 +38,10 @@ function cortex_mu_a = reconstruct_img(lmdata, iA)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %% Parameters and Initialization.
-units_scaling = 100; % Assuming OptProp in mm^-1
+units_scaling = 1/100; % Assuming OptProp in mm^-1
 
 %% Reconstruct.
 cortex_mu_a = iA * lmdata;
 
 %% Correct units and convert to single.
-cortex_mu_a = single(cortex_mu_a ./ units_scaling);
+cortex_mu_a = single(cortex_mu_a .* units_scaling);

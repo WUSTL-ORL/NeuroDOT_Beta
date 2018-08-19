@@ -81,10 +81,13 @@ else
     STD = std(data, [], 2);
 end
 
-%% Create new table of on-the-fly calculated stuff.
-info_out.MEAS = table(STD, STD <= bthresh,...
-    'VariableNames', {'STD', 'GI'});
-
-
+%% Populate in table of on-the-fly calculated stuff.
+if ~isfield(info_out,'MEAS')
+    info_out.MEAS = table(STD, STD <= bthresh,...
+        'VariableNames', {'STD', 'GI'});
+else
+    info_out.MEAS.STD=STD;
+    info_out.MEAS.GI=STD <= bthresh;
+end
 
 %
