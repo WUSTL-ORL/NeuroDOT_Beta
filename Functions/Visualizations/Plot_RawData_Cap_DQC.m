@@ -45,12 +45,13 @@ elseif size(params.rlimits,1)==2
 end
 Rlimits=params.rlimits;
 if ~isfield(params, 'mode'),params.mode = 'good';end
+if ~isreal(data),data=abs(data);end
 
 params.fig_handle=figure('Units','Normalized',...
     'Position',[0.1,0.1,0.75,0.8],'Color','k');
 
 %% Check for good measurements
-if ~istablevar(info,'MEAS')
+if  ~istablevar(info,'MEAS') || ~istablevar(info.MEAS,'GI')
     info = FindGoodMeas(logmean(data), info, params.bthresh);
 end
 

@@ -1,4 +1,4 @@
-function data_out = BlockAverage(data_in, pulse, dt)
+function [BA_out,BSTD_out,BT_out] = BlockAverage(data_in, pulse, dt)
 
 % BLOCKAVERAGE Averages data by stimulus blocks.
 %
@@ -61,11 +61,15 @@ for k = 1:Nbl
 end
 
 %% Average blocks and return.
-data_out = mean(blocks, 3);
-data_out = bsxfun(@minus,data_out,mean(data_out,2));
+BA_out = mean(blocks, 3);
+BSTD_out = std(blocks, [],3);
+BA_out = bsxfun(@minus,BA_out,mean(BA_out,2));
+BT_out = BA_out./BSTD_out;
 
 
 %% N-D Output.
 if NDtf
-    data_out = reshape(data_out, [dims(1:end-1), dt]);
+    BA_out = reshape(BA_out, [dims(1:end-1), dt]);
+    BSTD_out = reshape(BSTD_out, [dims(1:end-1), dt]);
+    BT_out = reshape(BT_out, [dims(1:end-1), dt]);
 end

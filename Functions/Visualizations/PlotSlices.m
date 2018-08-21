@@ -92,6 +92,16 @@ BkgdColor = 'k';
 button = 0;
 axlist = {'X', 'Y', 'Z'};
 
+% Set simple default for single input case
+if nargin<3
+    params.PD=1;
+    params.Cmap.P=gray(1000);
+    params.Th.P=0;
+    params.Th.N=0;
+    params.Scale=max(underlay(:));
+    params.BG=[0,0,0];
+end
+
 if ~exist('overlay', 'var')  ||  isempty(overlay)
     overlay = [];
 else
@@ -99,6 +109,7 @@ else
     if (o_size(1) ~= nVx)  ||  (o_size(2) ~= nVy)  ||  (o_size(3) ~= nVz)
         error('*** Error: "underlay" size does not match "overlay" ***')
     end
+    if isfield(params,'BG'),params=rmfield(params,'BG');end
 end
 
 if ~exist('infoVol','var')

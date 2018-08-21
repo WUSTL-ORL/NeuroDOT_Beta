@@ -44,6 +44,7 @@ if isfield(params,'pad'),Npad=params.pad;else, Npad=1e2;end
 if isfield(params,'detrend'),DoDetrend=params.detrend;else,DoDetrend=1;end
 if isfield(params,'DoPad'),DoPad=params.DoPad;else,DoPad=1;end
 if ~DoPad, Npad=0;end
+if isa(data_in,'single'),isSing=1;else, isSing=0;end
 
 
 dims = size(data_in);
@@ -72,7 +73,9 @@ end
 data_in=cat(2,zeros(Nm,Npad),data_in,zeros(Nm,Npad));
 
 %% Forward-backward filter data for each measurement.
+if isSing, data_in=double(data_in);end
 data_out = filtfilt(b, a, data_in')';
+if isSing, data_out=single(data_out);end
 data_out=data_out(:,(Npad+1):(end-Npad));
 
 %% Detrend.

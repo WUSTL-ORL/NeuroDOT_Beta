@@ -39,7 +39,6 @@ function Plot_RawData_Time_Traces_Overview(data,info,params)
 %% Parameters and Initialization
 Nwl=length(unique(info.pairs.WL));
 [Nm,Nt]=size(data);
-if ~isreal(data),data=abs(data);end
 if isfield(info.system,'init_framerate')
     fr=info.system.init_framerate;
 else
@@ -61,8 +60,8 @@ params.fig_handle=figure('Units','Normalized',...
 
 %% Check for good measurements
 if ~istablevar(info,'MEAS') || ~istablevar(info.MEAS,'GI')
-    lmdata=logmean(data);
-    info = FindGoodMeas(lmdata, info, params.bthresh);
+    lmdata
+    info = FindGoodMeas(logmean(data), info, params.bthresh);
 end
 
 

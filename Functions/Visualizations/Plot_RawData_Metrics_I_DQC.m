@@ -58,6 +58,7 @@ for j=1:Nwls, leg{j}=[num2str(wls(j)),' nm'];end
 Ns=max(info.pairs.Src);
 Nd=max(info.pairs.Det);
 [Nm,Nt]=size(data);
+if ~isreal(data),data=abs(data);end
 Nm=Nm/Nwls;
 
 if Nt<(60/fr)
@@ -71,7 +72,7 @@ end
 
 
 %% Check for good measurements
-if ~istablevar(info,'MEAS')
+if ~istablevar(info,'MEAS') || ~istablevar(info.MEAS,'GI')
     info = FindGoodMeas(logmean(data), info, params.bthresh);
 end
 

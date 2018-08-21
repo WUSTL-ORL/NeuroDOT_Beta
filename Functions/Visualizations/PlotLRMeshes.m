@@ -125,45 +125,49 @@ else
     c_mid = 0;
     c_min = -c_max;
 end
-%%% MAJOR DIFFERENCE WITH PLOTSLICES: This fcn is always in "CBMODE==1",
-%%% since we don't use "imagesc" to do it automatically.
-if (~isfield(params, 'cbticks')  ||  isempty(params.cbticks))  &&...
-        (~isfield(params, 'cblabels')  ||  isempty(params.cblabels))
-    % If both are empty/not here, fill in defaults.
-    params.cbticks = [0, 0.5, 1];
-    params.cblabels = strtrim(cellstr(num2str([c_min, c_mid, c_max]', 3)));
-elseif ~isfield(params, 'cbticks')  ||  isempty(params.cbticks)
-    % If only ticks missing...
-    if numel(params.cblabels) > 2
-        if isnumeric(params.cblabels)
-            % If we have numbers, we can sort then scale them.
-            params.cblabels = sort(params.cblabels);
-            params.cbticks = (params.cblabels - params.cblabels(1))...
-                / (params.cblabels(end) - params.cblabels(1));
+
+if ~isfield(params,'CBar_on'),params.CBar_on=0;end
+if params.CBar_on
+    if (~isfield(params, 'cbticks')  ||  isempty(params.cbticks))  &&...
+            (~isfield(params, 'cblabels')  ||  isempty(params.cblabels))
+        % If both are empty/not here, fill in defaults.
+        params.cbticks = [0, 0.5, 1];
+        params.cblabels = strtrim(cellstr(num2str([c_min, c_mid, c_max]', 3)));
+    elseif ~isfield(params, 'cbticks')  ||  isempty(params.cbticks)
+        % If only ticks missing...
+        if numel(params.cblabels) > 2
+            if isnumeric(params.cblabels)
+                % If we have numbers, we can sort then scale them.
+                params.cblabels = sort(params.cblabels);
+                params.cbticks = (params.cblabels - params.cblabels(1))...
+                    / (params.cblabels(end) - params.cblabels(1));
+            else
+                params.cbticks = 0:1/(numel(params.cblabels) - 1):1;
+            end
+        elseif numel(params.cblabels) == 2
+            params.cbticks = [0, 1];
         else
-            params.cbticks = 0:1/(numel(params.cblabels) - 1):1;
+            error('*** Need 2 or more colorbar ticks. ***')
         end
-    elseif numel(params.cblabels) == 2
-        params.cbticks = [0, 1];
+    elseif ~isfield(params, 'cblabels')  ||  isempty(params.cblabels)
+        if numel(params.cbticks) > 2
+            % If only labels missing, scale labels to tick spacing.
+            scaled_ticks = (params.cbticks - params.cbticks(1)) /...
+                (params.cbticks(end) - params.cbticks(1));
+            params.cblabels = ...
+                strtrim(cellstr(num2str(...
+                [scaled_ticks * (c_max - c_min) + c_min]', 3)));
+        elseif numel(params.cbticks) == 2
+            params.cblabels = strtrim(cellstr(num2str([c_min, c_max]', 3)));
+        else
+            error('*** Need 2 or more colorbar labels. ***')
+        end
+    elseif numel(params.cbticks) == numel(params.cblabels)
+        % As long as they match in size, continue on.
     else
-        error('*** Need 2 or more colorbar ticks. ***')
-    end
-elseif ~isfield(params, 'cblabels')  ||  isempty(params.cblabels)
-    if numel(params.cbticks) > 2
-        % If only labels missing, scale labels to tick spacing.
-        scaled_ticks = (params.cbticks - params.cbticks(1)) /...
-            (params.cbticks(end) - params.cbticks(1));
-        params.cblabels = strtrim(cellstr(num2str([scaled_ticks * (c_max - c_min) + c_min]', 3)));
-    elseif numel(params.cbticks) == 2
-        params.cblabels = strtrim(cellstr(num2str([c_min, c_max]', 3)));
-    else
-        error('*** Need 2 or more colorbar labels. ***')
-    end
-elseif numel(params.cbticks) == numel(params.cblabels)
-    % As long as they match in size, continue on.
-else
-    error('*** params.cbticks and params.cblabels do not match. ***')
-end % Any other errors are up to user.
+        error('*** params.cbticks and params.cblabels do not match. ***')
+    end % Any other errors are up to user.
+end
 
 %% Image Hemispheres. Reposition meshes for standard transverse orientation.
 [Lnodes, Rnodes] = adjust_brain_pos(meshL, meshR, params);
@@ -210,15 +214,16 @@ set(gca, 'Color', BkgdColor, 'XColor', LineColor, 'YColor', LineColor);
 
 axis image
 axis off
+% 
+% title('Volumetric Surface Mapping', 'Color', LineColor, 'FontSize', 12)
 
-title('Volumetric Surface Mapping', 'Color', LineColor, 'FontSize', 12)
-
+if params.CBar_on
 pos = get(gca, 'pos');
 colormap(CMAP)
 h2 = colorbar(gca, 'Color', LineColor, 'Location', 'southoutside');
 h2.Position = [pos(1)+pos(3)/4, pos(2), pos(3)/2, 0.035];
 set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);
-
+end
 
 
 %
