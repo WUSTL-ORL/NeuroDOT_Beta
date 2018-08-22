@@ -47,6 +47,7 @@ Rad.detnum=size(grid.dpos3,1);
 measnum=Rad.srcnum*Rad.detnum;
 Rad.r=zeros(measnum,1);
 Rad.meas=zeros(measnum,2);
+Rad.NN=zeros(measnum,1);
 
 %% Make Measlist and r
 m=0;
@@ -95,6 +96,7 @@ while any(r>d) % as long as there are still s-d pairs left to group
         c=c+1; % increment nn count
         if c<12 
             Rad.(['nn',num2str(c)])=nnkeep;
+            Rad.NN(nnkeep)=c;
             if (c>1),Rad.(names{c})=union(Rad.(names{c-1}),nnkeep);end    
         end    
         if c>RadMaxR; break; end % stop at nn9

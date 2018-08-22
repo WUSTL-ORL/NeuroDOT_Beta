@@ -31,7 +31,7 @@ mPHeight=0.1;
 mPDist=1000;
 ext='.raw';
 if ~exist('params','var'),params=[];end
-if ~isfield(params,'overwrite'),params.overwrite=0;end
+if ~isfield(params,'overwrite'),params.overwrite=1;end
 if ~isfield(params,'tag')
     datafile2save=[dateA,'-',subj,'-',suf]; % Data file name
 else
