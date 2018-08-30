@@ -40,7 +40,22 @@ ethresh=1;      % Energy minimum threshold
 dthresh=0.1;    % Difference threshold
 compnum=2;      % Back-iterations to compare
 
-% load(['radius_',padname])
+if isfield(rad,'optodes')  % ND2 structure
+    Ns=size(rad.optodes.spos3,1);
+    Nd=size(rad.optodes.dpos3,1);
+    opnum=Ns+Nd;
+    info.srcnum=Ns;
+    info.detnum=Nd;
+    keep=rad.pairs.WL==1;
+    info.meas(:,1)=rad.pairs.Src;
+    info.meas(:,2)=rad.pairs.Det;
+    info.meas(:,2)=info.meas(:,2)+Ns; % relative to optode not S,D
+    info.nn1=find(rad.pairs.NN(keep)==1);
+    info.nn2=find(rad.pairs.NN(keep)==2);
+    info.nn12=sort(cat(1,info.nn1,info.nn2));
+    info.r=rad.pairs.r2d(keep);
+    
+elseif isfield(rad,'nn1') % ND1 structure
 info.nn1=sort(rad.nn1);   % Set of 1st nn in meas
 info.nn2=sort(rad.nn2);   % Set of 2nd nn in meas
 info.nn12=sort(rad.nn12);   % Set of 2nd nn in meas
@@ -48,12 +63,11 @@ info.meas=rad.meas; % S-D pairs
 info.r=rad.r;
 rad.srcnum=max(rad.meas(:,1));
 rad.detnum=max(rad.meas(:,2));
-
-% load(['grid_',padname],'srcnum','detnum')
 info.meas(:,2)=info.meas(:,2)+rad.srcnum; % relative to optode not S,D
 opnum=rad.srcnum+rad.detnum;
 info.srcnum=rad.srcnum;
 info.detnum=rad.detnum;
+end
 tpos=[spos3;dpos3];
 % tpos=[[tpos(:,1)],[tpos(:,2)],[tpos(:,1)]];
 % Move CM back to anchrs + 25
