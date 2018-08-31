@@ -53,7 +53,7 @@ dzTh=0;
 tpos2=scale_cap(tpos2,dS);
 tpos2=rotate_cap(tpos2,[dxTh,dyTh,dzTh]);
 tpos2(:,1)=tpos2(:,1)+dx;
-tpos2(:,2)=tpos2(:,2)-dy;
+tpos2(:,2)=tpos2(:,2)+dy;
 tpos2(:,3)=tpos2(:,3)+dz;
 
 PlotMeshSurface(mesh,pM);PlotSD(tpos2(1:Ns,:),tpos2((Ns+1):end,:),'norm',gcf);
@@ -68,7 +68,7 @@ tposNew=gridspringfit_ND2(m0,rad,spos3,dpos3);
 
 
 %% PREPARE! --> mesh and grid in coord space
-mesh=PrepareMeshForNIRFAST(m2,[meshname,'_',gridname],tposNew);
+mesh=PrepareMeshForNIRFAST(mesh,[meshname,'_',gridname],tposNew);
 PlotMeshSurface(mesh,pM);PlotSD(mesh.source.coord(1:Ns,:),...
     mesh.source.coord((Ns+1):end,:),'render',gcf);
 
@@ -76,8 +76,8 @@ PlotMeshSurface(mesh,pM);PlotSD(mesh.source.coord(1:Ns,:),...
 m3=CutMesh(mesh,find(mesh.nodes(:,3)>0));
 [Ia,Ib]=ismember(m3.nodes,mesh.nodes,'rows');Ib(Ib==0)=[];
 m3.region=mesh.region(Ib);
-PlotMeshSurface(m3,pM);PlotSD(mesh.source.coord(1:126,:),...
-    mesh.source.coord(127:end,:),'render',gcf);
+PlotMeshSurface(m3,pM);PlotSD(mesh.source.coord(1:Ns,:),...
+    mesh.source.coord((1+Ns):end,:),'render',gcf);
 
 
 
@@ -118,7 +118,7 @@ flags.t4=[0.013773,-0.950527,-0.017870,1.1041;... % T1/dim to MNI atlas
   0,0,0,1]; % t4 to atlas - label which
 flags.t4_target='MNI'; % string
 flags.makeA=1; % don't make A, just make G
-flags.Hz=0; % for FD, set flags.Hz = 100e6; 
+flags.Hz=0;
 if flags.Hz, flags.tag = [flags.tag,'FD']; end
 
 Ti=tic;[A,dim]=makeAnirfast(mesh,flags); % size(A)= [Nwl, Nmeas, Nvox]
