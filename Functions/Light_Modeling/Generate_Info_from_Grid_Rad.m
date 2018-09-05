@@ -64,10 +64,11 @@ if isfield(grid,'spos')
 else
     info.optodes.spos2=grid.spos3;
 end
-info.optodes.plot3orientation.i='R2L';
-info.optodes.plot3orientation.j='P2A';
-info.optodes.plot3orientation.k='D2V';
-
+if ~isfield(info.optodes,'plot3orientation')
+    info.optodes.plot3orientation.i='R2L';
+    info.optodes.plot3orientation.j='P2A';
+    info.optodes.plot3orientation.k='D2V';
+end
 
 %% Populate info.pairs table
 info.pairs=table;

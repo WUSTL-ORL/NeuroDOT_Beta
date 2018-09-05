@@ -37,7 +37,7 @@ function [grid,Rad]=Make_Sphere_Cap(Ndy,Ndx,NN1sep,Srad)
 
 %% Parameters and Initialization
 Nsy=Ndy-1;
-Nsx=Ndx-1;
+Nsx=Ndx+1;
 ddx=NN1sep*sqrt(2); % Like-column spacing
 
 
@@ -80,7 +80,7 @@ grid.dpos=dpos;
 grid.spos=spos;
 tpos=cat(1,grid.spos,grid.dpos);
 
-Rad=Grid2Radius(grid,1.5);
+Rad=Grid2Radius_180824(grid,1.5);
 Rad.rU2d=unique(Rad.r);
 Rad.r2d=Rad.r;
 
@@ -97,3 +97,5 @@ for j=1:grid.detnum
     end
 end
 grid.Srad=Srad;
+grid.spos2=grid.spos;
+grid.dpos2=grid.dpos;

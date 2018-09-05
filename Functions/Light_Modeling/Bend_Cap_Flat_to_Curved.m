@@ -47,7 +47,7 @@ switch type
             y=tpos(n,2)-CofM(2);
             r0=sqrt(x^2+y^2); % Distance from Origin
             theta=r0/hrad;
-            phi=atan2(x,y);
+            phi=atan2(y,x);
             tpos3(n,:)=hrad*[sin(theta)*cos(phi),...
                 sin(theta)*sin(phi),cos(theta)]+[CofM,0];
         end
