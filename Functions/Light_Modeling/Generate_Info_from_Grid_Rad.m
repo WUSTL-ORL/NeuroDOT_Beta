@@ -53,13 +53,17 @@ Nm=size(rad.meas,1);
 %% Populate info.optodes structure
 if isfield(grid,'name'),info.optodes.CapName=grid.name;end
 if isfield(grid,'dpos3'),info.optodes.dpos3=grid.dpos3;end
-if isfield(grid,'dpos')
+if isfield(grid,'dpos2')
+    info.optodes.dpos2=grid.dpos2;
+elseif isfield(grid,'dpos')
     info.optodes.dpos2=grid.dpos;
 else
     info.optodes.dpos2=grid.dpos3;
 end
 if isfield(grid,'spos3'),info.optodes.spos3=grid.spos3;end
-if isfield(grid,'spos')
+if isfield(grid,'spos2')
+    info.optodes.spos2=grid.spos2;
+elseif isfield(grid,'spos')
     info.optodes.spos2=grid.spos;
 else
     info.optodes.spos2=grid.spos3;
@@ -74,6 +78,7 @@ end
 info.pairs=table;
 info.pairs.Src=repmat(rad.meas(:,1),Nwl,1);
 info.pairs.Det=repmat(rad.meas(:,2),Nwl,1);
+if isfield(rad,'NN'),info.pairs.NN=repmat(rad.NN,Nwl,1);end
 info.pairs.WL = nan(size(info.pairs.Src));
 info.pairs.lambda = nan(size(info.pairs.Src));
 info.pairs.Mod=repmat(params.Mod,Nm*Nwl,1);

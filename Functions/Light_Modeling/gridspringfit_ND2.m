@@ -47,8 +47,8 @@ if isfield(rad,'optodes')  % ND2 structure
     info.srcnum=Ns;
     info.detnum=Nd;
     keep=rad.pairs.WL==1;
-    info.meas(:,1)=rad.pairs.Src;
-    info.meas(:,2)=rad.pairs.Det;
+    info.meas(:,1)=rad.pairs.Src(keep);
+    info.meas(:,2)=rad.pairs.Det(keep);
     info.meas(:,2)=info.meas(:,2)+Ns; % relative to optode not S,D
     info.nn1=find(rad.pairs.NN(keep)==1);
     info.nn2=find(rad.pairs.NN(keep)==2);
