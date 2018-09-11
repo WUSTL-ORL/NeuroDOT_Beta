@@ -16,7 +16,7 @@
 
 %% S-D Measurements
 clear; close all; clc
-load('Data/NeuroDOT_Base_HW_Sample_1.mat'); % data, info, flags
+load('NeuroDOT_Base_CCW_Sample1.mat'); % data, info, flags
 
 
 %% General data QC with synchpts if present
@@ -34,7 +34,7 @@ info = FindGoodMeas(lmdata, info, 0.075);
 ddata = detrend_tts(lmdata);
 
 %% High Pass Filter
-hpdata = highpass(lmdata, .02, info.system.framerate);
+hpdata = highpass(ddata, .02, info.system.framerate);
 
 %% Low Pass Filter 1
 lp1data = lowpass(hpdata, 1, info.system.framerate);

@@ -136,10 +136,7 @@ flags.op.n_csf=[1.4,1.4];
 flags.op.n_gray=[1.4,1.4];
 flags.op.n_white=[1.4,1.4];
 flags.srcnum=Ns;                    % Number of sources
-flags.t4=[0.013773,-0.950527,-0.017870,1.1041;... % T1/dim to MNI atlas
- -0.047220,-0.093750, 0.868421,9.8222;...
- -0.881163,-0.036030,-0.061248,-2.3832;...
-  0,0,0,1]; % t4 to atlas - label which
+flags.t4=eye(4);                    % T1/dim to MNI atlas *** change this to register your vol to atlas
 flags.t4_target='MNI'; % string
 flags.makeA=1; % don't make A, just make G
 flags.Hz=0;
