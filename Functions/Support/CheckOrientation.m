@@ -7,6 +7,9 @@ function [xdir, ydir, zdir] = CheckOrientation(info)
 %   compatible with 3D cap visualizations. The default reverses the x-axis
 %   and leaves the other two alone. The directions are returned in "xdir",
 %   "ydir", and "zdir" 
+%
+% THIS FUNCTION IS BEING DEPRECATED. Until it is cleaned out, its
+% functionality is being steralized.
 % 
 % See Also: PLOTCAPDATA.
 % 
@@ -37,32 +40,32 @@ function [xdir, ydir, zdir] = CheckOrientation(info)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %% Parameters and Initialization.
-xdir = [];
-ydir = [];
-zdir = [];
+xdir = 'normal';
+ydir = 'normal';
+zdir = 'normal';
 
-%% Interpret the orientation codes.
-switch info.optodes.plot3orientation.i
-    case 'R2L'
-        xdir = 'reverse';
-    case 'L2R'
-        xdir = 'normal';
-    otherwise
-        xdir = 'reverse'; % Default.
-end
-switch info.optodes.plot3orientation.j
-    case 'A2P'
-        ydir = 'reverse';
-    case 'P2A'
-        ydir = 'normal';
-    otherwise
-        ydir = 'normal'; % Default.
-end
-switch info.optodes.plot3orientation.k
-    case {'V2D', 'I2S'}
-        zdir = 'reverse';
-    case {'D2V', 'S2I'}
-        zdir = 'normal';
-    otherwise
-        zdir = 'normal'; % Default.
-end
+% %% Interpret the orientation codes.
+% switch info.optodes.plot3orientation.i
+%     case 'R2L'
+%         xdir = 'reverse';
+%     case 'L2R'
+%         xdir = 'normal';
+%     otherwise
+%         xdir = 'reverse'; % Default.
+% end
+% switch info.optodes.plot3orientation.j
+%     case 'A2P'
+%         ydir = 'reverse';
+%     case 'P2A'
+%         ydir = 'normal';
+%     otherwise
+%         ydir = 'normal'; % Default.
+% end
+% switch info.optodes.plot3orientation.k
+%     case {'V2D', 'I2S'}
+%         zdir = 'reverse';
+%     case {'D2V', 'S2I'}
+%         zdir = 'normal';
+%     otherwise
+%         zdir = 'normal'; % Default.
+% end

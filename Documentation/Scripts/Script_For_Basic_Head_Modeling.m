@@ -1,35 +1,54 @@
-%% Script for model generation given an initial mesh and optode set
+%% Script for model generation given an initial segmented vokumetric mask and optode set
+
+% Volumetric segmentation is currently not supported, but there are many
+% options available (e.g., FreeSurfer). The starting point to this script
+% is a segmented volume and a Pad file, both of which are contained within
+% the Support_Files folder of the toolbox. To generate your own head model
+% and light model, please just adapt the steps outlined below to your own
+% volumetric mask and source-detector grid design.
 
 
-meshname='';
-gridname='Adult_96x92';
-gridfiletype='ND2'; % 'ND1', 'ND2', 
+%% Load a Segmented Volume and generate head mesh
 
-%% Load initial mesh
-mesh=load_mesh([meshname]);
+[mask,infoT1]=LoadVolumetricData(['Segmented_MNI152nl_on_MNI111'],[],'4dfp');
+p.Cmap='jet';p.Scale=5;p.Th.P=0;p.Th.N=-p.Th.P;p.PD=1;p.BG=[0,0,0];
+PlotSlices(mask,infoT1,p)       % Visualize the segmented mask
+
+
+% Parameters for generating your mesh
+meshname=['Example_Mesh'];      % Provide a name for your mesh name here
+param.facet_distance=0.75;   % Node position error tolerance at boundary
+param.facet_size =0.75;      % boundary element size parameter
+param.cell_size=1.4;        % Volume element size parameter
+param.info=infoT1;
+param.Offset=[0,0,0];
+param.r0=5;                  % nodes outside of mask must be set to scalp==5;
+param.CheckMeshQuality=0;
+param.Mode=0;
+tic;mesh=NirfastMesh_Region_U87(mask,meshname,param);toc
+
 pM.orientation='coord';pM.Cmap.P='gray';
 PlotMeshSurface(mesh,pM)
 
+% Put coordinates back in true space
+mesh.nodes=change_space_coords(mesh.nodes,infoT1,'coord');
+PlotMeshSurface(mesh,pM)
 
-%% Load initial grid file depending on data structure:
+% Look at the inside
+m1.nodes=mesh.nodes;m1.elements=mesh.elements;
+m2=CutMesh(m1,find(m1.nodes(:,2)>0));
+[Ia,Ib]=ismember(m2.nodes,mesh.nodes,'rows');Ib(Ib==0)=[];
+m2.region=mesh.region(Ib);
+PlotMeshSurface(m2,pM);
 
-switch gridfiletype
-    case 'ND2'  % Grid positions are in Pad file (NeuroDOT_2 format)
-        load(['Pad_',gridname,'.mat']); % Pad file
-        tpos=cat(1,info.optodes.spos3,info.optodes.dpos3);
-        Ns=size(info.optodes.spos3,1);
-        Nd=size(info.optodes.dpos3,1);
-        rad=info;
-        
-    case 'ND1'  % Grid file contains 3D information
-        grid=load(['grid',gridname,'.mat']);
-        rad=load(['radius_',gridname,'.mat']);
-        tpos=cat(1,grid.spos3,info.optodes.dpos3);
-        Ns=size(grid.spos3,1);        
-        Nd=size(grid.dpos3,1);        
-        
-end
 
+%% Load initial Pad file depending on data structure:
+padname='AdultV24x28';
+load(['Pad_',padname,'.mat']); % Pad file
+tpos=cat(1,info.optodes.spos3,info.optodes.dpos3);
+Ns=size(info.optodes.spos3,1);
+Nd=size(info.optodes.dpos3,1);
+rad=info;
 PlotSD(tpos(1:Ns,:),tpos((Ns+1):end,:),'norm');
 
 
@@ -43,18 +62,18 @@ PlotMeshSurface(mesh,pM);PlotSD(tpos(1:Ns,:),tpos((Ns+1):end,:),'norm',gcf);
 % Adjust parameters by hand, update position, check
 tpos2=tpos;
 dx=0;
-dy=0;
-dz=0;
-dS=1.0;
-dxTh=0;
+dy=-110;
+dz=-55;
+dS=1.1;
+dxTh=-90;
 dyTh=0;
 dzTh=0;
 
-tpos2=scale_cap(tpos2,dS);
 tpos2=rotate_cap(tpos2,[dxTh,dyTh,dzTh]);
 tpos2(:,1)=tpos2(:,1)+dx;
 tpos2(:,2)=tpos2(:,2)+dy;
 tpos2(:,3)=tpos2(:,3)+dz;
+tpos2=scale_cap(tpos2,dS);
 
 PlotMeshSurface(mesh,pM);PlotSD(tpos2(1:Ns,:),tpos2((Ns+1):end,:),'norm',gcf);
 
@@ -66,14 +85,19 @@ spos3=tpos2(1:Ns,:);
 dpos3=tpos2((Ns+1):end,:);
 tposNew=gridspringfit_ND2(m0,rad,spos3,dpos3);
 
+save(['Pad_',padname,'_on_',meshname,'.mat'],'info'); % Pad file
+
+%% View optode positions
+PlotMeshSurface(mesh,pM);PlotSD(tposNew(1:Ns,:),tposNew((Ns+1):end,:),'render',gcf);
 
 %% PREPARE! --> mesh and grid in coord space
+gridname=padname;
 mesh=PrepareMeshForNIRFAST(mesh,[meshname,'_',gridname],tposNew);
 PlotMeshSurface(mesh,pM);PlotSD(mesh.source.coord(1:Ns,:),...
     mesh.source.coord((Ns+1):end,:),'render',gcf);
 
 % One last visualization check...
-m3=CutMesh(mesh,find(mesh.nodes(:,3)>0));
+m3=CutMesh(mesh,intersect(find(mesh.nodes(:,3)>0),find(mesh.nodes(:,1)>0)));
 [Ia,Ib]=ismember(m3.nodes,mesh.nodes,'rows');Ib(Ib==0)=[];
 m3.region=mesh.region(Ib);
 PlotMeshSurface(m3,pM);PlotSD(mesh.source.coord(1:Ns,:),...
@@ -83,19 +107,19 @@ PlotMeshSurface(m3,pM);PlotSD(mesh.source.coord(1:Ns,:),...
 
 %% Calculate Sensitivity Profile
 % Parameters
-flags.tag='';
+flags.tag=[padname,'_on_',meshname,'_test'];
 flags.gridname=gridname;
 flags.meshname=meshname;
 flags.head='info';
 flags.info=infoT1;                  % Your T1 info file
 flags.gthresh=1e-3;                 % Voxelation threshold in G
-flags.voxmm=1;                      % Voxelation resolution (mm)
+flags.voxmm=2;                      % Voxelation resolution (mm)
 flags.labels.r1='csf';             % Regions for optical properties
 flags.labels.r2='white';
 flags.labels.r3='gray';
 flags.labels.r4='bone';
 flags.labels.r5='skin';
-flags.op.lambda=[685,830];          % Wavelengths (nm)
+flags.op.lambda=[750,850];          % Wavelengths (nm)
 flags.op.mua_skin=[0.0170,0.0190];  % Baseline absorption
 flags.op.mua_bone=[0.0116,0.0139];
 flags.op.mua_csf=[0.0040,0.0040];
@@ -127,9 +151,10 @@ disp(['<makeAnirfast took ',num2str(toc(Ti))])
 
 
 %% Visualize aspects of sensitivity profile
-t1=affine3d_img(T1n,infoT1,dim,eye(4)); % put anatomical volume in dim space
+t1=affine3d_img(mask,infoT1,dim,eye(4)); % put anatomical volume in dim space
 
-keep=info.pairs.WL==1 & info.pairs.Src==1 & info.pairs.Det==1;
+keep=info.pairs.WL==2 & info.pairs.Src==1 & info.pairs.Det==6;
+keep(info.pairs.WL==1)=[];
 foo=squeeze(A(2,keep,:));              % Single meas pair
 fooV=Good_Vox2vol(foo,dim);
 fooV=fooV./max(fooV(:));
@@ -138,10 +163,11 @@ pA.PD=1;pA.Scale=2;pA.Th.P=0;pA.Th.N=-pA.Th.P;
 PlotSlices(t1,dim,pA,fooV)
 
 % FFR
-keep=find(info.WL==1 & info.pairs.r2d<=40);
+keep=(info.pairs.WL==2 & info.pairs.r2d<=40);
+keep(info.pairs.WL==1)=[];
 a=squeeze(A(2,keep,:));
 iA=Tikhonov_invert_Amat(a,0.01,0.1);
-iA=smooth_Amat(iA,dim,1);
+iA=smooth_Amat(iA,dim,3);
 ffr=makeFlatFieldRecon(a,iA);
 
 fooV=Good_Vox2vol(ffr,dim);
@@ -150,7 +176,10 @@ pA.PD=1;pA.Scale=1;pA.Th.P=1e-2;pA.Th.N=-pA.Th.P;
 PlotSlices(t1,dim,pA,fooV)
 
 
+%% Package data and save
+info.tissue.dim=dim;
+info.tissue.affine=flags.t4;
+info.tissue.infoT1=infoT1;
+info.tissue.affine_target='MNI';
 
-
-
-
+save(['A_',flags.tag,'.mat'],'A','info','flags','-v7.3')

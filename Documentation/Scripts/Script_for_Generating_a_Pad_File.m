@@ -20,9 +20,9 @@ info.optodes.spos2=grid.spos2; % 2D source locations
 info.optodes.spos3=grid.spos3; % 3D source locations
 
 % Define the following as given; this will be updated in a future release
-info.plot3orientation.i='R2L';  
-info.plot3orientation.j='P2A'; 
-info.plot3orientation.k='D2V'; 
+info.optodes.plot3orientation.i='R2L';  
+info.optodes.plot3orientation.j='P2A'; 
+info.optodes.plot3orientation.k='D2V'; 
 
 % If you need to generate the topology structure for your grid:
 dr=5;       % Distance separating 'nearest neighbor' groups

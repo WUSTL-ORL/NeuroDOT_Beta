@@ -85,11 +85,5 @@ DetRGB = repmat(DMarkerColor, Nd, 1);
 %% Send to PlotCapData.
 PlotCapData(SrcRGB, DetRGB, info, params)
 
-%% Add title.
-if new_fig
-    title('Cap Grid Layout Diagram', 'Color', LineColor)
-end
-
-
 
 %
