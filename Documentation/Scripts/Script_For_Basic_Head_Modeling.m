@@ -25,7 +25,7 @@ param.Offset=[0,0,0];
 param.r0=5;                  % nodes outside of mask must be set to scalp==5;
 param.CheckMeshQuality=0;
 param.Mode=0;
-tic;mesh=NirfastMesh_Region_U87(mask,meshname,param);toc
+tic;mesh=NirfastMesh_Region(mask,meshname,param);toc
 
 pM.orientation='coord';pM.Cmap.P='gray';
 PlotMeshSurface(mesh,pM)
