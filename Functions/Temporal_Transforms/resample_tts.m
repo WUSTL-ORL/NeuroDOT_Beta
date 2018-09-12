@@ -99,8 +99,10 @@ data_out = rawresamp - correction;
 
 %% Fix synch pts to new framerate.
 if isfield(info_in,'paradigm')
-info_out.paradigm.synchpts = round(N .* info_out.paradigm.init_synchpts ./ D);
-info_out.paradigm.synchpts(info_out.paradigm.synchpts == 0) = 1;
+    if isfield(info_in.paradigm, 'init_synchpts')
+        info_out.paradigm.synchpts = round(N .* info_out.paradigm.init_synchpts ./ D);
+        info_out.paradigm.synchpts(info_out.paradigm.synchpts == 0) = 1;
+    end
 end
 
 %% N-D Output.

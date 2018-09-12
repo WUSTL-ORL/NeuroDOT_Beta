@@ -59,17 +59,16 @@ params.mode = 'textpatch';
 if ~isfield(params, 'dimension')  ||  isempty(params.dimension)
     params.dimension = '2D'; % '2D' | '3D'
 end
-if ~isfield(params, 'fig_size')  ||  isempty(params.fig_size)
-    switch params.dimension
-        case '2D'
-            params.fig_size = [20, 200, 1240, 420];
-        case '3D'
-            params.fig_size = [20, 200, 560, 560];
-    end
-end
 if ~isfield(params, 'fig_handle')  ||  isempty(params.fig_handle)
+    if ~isfield(params, 'fig_size')  ||  isempty(params.fig_size)
+        switch params.dimension
+            case '2D'
+                params.fig_size = [20, 200, 1240, 420];
+            case '3D'
+                params.fig_size = [20, 200, 560, 560];
+        end
+    end
     params.fig_handle = figure('Color', BkgdColor, 'Position', params.fig_size);
-    new_fig = 1;
 else
     switch params.fig_handle.Type
         case 'figure'

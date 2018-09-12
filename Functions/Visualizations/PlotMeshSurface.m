@@ -148,9 +148,22 @@ if ~isfield(m,'data')       % NO DATA
     else                      % data are regions               
         params.PD=1;
         params.TC=1;
-        params.DR=max(m.region(:))+1;
-        tempCmap=params.Cmap.P;
-        params.Cmap.P=eval([tempCmap, '(', num2str(params.DR), ');']);
+        if max(m.region(:))>1
+            params.DR=max(m.region(:))+1;
+            tempCmap=params.Cmap.P;
+            if ischar(params.Cmap.P)
+            params.Cmap.P=eval([tempCmap, '(', num2str(params.DR), ');']);
+            end
+        else
+            tempCmap=params.Cmap.P;
+            if ischar(params.Cmap.P)
+            params.Cmap.P=eval([tempCmap, '(', num2str(2), ');']);
+            end
+            if size(params.Cmap.P,1)>1
+            params.Cmap.P=max(params.Cmap.P,1);
+            end
+            params.DR=1;
+        end
         cb=1;
         CMAP=params.Cmap.P;
         EdgeColor = params.EdgeColor;

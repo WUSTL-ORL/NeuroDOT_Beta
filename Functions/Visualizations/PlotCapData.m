@@ -84,8 +84,10 @@ switch params.dimension
         ysq = [0, -l, 0, l];
         
         % Default figure size.
+        if ~isfield(params, 'fig_handle')
         if ~isfield(params, 'fig_size')  ||  isempty(params.fig_size)
             params.fig_size = [20, 200, 1240, 420];
+        end
         end
     case '3D'
         % Get optode positions.
@@ -96,8 +98,10 @@ switch params.dimension
         [xdir, ydir, zdir] = CheckOrientation(info);
         
         % Default figure size.
+        if ~isfield(params, 'fig_handle')
         if ~isfield(params, 'fig_size')  ||  isempty(params.fig_size)
             params.fig_size = [20, 200, 560, 560];
+        end
         end
 end
 
@@ -179,10 +183,8 @@ if strcmp(params.dimension, '3D')
     view(55, 25)
     rotate3d on
     pbaspect manual
-    set(gca, 'Color', FieldColor, 'XDir', xdir, 'YDir', ydir,...
-        'ZDir', zdir, 'XTick', [], 'YTick', [], 'ZTick', [], ...
-        'CameraViewAngle', 16, 'XLimMode', 'manual', 'YLimMode', 'manual',...
-        'ZLimMode', 'manual');
+    set(gca,'CameraViewAngle', 16, 'XLimMode', 'manual',...
+         'YLimMode', 'manual','ZLimMode', 'manual');        
 end
 
 %% Draw data.
