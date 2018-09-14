@@ -91,7 +91,7 @@ plot(dpos(:,1),dpos(:,2),'ob','MarkerEdgeColor','k','MarkerFaceColor',[0.5 0.5 1
 
 % If present, plot sources and detectors and anchors
 [x,y,z]=sphere(100);
-rad=1;
+rad=2;
 for i=1:size(spos,1) 
     hh=patch(surf2patch(rad*x+spos(i,1),rad*y+spos(i,2),rad*z+spos(i,3)),...
        'EdgeColor','red','FaceColor','red','EdgeAlpha',0);
