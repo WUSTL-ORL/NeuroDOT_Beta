@@ -61,7 +61,13 @@ for k = 1:Nc
     gp = pinv(g);
     beta = gp * temp;
     data_out(keep, :) = (temp - g * beta)'; % linear regression
-    R(keep) = normr(g') * normc(temp); % correlation coefficient
+    if exist('vecnorm')
+        R(keep) = normrND(g') * normcND(temp); % correlation coefficient
+    elseif exist('normr')
+        R(keep) = normr(g') * normc(temp); % correlation coefficient
+    else
+        R(keep) = normRow(g') * normCol(temp); % correlation coefficient
+    end
 end
 
 

@@ -35,12 +35,15 @@ function mesh=NirfastMesh_Region(mask,meshname,param)
 %% Generate homogeneous mesh
 Scalp=max(mask(:));
 if ~exist('param','var'),param='hd';end
+if ~isfield(param,'Mode'),param.Mode=0;end
 mask_old=mask;
 mask(mask~=0)=Scalp;
-mesh=NirfastMesh(mask,meshname,param);
+mesh=NirfastMesh(mask,meshname,param,param.Mode);
 
 
 %% Label nodes based on region overlay with segmented volume
+if ~param.Mode
+    
 [Nx,Ny,Nz]=size(mask_old);
 
 if ~isfield(param,'Offset'),param.Offset=[0,0,0];end
@@ -76,3 +79,4 @@ end
 
 disp('<<<Saving mesh')
 save_mesh(mesh,meshname);
+end

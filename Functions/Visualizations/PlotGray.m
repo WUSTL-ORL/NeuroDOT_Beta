@@ -226,6 +226,7 @@ axis tight
 colorbar(gca, 'Color', LineColor)
 
 %% Labels.
+tcell={};
 if strcmp(use_NNx_RxD, 'all')
     tcell{1} = ['All r', lower(params.dimension)];
 end

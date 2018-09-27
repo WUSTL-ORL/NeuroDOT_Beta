@@ -27,6 +27,8 @@ function PlotSlices(underlay, infoVol, params, overlay)
 %                                           positive definite.
 %       cbmode      0                       Specifies whether to use custom
 %                                           colorbar axis labels.
+%       cboff       0                       If set to 1, no colorbar is
+%                                           displayed
 %       cblabels    ([-90% max, 90% max])   Colorbar axis labels. When
 %                                           cbmode==1, min defaults to 0 if
 %                                           PD==1, both default to +/-
@@ -136,6 +138,9 @@ else
 end
 if ~isfield(params, 'CH')  ||  isempty(params.CH)
     params.CH = 1;
+end
+if ~isfield(params, 'cboff')  
+    params.cboff = 0;
 end
 if ~isfield(params, 'cbmode')  ||  isempty(params.cbmode)
     params.cbmode = 0;
@@ -374,6 +379,9 @@ while ~any(button == [2, 27, 81, 113]) % 2 = middle mouse button, 27 = Esc, 81 =
         h2 = colorbar(eval([lower(orlist{end}(1:3)), 'ax']), 'Color', LineColor);
         if params.cbmode
             set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);
+        end
+        if params.cboff
+           set(h2,'Visible','off') 
         end
         
         %% Add point-and-click navigation.

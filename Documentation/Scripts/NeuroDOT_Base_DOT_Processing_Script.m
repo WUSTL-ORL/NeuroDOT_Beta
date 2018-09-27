@@ -1,9 +1,9 @@
-%% NEURODOT BASE DOT PROCESSING SCRIPT
+%% NEURODOT DOT PROCESSING SCRIPT
 % This script combines both the Preprocessing and Reconstruction pipelines.
 % A file of sample data is already designated below, but you can use the
 % "load" command to load your own optical data. In order to load the sample
 % file, change the path below in the "addpath" line to the folder under
-% which you have ND2 installed.
+% which you have NEURODOT installed.
 % 
 % A number of select visualizations have been left commented at the end of
 % this script.
@@ -22,7 +22,7 @@ load('NeuroDOT_Base_CCW_Sample1.mat'); % data, info, flags
 %% General data QC with synchpts if present
 Plot_RawData_Time_Traces_Overview(data,info);   % Time traces
 Plot_RawData_Cap_DQC(data,info);                % Cap-relevant views
-Plot_RawData_Metrics_I_DQC(data,info)
+Plot_RawData_Metrics_II_DQC(data,info)          % Raw data quality figs
 
 %% Logmean Light Levels
 lmdata = logmean(data);

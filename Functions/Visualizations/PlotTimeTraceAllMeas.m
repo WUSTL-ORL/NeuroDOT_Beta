@@ -76,10 +76,10 @@ if ~exist('params', 'var')
     params = [];
 end
 
-if ~isfield(params, 'fig_size')  ||  isempty(params.fig_size)
-    params.fig_size = [200, 200, 560, 420];
-end
 if ~isfield(params, 'fig_handle')  ||  isempty(params.fig_handle)
+    if ~isfield(params, 'fig_size')  ||  isempty(params.fig_size)
+        params.fig_size = [200, 200, 560, 420];
+    end
     params.fig_handle = figure('Color', BkgdColor, 'Position', params.fig_size);
     new_fig = 1;
 else

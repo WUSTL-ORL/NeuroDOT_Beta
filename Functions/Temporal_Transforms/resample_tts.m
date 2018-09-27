@@ -60,6 +60,8 @@ if ~exist('framerate', 'var')  ||  isempty(framerate)
         framerate = info_in.system.framerate;
     end
 end
+info_out.system.init_framerate=framerate;
+
 if ~exist('omega_resample', 'var')  ||  isempty(omega_resample)
     omega_resample = 1;
 end
@@ -101,6 +103,10 @@ data_out = rawresamp - correction;
 if isfield(info_in,'paradigm')
     if isfield(info_in.paradigm, 'init_synchpts')
         info_out.paradigm.synchpts = round(N .* info_out.paradigm.init_synchpts ./ D);
+        info_out.paradigm.synchpts(info_out.paradigm.synchpts == 0) = 1;
+    else        
+        info_out.paradigm.init_synchpts=info_out.paradigm.synchpts;
+        info_out.paradigm.synchpts = round(N .* info_out.paradigm.synchpts ./ D);
         info_out.paradigm.synchpts(info_out.paradigm.synchpts == 0) = 1;
     end
 end

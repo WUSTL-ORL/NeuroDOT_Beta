@@ -161,7 +161,7 @@ disp(['>>Mesh Generation took ',num2str(toc(t)),' seconds'])
 
 %% Call conversion to nirfast mesh
 if Mode
-    nirfast_mesh.elements=e(:,1:4);
+    nirfast_mesh.elements=double(e(:,1:4));
     nirfast_mesh.nodes=p;
 else
 mesh.ele = e;

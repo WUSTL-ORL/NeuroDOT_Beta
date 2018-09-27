@@ -127,7 +127,7 @@ else
     GM = info.MEAS.GI;
 end
 if ~isfield(params, 'ylimits')  ||  isempty(params.ylimits)
-    params.ylimits = [0, 3e-5];
+    params.ylimits = [];
 end
 if ~isfield(params, 'yscale')  ||  isempty(params.yscale)
     params.yscale = 'linear';

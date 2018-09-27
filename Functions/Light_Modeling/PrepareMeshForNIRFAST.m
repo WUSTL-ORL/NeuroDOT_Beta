@@ -33,7 +33,8 @@ function mesh=PrepareMeshForNIRFAST(mesh,meshname,tpos3)
 
 %% Check NIRFAST-style files are present, else make them
 if ~exist([meshname,'.node'],'file')
-save_mesh(mesh,meshname);
+%     mesh.source.fixed = 1;
+    save_mesh(mesh,meshname);
 end
 
 
@@ -61,6 +62,7 @@ fclose(fid);
 % Later we will unwrap source and detector Green's functions.
 % Structure: [xpos ypos zpos]
 fid=fopen([meshname,'.source'],'w');
+% fprintf(fid,'%s\n','fixed');
 for j=1:size(tpos3,1)
     fprintf(fid,'%f %f %f\n',tpos3(j,1),tpos3(j,2),tpos3(j,3));
 end
@@ -69,3 +71,4 @@ fclose(fid);
 
 %% Load in full mesh
 mesh=load_mesh([meshname]);
+mesh.source.fixed = 1;
