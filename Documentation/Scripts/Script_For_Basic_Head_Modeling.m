@@ -86,7 +86,12 @@ spos3=tpos2(1:Ns,:);
 dpos3=tpos2((Ns+1):end,:);
 tposNew=gridspringfit_ND2(m0,rad,spos3,dpos3);
 
-save(['Pad_',padname,'_on_',meshname,'.mat'],'info'); % Pad file
+info.tissue.infoT1=infoT1;
+info.optodes.spos3=tposNew(1:Ns,:);
+info.optodes.dpos3=tposNew((Ns+1):end,:);
+info.tissue.affine=eye(4);
+info.tissue.affine_target='MNI';
+save(['Pad_',padname,'_on_',meshname,'.mat'],'info','tposNew'); % Pad file
 
 %% View optode positions
 PlotMeshSurface(mesh,pM);PlotSD(tposNew(1:Ns,:),tposNew((Ns+1):end,:),'render',gcf);
@@ -179,5 +184,7 @@ info.tissue.dim=dim;
 info.tissue.affine=flags.t4;
 info.tissue.infoT1=infoT1;
 info.tissue.affine_target='MNI';
+[Nwl,Nmeas,Nvox]=size(A);
+A=reshape(permute(A,[2,1,3]),Nwl*Nmeas,Nvox);
 
 save(['A_',flags.tag,'.mat'],'A','info','flags','-v7.3')

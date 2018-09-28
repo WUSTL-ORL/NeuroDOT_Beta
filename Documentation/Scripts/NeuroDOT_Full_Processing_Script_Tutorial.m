@@ -74,8 +74,7 @@ xlabel('Frequency (Hz)');ylabel('|X(f)|');xlim([1e-3 1])
 %% Block Averaging the measurement data and view
 badata = BlockAverage(lmdata, info.paradigm.synchpts(info.paradigm.Pulse_2), dt);
 
-badata=bsxfun(@minus,badata,mean(lmdata(:,(info.paradigm.synchpts(2)-4):...
-    (info.paradigm.synchpts(2)-1)),2));
+badata=bsxfun(@minus,badata,mean(badata,2));
 
 figure('Position',[100 100 550 780])
 subplot(2,1,1); plot(badata(keep,:)'); 
