@@ -31,7 +31,7 @@ switch dataset
         tp=32;                      % Example (block averaged) time point
         
     case {'HW1','HW2','RW1','GV1','HW3_Noisy'}
-        A_fn='Adult_96x92_on_Example_Mesh_test.mat';   % Sensitivity Matrix
+        A_fn='A_Adult_96x92_on_Example_Mesh_test.mat';   % Sensitivity Matrix
         dt=30;                      % Block length
         tp=16;                      % Example (block averaged) time point
         
@@ -88,7 +88,7 @@ xlabel('Time (samples)');ylabel('Measurement #')
 
 %% RECONSTRUCTION PIPELINE
 if ~exist('A', 'var')       % In case running by hand or re-running script
-    A=load([A_fn]);
+    A=load([A_fn],'info','dim','flags');
     if length(size(A.A))>2  % A data structure [wl X meas X vox]-->[meas X vox]
         [Nwl,Nmeas,Nvox]=size(A.A);
         A.A=reshape(permute(A.A,[2,1,3]),Nwl*Nmeas,Nvox);

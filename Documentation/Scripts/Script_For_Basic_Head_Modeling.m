@@ -54,6 +54,12 @@ PlotSD(tpos(1:Ns,:),tpos((Ns+1):end,:),'norm');
 
 
 %% View cap position with and without mesh
+if ~exist('mesh','var')
+    [mask,infoT1]=LoadVolumetricData(['Segmented_MNI152nl_on_MNI111'],[],'4dfp');
+    mesh=load_mesh(meshname);
+    mesh.nodes=change_space_coords(mesh.nodes,infoT1,'coord');
+    PlotMeshSurface(mesh,pM)
+end
 
 PlotMeshSurface(mesh,pM);PlotSD(tpos(1:Ns,:),tpos((Ns+1):end,:),'norm',gcf);
 
@@ -86,12 +92,13 @@ spos3=tpos2(1:Ns,:);
 dpos3=tpos2((Ns+1):end,:);
 tposNew=gridspringfit_ND2(m0,rad,spos3,dpos3);
 
-info.tissue.infoT1=infoT1;
 info.optodes.spos3=tposNew(1:Ns,:);
 info.optodes.dpos3=tposNew((Ns+1):end,:);
+info.tissue.infoT1=infoT1;
 info.tissue.affine=eye(4);
 info.tissue.affine_target='MNI';
 save(['Pad_',padname,'_on_',meshname,'.mat'],'info','tposNew'); % Pad file
+
 
 %% View optode positions
 PlotMeshSurface(mesh,pM);PlotSD(tposNew(1:Ns,:),tposNew((Ns+1):end,:),'render',gcf);
@@ -153,12 +160,24 @@ disp(['<makeAnirfast took ',num2str(toc(Ti))])
 
 
 
+%% Package data and save A
+[Nwl,Nmeas,Nvox]=size(A);
+A=reshape(permute(A,[2,1,3]),Nwl*Nmeas,Nvox);
+
+info.tissue.dim=dim;
+info.tissue.affine=flags.t4;
+info.tissue.infoT1=infoT1;
+info.tissue.affine_target='MNI';
+info.tissue.flags=flags;
+
+save(['A_',flags.tag,'.mat'],'A','info','-v7.3')
+
+
 %% Visualize aspects of sensitivity profile
 t1=affine3d_img(mask,infoT1,dim,eye(4)); % put anatomical volume in dim space
 
 keep=info.pairs.WL==2 & info.pairs.Src==1 & info.pairs.Det==6;
-keep(info.pairs.WL==1)=[];
-foo=squeeze(A(2,keep,:));              % Single meas pair
+foo=squeeze(A(keep,:));              % Single meas pair
 fooV=Good_Vox2vol(foo,dim);
 fooV=fooV./max(fooV(:));
 fooV=log10(1e2.*fooV);                  % top 2 o.o.m.
@@ -167,8 +186,7 @@ PlotSlices(t1,dim,pA,fooV)
 
 % FFR
 keep=(info.pairs.WL==2 & info.pairs.r2d<=40);
-keep(info.pairs.WL==1)=[];
-a=squeeze(A(2,keep,:));
+a=squeeze(A(keep,:));
 iA=Tikhonov_invert_Amat(a,0.01,0.1);
 iA=smooth_Amat(iA,dim,3);
 ffr=makeFlatFieldRecon(a,iA);
@@ -179,12 +197,4 @@ pA.PD=1;pA.Scale=1;pA.Th.P=1e-2;pA.Th.N=-pA.Th.P;
 PlotSlices(t1,dim,pA,fooV)
 
 
-%% Package data and save
-info.tissue.dim=dim;
-info.tissue.affine=flags.t4;
-info.tissue.infoT1=infoT1;
-info.tissue.affine_target='MNI';
-[Nwl,Nmeas,Nvox]=size(A);
-A=reshape(permute(A,[2,1,3]),Nwl*Nmeas,Nvox);
-
-save(['A_',flags.tag,'.mat'],'A','info','flags','-v7.3')
+%

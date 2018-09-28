@@ -44,7 +44,7 @@ PlotMeshSurface(m2,pM);
 
 
 %% Load initial Pad file depending on data structure:
-padname='Adult_96x92';
+padname='AdultV24x28';
 load(['Pad_',padname,'.mat']); % Pad file
 tpos=cat(1,info.optodes.spos3,info.optodes.dpos3);
 Ns=size(info.optodes.spos3,1);
@@ -54,12 +54,6 @@ PlotSD(tpos(1:Ns,:),tpos((Ns+1):end,:),'norm');
 
 
 %% View cap position with and without mesh
-if ~exist('mesh','var')
-    [mask,infoT1]=LoadVolumetricData(['Segmented_MNI152nl_on_MNI111'],[],'4dfp');
-    mesh=load_mesh(meshname);
-    mesh.nodes=change_space_coords(mesh.nodes,infoT1,'coord');
-    PlotMeshSurface(mesh,pM)
-end
 
 PlotMeshSurface(mesh,pM);PlotSD(tpos(1:Ns,:),tpos((Ns+1):end,:),'norm',gcf);
 
@@ -68,11 +62,11 @@ PlotMeshSurface(mesh,pM);PlotSD(tpos(1:Ns,:),tpos((Ns+1):end,:),'norm',gcf);
 
 % Adjust parameters by hand, update position, check
 tpos2=tpos;
-dx=-100;
-dy=-140;
-dz=-65;
+dx=0;
+dy=-110;
+dz=-55;
 dS=1.1;
-dxTh=0;
+dxTh=-90;
 dyTh=0;
 dzTh=0;
 
@@ -98,7 +92,6 @@ info.tissue.infoT1=infoT1;
 info.tissue.affine=eye(4);
 info.tissue.affine_target='MNI';
 save(['Pad_',padname,'_on_',meshname,'.mat'],'info','tposNew'); % Pad file
-
 
 %% View optode positions
 PlotMeshSurface(mesh,pM);PlotSD(tposNew(1:Ns,:),tposNew((Ns+1):end,:),'render',gcf);
@@ -158,9 +151,6 @@ if flags.Hz, flags.tag = [flags.tag,'FD']; end
 Ti=tic;[A,dim]=makeAnirfast(mesh,flags); % size(A)= [Nwl, Nmeas, Nvox]
 disp(['<makeAnirfast took ',num2str(toc(Ti))])
 
-
-
-%% Package data and save A with only 1st through 5th nearest neighbors to save space
 [Nwl,Nmeas,Nvox]=size(A);
 A=reshape(permute(A,[2,1,3]),Nwl*Nmeas,Nvox);
 
@@ -169,22 +159,6 @@ info.tissue.affine=flags.t4;
 info.tissue.infoT1=infoT1;
 info.tissue.affine_target='MNI';
 info.tissue.flags=flags;
-
-keep=info.pairs.NN<=5;
-temp=table;
-temp.Src=info.pairs.Src(keep);
-temp.Det=info.pairs.Det(keep);
-temp.NN=info.pairs.NN(keep);
-temp.WL=info.pairs.WL(keep);
-temp.lambda=info.pairs.lambda(keep);
-temp.Mod=info.pairs.Mod(keep);
-temp.r2d=info.pairs.r2d(keep);
-temp.r3d=info.pairs.r3d(keep);
-info.pairs=temp;
-A=A(keep,:);
-
-save(['A_',flags.tag,'.mat'],'A','info','-v7.3')
-
 
 %% Visualize aspects of sensitivity profile
 t1=affine3d_img(mask,infoT1,dim,eye(4)); % put anatomical volume in dim space
@@ -210,4 +184,6 @@ pA.PD=1;pA.Scale=1;pA.Th.P=1e-2;pA.Th.N=-pA.Th.P;
 PlotSlices(t1,dim,pA,fooV)
 
 
-%
+%% Package data and save
+
+save(['A_',flags.tag,'.mat'],'A','info','-v7.3')
