@@ -25,6 +25,8 @@ function PlotMeshSurface(mesh, params)
 %       orientation 't'                         Select orientation of
 %                                               volume. 't' for transverse,
 %                                               's' for sagittal.
+%       cboff       0                           If set to 1, no colorbar is
+%                                               displayed
 % 
 %   Note: APPLYCMAP has further options for using "params" to specify
 %   parameters for the fusion, scaling, and colormapping process.
@@ -109,6 +111,9 @@ if ~isfield(params,'EdgeColor'), params.EdgeColor='k';end
 if ~params.EdgesON, params.EdgeColor='none';end
 if ~isfield(params, 'cbmode')  ||  isempty(params.cbmode)
     params.cbmode = 0;
+end
+if ~isfield(params, 'cboff')  
+    params.cboff = 0;
 end
 
 
@@ -356,9 +361,11 @@ if cb
     
     % Add the colorbar.
     colormap(gca,CMAP)
-    h2 = colorbar('Color', LineColor);
-    if params.cbmode
-        set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);
+    if ~params.cboff
+        h2 = colorbar('Color', LineColor);
+        if params.cbmode
+            set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);
+        end
     end
 end
 

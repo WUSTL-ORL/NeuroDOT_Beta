@@ -1,7 +1,7 @@
 function nlrGrayPlots_180818(nlrdata,info)
 %
 % This function generates a gray plot figure for measurement pairs
-% for just clear WL==2 data. It is assumed that the input data is
+% for just clean WL==2 data. It is assumed that the input data is
 % nlrdata that has already been filtered and resampled. The data is grouped
 % into info.pairs.r2d<20, 20<=info.pairs.r2d<30, and 30<=info.pairs.r2d<40.
 
@@ -10,10 +10,13 @@ function nlrGrayPlots_180818(nlrdata,info)
 LineColor='w';
 BkndColor='k';
 % Nrt=size(info.GVTD,1);
-M=0.03;
+% M=max(abs(nlrdata(:)));
 wl=unique(info.pairs.lambda(info.pairs.WL==2));
 figure('Units','normalized','OuterPosition',[0.1 0.1 0.5 0.5],...
     'Color',BkndColor);
+if ~isfield(info,'MEAS')
+    info.MEAS.GI=ones(size(info.pairs.Src,1),1);
+end
 
 %% Prepare data and imagesc together
 keep.d1=info.MEAS.GI & info.pairs.r2d<20 & info.pairs.WL==2;
@@ -23,9 +26,11 @@ keep.d3=info.MEAS.GI & info.pairs.r2d>=30 & info.pairs.r2d<40 &...
             info.pairs.WL==2;
 
 SepSize=round((sum(keep.d1)+sum(keep.d2)+sum(keep.d3))/50);
-data1=cat(1,squeeze(nlrdata(keep.d1,:)),ones(SepSize,Nt).*-M,...
-        squeeze(nlrdata(keep.d2,:)),ones(SepSize,Nt).*-M,...    
+data1=cat(1,squeeze(nlrdata(keep.d1,:)),nan(SepSize,Nt),....*-M
+        squeeze(nlrdata(keep.d2,:)),nan(SepSize,Nt),... .*-M   
         squeeze(nlrdata(keep.d3,:)));    
+    
+M=nanstd((data1(:))).*3;
 
 %% Line Plot of DVARS
 % subplot(2,1,1,'Position',[0.1,0.75,0.8,0.2])

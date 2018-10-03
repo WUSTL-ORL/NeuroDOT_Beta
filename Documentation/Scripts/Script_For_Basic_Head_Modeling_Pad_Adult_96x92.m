@@ -13,7 +13,8 @@
 [mask,infoT1]=LoadVolumetricData(['Segmented_MNI152nl_on_MNI111'],[],'4dfp');
 p.Cmap='jet';p.Scale=5;p.Th.P=0;p.Th.N=-p.Th.P;p.PD=1;p.BG=[0,0,0];
 PlotSlices(mask,infoT1,p)       % Visualize the segmented mask: 
-        % note, PlotSlices is an interactive plot. hit q or the middle mouse button to quit
+        % Note, PlotSlices is an interactive plot. 
+        % Hit q or the middle mouse button to quit
 
 
 % Parameters for generating your mesh
@@ -51,6 +52,7 @@ Ns=size(info.optodes.spos3,1);
 Nd=size(info.optodes.dpos3,1);
 rad=info;
 PlotSD(tpos(1:Ns,:),tpos((Ns+1):end,:),'norm');
+PlotCap(info)
 
 
 %% View cap position with and without mesh
@@ -191,7 +193,7 @@ t1=affine3d_img(mask,infoT1,dim,eye(4)); % put anatomical volume in dim space
 
 keep=info.pairs.WL==2 & info.pairs.Src==1 & info.pairs.Det==6;
 foo=squeeze(A(keep,:));              % Single meas pair
-fooV=Good_Vox2vol(foo,dim);
+fooV=Good_Vox2vol(foo',dim);
 fooV=fooV./max(fooV(:));
 fooV=log10(1e2.*fooV);                  % top 2 o.o.m.
 pA.PD=1;pA.Scale=2;pA.Th.P=0;pA.Th.N=-pA.Th.P;

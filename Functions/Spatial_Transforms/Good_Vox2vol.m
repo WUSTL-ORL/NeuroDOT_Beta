@@ -36,6 +36,10 @@ function imgvol = Good_Vox2vol(img, dim)
 
 %% Parameters and Initialization.
 [Nvox, Nt] = size(img);
+if Nvox==1 && Nt>1
+    img=img';
+    [Nvox, Nt] = size(img);
+end
 
 %% Stream image into good voxels.
 imgvol = zeros(dim.nVx * dim.nVy * dim.nVz, Nt);

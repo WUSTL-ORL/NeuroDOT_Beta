@@ -1,21 +1,16 @@
-%% NEURODOT DOT PROCESSING SCRIPT
-% This script combines both the Preprocessing and Reconstruction pipelines.
-% A file of sample data is already designated below, but you can use the
-% "load" command to load your own optical data. In order to load the sample
-% file, change the path below in the "addpath" line to the folder under
-% which you have NEURODOT installed.
-% 
-% A number of select visualizations have been left commented at the end of
-% this script.
+%% NEURODOT FULL PROCESSING SCRIPT
+% This script combines the Preprocessing and Reconstruction pipelines.
+% A set of sample Data files exist in the /Data directory of the toolbox.
+% For each data set, there is an example *.pptx with selected
+% visualizations. The NeuroDOT_Tutorial_Full_Data_Processing.pptx uses
+% NeuroDOT_Data_Sample_CCW1.mat. 
+%
 
-%% Installation
-% installpath = ''; % INSERT YOUR DESIRED INSTALL PATH HERE
-% addpath(genpath(installpath))
 
 %% PREPROCESSING PIPELINE
 
 %% Load Measurement data
-dataset='HW1'; % CCW1, CCW2, CW1, IN1, OUT1, GV1, HW1, HW2, HW3_Noisy,  RW1
+dataset='CW1'; % CCW1, CCW2, CW1, IN1, OUT1, GV1, HW1, HW2, HW3_Noisy,  RW1
 load(['NeuroDOT_Data_Sample_',dataset,'.mat']); % data, info, flags
 
 % Set parameters for A and block length for quick processing examples
@@ -70,6 +65,7 @@ xlabel('Time (samples)');ylabel('Measurement #')
 subplot(3,1,3); semilogx(ftdomain,ftmag);
 xlabel('Frequency (Hz)');ylabel('|X(f)|');xlim([1e-3 1])
 
+nlrGrayPlots_180818(lmdata,info); % Gray Plot with synch points
 
 %% Block Averaging the measurement data and view
 badata = BlockAverage(lmdata, info.paradigm.synchpts(info.paradigm.Pulse_2), dt);
@@ -88,7 +84,7 @@ xlabel('Time (samples)');ylabel('Measurement #')
 
 %% RECONSTRUCTION PIPELINE
 if ~exist('A', 'var')       % In case running by hand or re-running script
-    A=load([A_fn],'info','dim','flags');
+    A=load([A_fn],'info','A');
     if length(size(A.A))>2  % A data structure [wl X meas X vox]-->[meas X vox]
         [Nwl,Nmeas,Nvox]=size(A.A);
         A.A=reshape(permute(A.A,[2,1,3]),Nwl*Nmeas,Nvox);
@@ -137,10 +133,18 @@ Params.Th.N=-Params.Th.P;
 Params.Cmap='jet';
 PlotSlices(MNI_dim,A.info.tissue.dim,Params,tp_Eg); 
 
-% Explore the data a bit more interactively
+% Explore the block-averaged data a bit more interactively
+Params.Scale=0.8*max(abs(badata_HbOvol(:)));
 Params.Th.P=0;
 Params.Th.N=-Params.Th.P;
 PlotSlicesTimeTrace(MNI_dim,A.info.tissue.dim,Params,badata_HbOvol,info)
+
+% Explore the not-block-averaged data a bit more interactively
+HbOvol = Good_Vox2vol(cortex_HbO,A.info.tissue.dim);
+Params.Scale=4e-3;
+Params.Th.P=1e-3;
+Params.Th.N=-Params.Th.P;
+PlotSlicesTimeTrace(MNI_dim,A.info.tissue.dim,Params,HbOvol,info)
 
 
 %% Select Surface visualizations

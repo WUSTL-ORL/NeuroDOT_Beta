@@ -92,9 +92,10 @@ if strcmp(ext, '.mag')  &&  rem(TTL, 1)
 end
 
 % Check for file compatibility
-if Nt ~= info.io.unix_time
-    error('** The Unix Times of the .mag and info files do not match **')
-elseif (Nd ~= info.io.Nd  ||  Ns ~= info.io.Ns  ||  Nwl ~= info.io.Nwl)
+% if Nt ~= info.io.unix_time
+%     error('** The Unix Times of the .mag and info files do not match **')
+% else
+if (Nd ~= info.io.Nd  ||  Ns ~= info.io.Ns  ||  Nwl ~= info.io.Nwl)
     error('** One of the Numbers of detectors, sources, or colors does not match **')
 end
 
@@ -176,7 +177,9 @@ if isfield(info.io, 'pad')
     
     info.optodes = S.info.optodes;
     info.pairs = S.info.pairs;
-    info.tissue = S.info.tissue;
+    if isfield(S.info,'tissue')
+        info.tissue = S.info.tissue;
+    end
 end
 
 %% Reorder info structure.

@@ -422,7 +422,7 @@ while ~any(button == [2, 27, 81, 113]) % 2 = middle mouse button, 27 = Esc, 81 =
             hh.LineWidth = 2;
             
             hold on
-            plot(S(4) * ones(1, 2), ylim, '-r');
+            plot(S(4) * ones(1, 2), [-1,1].*c_max.*1.2, '-r');
             hold off
         
         else
@@ -439,6 +439,7 @@ while ~any(button == [2, 27, 81, 113]) % 2 = middle mouse button, 27 = Esc, 81 =
             xlabel('Time (samples)', 'Color', LineColor, 'FontSize', 10)
         end
         ylabel('[Hb]', 'Color', LineColor, 'FontSize', 10)
+        ylim([-1,1].*c_max.*1.2)
         
         
         %% Add a colorbar to bottom of whole thing.
