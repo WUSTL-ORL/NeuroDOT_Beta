@@ -29,7 +29,21 @@ function [t4,scale,header]=loadAviT4(filepath,filename)
 % IN BREACH OF CONTRACT, TORT OR OTHERWISE, EVEN IF SUCH PARTY IS 
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
+%%
+sys=getenv('OS');
+switch sys(1)
+    case 'W'
+        s='\';
+    case 'L'
+        s='/';
+end
+if ~isempty(filepath)
+    if ~strcmp(filepath(end),'/') 
+        filepath=[filepath,s];
+    end
+end
 
+%%
 fid=fopen([filepath,filename]);
 tline = fgetl(fid);
 header={};

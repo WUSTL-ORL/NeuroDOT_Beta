@@ -98,7 +98,7 @@ for j = 1:2
     disp('> Inverting A')                
     iA = Tikhonov_invert_Amat(A.A(keep, :), 0.01, 0.1); % Invert A-Matrix
     disp('> Smoothing iA')
-    iA = smooth_Amat(iA, A.info.tissue.dim, 5);         % Smooth Inverted A-Matrix      
+    iA = smooth_Amat(iA, A.info.tissue.dim, 3);         % Smooth Inverted A-Matrix      
     cortex_mu_a(:, :, j) = reconstruct_img(lmdata(keep, :), iA);% Reconstruct Image Volume
 end
 

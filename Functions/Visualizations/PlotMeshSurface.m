@@ -24,7 +24,9 @@ function PlotMeshSurface(mesh, params)
 %                                               triplet.
 %       orientation 't'                         Select orientation of
 %                                               volume. 't' for transverse,
-%                                               's' for sagittal.
+%                                               's' for sagittal, 'coord'
+%                                               for simple coordinates
+%                                               (default) with no flips
 %       cboff       0                           If set to 1, no colorbar is
 %                                               displayed
 % 
@@ -71,7 +73,7 @@ if ~exist('params', 'var')
 end
 
 if ~isfield(params, 'orientation')
-    params.orientation = 's';
+    params.orientation = 'coord';
 end
 
 if ~isfield(params, 'BGC')  ||  isempty(params.BGC)
