@@ -65,7 +65,9 @@ xlabel('Time (samples)');ylabel('Measurement #')
 subplot(3,1,3); semilogx(ftdomain,ftmag);
 xlabel('Frequency (Hz)');ylabel('|X(f)|');xlim([1e-3 1])
 
+Plot_TimeTrace_With_PowerSpectrum(lmdata,info); % As above, but now automated with all wavelengths
 nlrGrayPlots_180818(lmdata,info); % Gray Plot with synch points
+GrayPlots_Rsd_by_Wavelength(lmdata,info); % As above but now with all wavelengths
 
 %% Block Averaging the measurement data and view
 badata = BlockAverage(lmdata, info.paradigm.synchpts(info.paradigm.Pulse_2), dt);

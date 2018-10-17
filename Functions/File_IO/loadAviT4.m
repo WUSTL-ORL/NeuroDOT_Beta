@@ -30,15 +30,9 @@ function [t4,scale,header]=loadAviT4(filepath,filename)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %%
-sys=getenv('OS');
-switch sys(1)
-    case 'W'
-        s='\';
-    case 'L'
-        s='/';
-end
+s = filesep;  % Update by ZEM 2018/10/16 to circumvent inconsistent behavior of getenv('OS').
 if ~isempty(filepath)
-    if ~strcmp(filepath(end),'/') 
+    if ~strcmp(filepath(end),s)  % Update by ZEM 2018/10/16 to make general across operating systems.
         filepath=[filepath,s];
     end
 end

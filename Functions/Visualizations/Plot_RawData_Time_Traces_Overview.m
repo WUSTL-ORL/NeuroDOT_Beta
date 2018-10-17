@@ -112,59 +112,7 @@ for j=1:Nwl
     end    
     
 if isfield(info,'paradigm') % Add in experimental paradigm timing
-    hold on
-    if sum(keep)
-        sMin=10^floor(log10(min(min(data(keep,:)))));
-        sMax=10^ceil(log10(max(max(data(keep,:)))));
-    else
-        sMin=1e-6;
-        sMax=10;
-    end
-    if isfield(info.paradigm,'Pulse_3')
-        Npts=length(info.paradigm.Pulse_3);
-        synch=info.paradigm.synchpts(info.paradigm.Pulse_3);
-        semilogy([synch;synch]./fr,...
-            repmat([sMin;sMax],1,Npts),'-b')
-        
-        if isfield(info.paradigm,'Pulse_2')
-        Npts=length(info.paradigm.Pulse_2);
-        synch=info.paradigm.synchpts(info.paradigm.Pulse_2);
-        semilogy([synch;synch]./fr,...
-            repmat([sMin;sMax],1,Npts),'-g')
-        end
-        
-        if isfield(info.paradigm,'Pulse_1')
-        Npts=length(info.paradigm.Pulse_1);
-        synch=info.paradigm.synchpts(info.paradigm.Pulse_1);
-        semilogy([synch;synch]./fr,...
-            repmat([sMin;sMax],1,Npts),'-r')
-        end
-        
-    elseif isfield(info.paradigm,'Pulse_2')
-        Npts=length(info.paradigm.Pulse_2);
-        synch=info.paradigm.synchpts(info.paradigm.Pulse_2);
-        semilogy([synch;synch]./fr,...
-            repmat([sMin;sMax],1,Npts),'-g')
-        
-        if isfield(info.paradigm,'Pulse_1')
-        Npts=length(info.paradigm.Pulse_1);
-        synch=info.paradigm.synchpts(info.paradigm.Pulse_1);
-        semilogy([synch;synch]./fr,...
-            repmat([sMin;sMax],1,Npts),'-r')
-        end
-        
-    elseif isfield(info.paradigm,'Pulse_1')
-        Npts=length(info.paradigm.Pulse_1);
-        synch=info.paradigm.synchpts(info.paradigm.Pulse_1);
-        semilogy([synch;synch]./fr,...
-            repmat([sMin;sMax],1,Npts),'-r')
-        
-    elseif isfield(info.paradigm,'synchpts')
-        Npts=length(info.paradigm.synchpts);
-        synch=info.paradigm.synchpts;
-        semilogy([synch;synch]./fr,...
-            repmat([sMin;sMax],1,Npts),'-w')
-    end
+    DrawColoredSynchPoints(info,1);
 end
 
 end
