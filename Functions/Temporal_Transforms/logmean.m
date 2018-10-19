@@ -1,4 +1,4 @@
-function data_out = logmean(data_in)
+function [data_out,Phi_0] = logmean(data_in)
 
 % LOGMEAN Takes the log-ratio of raw intensity data.
 %
@@ -77,8 +77,8 @@ if NDtf
 end
 
 %% Perform Logmean.
-Phi_o=mean(data_in, 2);
-X=bsxfun(@rdivide, data_in, Phi_o);
+Phi_0=mean(data_in, 2);
+X=bsxfun(@rdivide, data_in, Phi_0);
 
 if ~isZ % All Real
     data_out = -log(X);
