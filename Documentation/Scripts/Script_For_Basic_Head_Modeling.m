@@ -168,7 +168,7 @@ A=reshape(permute(A,[2,1,3]),Nwl*Nmeas,Nvox);
 
 info.tissue.dim=dim;
 info.tissue.affine=flags.t4;
-info.tissue.infoT1=infoT1;
+info.tissue.infoT1=flags.info;
 info.tissue.affine_target='MNI';
 info.tissue.flags=flags;
 

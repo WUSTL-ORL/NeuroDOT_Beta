@@ -60,7 +60,7 @@ Ns = length(Srcs);
 Nd = length(Dets);
 
 BkgdColor = [0, 0, 0]; % KEEP THESE LIKE THIS!
-LineColor = [1, 1, 1]; % They are read as RGB triplets by later functions.
+% LineColor = [1, 1, 1]; % They are read as RGB triplets by later functions.
 
 box_buffer = 5;
 new_fig = 0;
@@ -72,6 +72,7 @@ end
 if ~isfield(params, 'dimension')  ||  isempty(params.dimension)
     params.dimension = '2D'; % '2D' | '3D'
 end
+if ~isfield(params,'LineColor'),params.LineColor=[1,1,1];end
 switch params.dimension
     case '2D'
         % Get optode positions.
@@ -133,13 +134,13 @@ switch params.mode
         switch params.dimension
             case '2D'
                 TextSize = 8;
-                STextColor = repmat(LineColor, Ns, 1);
-                DTextColor = repmat(LineColor, Nd, 1);
+                STextColor = repmat(params.LineColor, Ns, 1);
+                DTextColor = repmat(params.LineColor, Nd, 1);
             case '3D'
                 TextSize = 6;
                 MarkerSize = 9;
-                STextColor = repmat(BkgdColor, Ns, 1);
-                DTextColor = repmat(BkgdColor, Nd, 1);
+                STextColor = repmat(params.LineColor, Ns, 1);
+                DTextColor = repmat(params.LineColor, Nd, 1);
                 SMarkerEdgeColor = STextColor;
                 DMarkerEdgeColor = DTextColor;
         end
