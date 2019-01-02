@@ -77,6 +77,7 @@ switch conversion
             info_out.system.framerate=info_out.system.init_framerate;
         end
         
+    if ~isfield(info_in,'Pad_info')
         %% Build "info.optodes".
         if isfield(info_in, 'pad')
             info_out.optodes.CapName = info_in.pad;
@@ -149,6 +150,12 @@ switch conversion
             end
             info_out.misc.iRad = info_in.(rname);
         end
+        
+    else
+        info_out.pairs=info_in.Pad_info.pairs;
+        info_out.optodes=info_in.Pad_info.optodes;
+        
+    end
         
         %% Build "info.MEAS" if good indices present.
         tf = strcmp('goodindex', inames);

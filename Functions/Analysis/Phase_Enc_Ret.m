@@ -19,7 +19,7 @@ end
 
 [Nv,Nt]=size(data);             % Window length
 dt=1/fs;                        % Time increment per sample
-t=(0:Nt-1)/fs;                  % Time range for data
+t=(0:(Nt-1)).*dt;               % Time range for data
 n=Nt;                           % Length of transform
 f=(0:n-1)*(fs/n);               % Frequency range
 freqs=f(1:floor(n/2));          % 0-Nyquist Freq set of freqs

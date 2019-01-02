@@ -95,6 +95,13 @@ ylabel('{\Phi_0} ( {\mu}W )','Color','w')
 set(gca,'XColor','w','YColor','w','Xgrid','on','Ygrid','on','Color','k')
 legend(leg,'Color','w')
 
+if istablevar(info.MEAS,'Clipped')
+    hold on;
+    keep=info.MEAS.Clipped;
+    semilogy(info.pairs.r3d(keep),Phi_0(keep),'xw');
+    legend(cat(1,leg,'Clipped'),'Color','k','TextColor','w')
+end
+
 
 
 %% <fft> for max wavelength at 2 distances
@@ -154,7 +161,22 @@ axis square;colormap(gca,cMap);
 
 
 %% std(Y) WL 1
-stdY=std(lmdata,[],2);
+if isfield(info.paradigm, 'synchpts')
+    NsynchPts = length(info.paradigm.synchpts); % set timing of data
+    if NsynchPts > 2
+        tF = info.paradigm.synchpts(end);
+        t0 = info.paradigm.synchpts(2);
+    elseif NsynchPts == 2
+        tF = info.paradigm.synchpts(2);
+        t0 = infoparadigm.synchpts(1);
+    else
+        tF = size(data, 2);
+        t0 = 1;
+    end
+    stdY=std(lmdata(:, t0:tF),[],2);
+else
+    stdY=std(lmdata,[],2);
+end
 sdFull(Ia)=stdY(Ib);
 subplot(3,6,9,'Position',[0.37,0.36,0.14,0.35])       
 imagesc(sdFull,[0,0.2]);

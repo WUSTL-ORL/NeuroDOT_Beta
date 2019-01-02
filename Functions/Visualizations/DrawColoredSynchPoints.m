@@ -25,6 +25,8 @@ function DrawColoredSynchPoints(info,SPfr)
 
 
 %% Parameters and Initialization
+if ~isfield(info,'paradigm'),return;end
+if ~isfield(info.paradigm,'synchpts'),return;end
 h=gca;
 xLim=get(h,'XLim');
 yLim=get(h,'YLim');
@@ -36,7 +38,11 @@ if SPfr
 else
     synchs=info.paradigm.synchpts;
 end
-    
+for j=1:4
+    if ~isfield(info.paradigm,['Pulse_',num2str(j)])
+        info.paradigm.(['Pulse_',num2str(j)])=[];
+    end
+end
 
 %% Draw lines
 for j=1:length(synchs)    % Draw synch pt bars

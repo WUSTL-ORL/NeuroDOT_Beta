@@ -25,49 +25,62 @@ function [M,info,I,Q,clipping]=Decode_Acqdecode_Raw(subj,dateA,suf,params)
 
 
 %% Parameters and Initialization
-sr=96e3;
-% FSchan=96; % This needs to be determined from the info files
 mPHeight=0.1;
 mPDist=1000;
 ext='.raw';
 if ~exist('params','var'),params=[];end
 if ~isfield(params,'overwrite'),params.overwrite=1;end
+if ~isfield(params,'sr'),params.sr=96e3;end
+sr=params.sr;
+if ~isfield(params,'ND2'),params.ND2=0;end
 if ~isfield(params,'tag')
     datafile2save=[dateA,'-',subj,'-',suf]; % Data file name
 else
     datafile2save=[dateA,'-',subj,'-',suf,'_',params.tag]; % Data file name
 end
-    datafile=[dateA,'-',subj,'-',suf]; % Data file name
+datafile=[dateA,'-',subj,'-',suf]; % Data file name
 
 if exist([datafile2save,'.mat'],'file') && ~params.overwrite
     load([datafile2save,'.mat'])
-else % do all of this
+else % do all of decoding...
     
-if~isfield(params,'decode_type') % options: 'IQ','FFT'
+if ~isfield(params,'decode_type') % options: 'IQ','FFT'
     params.decode_type='FFT'; % Changed default to FFT 180131
 end 
-if~isfield(params,'fftNh'),params.fftNh=1;end % options: 1,2
-if~isfield(params,'nfft') % options: 'IQ','FFT'
+if ~isfield(params,'fftNh'),params.fftNh=1;end % options: 1,2
+if ~isfield(params,'nfft') % options: 'IQ','FFT'
     params.nfft='spts'; % Changed default to FFT 180131
 end 
-if~isfield(params,'Wtype') % options: 'np2','spts'
+if ~isfield(params,'Wtype') % options: 'np2','spts'
     params.Wtype='Hann'; % Changed default to spts 180213
 end 
-if~isfield(params,'adcT') % Enforce adc transient 180213
-    params.adcT.i=12; % initial dead window
-    params.adcT.f=5; % ending dead window
+if ~isfield(params,'adcT') % Enforce adc transient 180213
+    params.adcT.i=12; % initial dead window (10?)
+    params.adcT.f=5; % ending dead window (4?)
     t0=params.adcT.i;
 else
     t0=0;
 end 
-if~isfield(params,'clipM') % clipping max
+if ~isfield(params,'clipM') % clipping max
     params.clipM=1; 
     params.clipMu=0.5; 
 end 
-if~isfield(params,'noMatFile') % disable mat file saving
+
+% Also, you can have +/- thresholds if necessary
+if ~isfield(params,'clipPlus') % clippling+
+    params.clipPlus = +params.clipM ;
+end
+if ~isfield(params,'clipMinus')% clippling-
+    params.clipMinus = -params.clipM ;
+end
+if ~isfield(params,'clipRange')%clipping range
+    params.clipRange = 1 ;
+end
+
+if ~isfield(params,'noMatFile') % disable mat file saving
     params.noMatFile = 0 ;
 end
-if~isfield(params,'fftIntPeriods') % enforce integer fft periods
+if ~isfield(params,'fftIntPeriods') % enforce integer fft periods
     params.fftIntPeriods = 0 ;
 end
 
@@ -90,6 +103,8 @@ switch info.pad % These must show the max A/D channel for each system
         FSchan=48; % info.nmotu * #chan in Motu (12)
     case 'Adult_96x92b'
         FSchan=48; % info.nmotu * #chan in Motu (12)
+    case 'AdultV24x28'
+        FSchan=28; % info.nmotu * #chan in Motu (12)
     case 'Baby32x34'
         FSchan=36; % info.nmotu * #chan in Motu (12)
     case 'AdultClinical2_48x34'
@@ -98,8 +113,11 @@ switch info.pad % These must show the max A/D channel for each system
         FSchan=96; % info.nmotu * #chan in FocusRite (16)
     case 'UHD126x126'
         FSchan=128; % Max focusrite channels as of 180705
+    case 'Gates_96x92'
+        FSchan=128; % Max focusrite channels as of 180705
+    case 'Gates_128x125'
+        FSchan=128; % Max focusrite channels as of 180705
 end
-SSchan=FSchan-1; % stim synch
 info.DecodingParams=params;
 
 
@@ -110,7 +128,9 @@ info.EncCfg=EncCfg;
 flashPerc=EncCfg.nisamp/(EncCfg.nisamp+EncCfg.niblank);
 periodSamp=sr./EncCfg.freq; % Number of samples per period for ea freq
 Nfreq=length(EncCfg.freq);
+if isfield(EncCfg,'adcmax'), FSchan=EncCfg.adcmax;end
 
+SSchan=FSchan-1; % stim synch (may not be used for now)
 
 %% Get frame synch raw file and Calculate empirical sampling info
 disp('<<< Finding frame synch points')
@@ -178,6 +198,7 @@ for j=1:Nfreq % indices associated w mod freqs
 end
 
 
+
 %% Set up Hamm window and sin/cos basic functions for ea freq
 [HammF,sinF,cosF]=Generate_Decoding_Bases(...
     SamplesPerTimeStep,sr,EncCfg.freq,params);
@@ -213,9 +234,7 @@ for d=1:Nd
         
         tIdx=bsxfun(@plus,ti,[t0:(t0+SamplesPerTimeStep(1)-1)])';
         d1=reshape(APDdata(tIdx(:)),SamplesPerTimeStep(1),[])';
-        clipping(ts,d,:)=((sum(abs(d1)>=params.clipM,2))+...
-            (abs(mean(d1,2))>params.clipMu)+...
-            ((max(d1,[],2)-min(d1,[],2))>1))>0; 
+        clipping(ts,d,:)=DetectClipping(d1,params); 
         [M(ts,d,1,:),I(ts,d,1,:),Q(ts,d,1,:)]=MIQ_Decode_Raw_Acqdecode(...
             d1,sinF{1},cosF{1},HammF{1},EncCfg.div(1));% REGION 1, WL 1
         
@@ -227,9 +246,7 @@ for d=1:Nd
         if Nreg>1
         tIdx=bsxfun(@plus,ti,[t0:(t0+SamplesPerTimeStep(3)-1)])';
         d1=reshape(APDdata(tIdx(:)),SamplesPerTimeStep(3),[])';
-        clipping(ts+Nts,d,:)=((sum(abs(d1)>=params.clipM,2))+...
-            (abs(mean(d1,2))>=params.clipMu)+...
-            ((max(d1,[],2)-min(d1,[],2))>1))>0; 
+        clipping(ts+Nts,d,:)=DetectClipping(d1,params);  
         [M(ts+Nts,d,1,:),I(ts+Nts,d,1,:),Q(ts+Nts,d,1,:)]=...
             MIQ_Decode_Raw_Acqdecode(...
             d1,sinF{3},cosF{3},HammF{3},EncCfg.div(3));% REGION 2, WL 1
@@ -256,9 +273,7 @@ for d=1:Nd
             % Number of samples in FFT different for each frequency
             %%%%%%%
             % This clipping is for 1 region only
-            clipping(ts,d,:)=((sum(abs(d1)>=params.clipM,2))+...
-                (abs(mean(d1,2))>=params.clipMu)+...
-                ((max(d1,[],2)-min(d1,[],2))>1))>0; 
+            clipping(ts,d,:)=DetectClipping(d1,params); 
             %%%%%%%
             M(ts,d,1,:)=FFT_Decode_Raw_Acqdecode(...
                 d1,HammF{1},Ndft(1),idxF{1},EncCfg.div(1));
@@ -271,9 +286,7 @@ for d=1:Nd
             if Nreg>1
                 tIdx=bsxfun(@plus,ti,[t0:(t0+SamplesPerTimeStep(3)-1)])';
                 d1=reshape(APDdata(tIdx(:)),SamplesPerTimeStep(3),[])';
-                clipping(ts+Nts,d,:)=((sum(abs(d1)>=params.clipM,2))+...
-                    (abs(mean(d1,2))>=params.clipMu)+...
-                    ((max(d1,[],2)-min(d1,[],2))>1))>0; 
+                clipping(ts+Nts,d,:)=DetectClipping(d1,params); 
                 M(ts+Nts,d,1,:)=FFT_Decode_Raw_Acqdecode(...
                     d1,HammF{3},Ndft(3),idxF{3},EncCfg.div(3));
 
@@ -284,11 +297,8 @@ for d=1:Nd
             end
         else
             % Number of samples in FFT same for each frequency
-            % 1 - 320sec/467sec = 32% faster on 1409 180320 AC001 with same
-            % results
             mags = FFT_Decode_Raw_Acqdecode(...
                 d1,HammF{1},Ndft(1),idxF,EncCfg.div);
-            % Hacked in Vpp threshold for detecting MOTU clipped channels
             tsClipped = ((sum(abs(d1)>=params.clipM,2))+...
                 (abs(mean(d1,2))>=params.clipMu)+...
                 ((max(d1,[],2)-min(d1,[],2))>1))>0;
@@ -344,8 +354,12 @@ if strfind(info.enc,'2pass')
         % Only look for clipping for S/D dist < 4 cm to determine which 
         % pass is clipped because it could be
         % caused by bright sources in another region
-        load(['radius_',info.pad])
-        radR2dSrcByDet = reshape(Rad.r2d,Rad.srcnum,Rad.detnum) ;
+        
+        
+        Rad=load(['Pad_',info.pad]); % Load Pad file for cap
+        radR2dSrcByDet = reshape(Rad.info.pairs.r2d(1:(Ns*Nd)),Ns,Nd);
+        
+        
         radR2dRegionSrcByDet = radR2dSrcByDet(RegSrcStartIdx:RegSrcEndIdx,:) ;
         radR2dRegionSrcXDet = reshape(radR2dRegionSrcByDet,...
             size(radR2dRegionSrcByDet,1)*size(radR2dRegionSrcByDet,2),1) ;
@@ -384,9 +398,12 @@ if strfind(info.enc,'2pass')
             if NclipOClose>NclipEClose % 1 is odd is hot, 0 if even is hot
                 dHot=MRegion(:,:,:,1:2:end);
                 dCool=MRegion(:,:,:,2:2:end);
+                % Get subset of clippingRegions since the cool clipped
+                % S/D pairs are still clipped
+                clippingRegionCool=clippingRegion(:,:,2:2:end);
                 fsKeep=fs(2:2:end);
                 repM=oF(:)>1;
-                clippingRegion=eF>0;
+%                 clippingRegion=eF>0;
                 disp(['<<<Interpolating odd/even bright/dim data'])
                 info.system.framerate=info.framerate;
                 dHrs=resample_tts(dHot,info,2*info.framerate);
@@ -396,9 +413,12 @@ if strfind(info.enc,'2pass')
             else
                 dHot=MRegion(:,:,:,2:2:end);
                 dCool=MRegion(:,:,:,1:2:end);
+                % Get subset of clippingRegions since the cool clipped
+                % S/D pairs are still clipped
+                clippingRegionCool=clippingRegion(:,:,1:2:end); 
                 fsKeep=fs(2:2:end);
                 repM=eF(:)>1;
-                clippingRegion=oF>0;
+%                 clippingRegion=oF>0;
                 disp(['<<<Interpolating even/odd bright/dim data'])
                 info.system.framerate=info.framerate;
                 dCrs=resample_tts(dCool,info,2*info.framerate);
@@ -419,23 +439,33 @@ if strfind(info.enc,'2pass')
 
         else % no need for replacement
             M1=reshape(MRegion,Ns*Nd,2,[]);
-            oNN2=mean(mean(mean(M1(Rad.nn2,:,1:2:end),3),2),1); % odd
-            eNN2=mean(mean(mean(M1(Rad.nn2,:,2:2:end),3),2),1); % even
+            keepNN2=find(((Rad.info.pairs.NN==2)==1).*((Rad.info.pairs.WL==1)==1));
+            oNN2=mean(mean(mean(M1(keepNN2,:,1:2:end),3),2),1); % odd
+            eNN2=mean(mean(mean(M1(keepNN2,:,2:2:end),3),2),1); % even
             if oNN2>eNN2
                 dHot=MRegion(:,:,:,1:2:end);
+                % Get subset of clippingRegions since the cool clipped
+                % S/D pairs are still clipped
+                clippingRegionCool=clippingRegion(:,:,2:2:end); 
                 fsKeep=fs(1:2:end);
             else
                 dHot=MRegion(:,:,:,2:2:end);
+                % Get subset of clippingRegions since the cool clipped
+                % S/D pairs are still clipped
+                clippingRegionCool=clippingRegion(:,:,1:2:end); 
                 fsKeep=fs(2:2:end);
             end
         end
         MRegion=reshape(dHot,size(MRegion,1),size(MRegion,2),2,[]);
         if ( j == 0 )
             MBestPassAllRegions = zeros(size(M,1),size(M,2),size(M,3),size(MRegion,4)) ;
+            clippingAllRegions = zeros(size(M,1),size(M,2),size(MRegion,4)) ;
         end
         MBestPassAllRegions(RegSrcStartIdx:RegSrcEndIdx,:,:,:) = MRegion ;
+        clippingAllRegions(RegSrcStartIdx:RegSrcEndIdx,:,:) = clippingRegionCool ;
     end
     M = MBestPassAllRegions ;
+    clipping = clippingAllRegions ;
     info.framerate=info.framerate/2; % % OR UP-SAMPLE????
     info.nframe=size(M,4);
     fs=fsKeep;
@@ -479,6 +509,12 @@ if info.naux
         info.(['Pulse_',num2str(j)])=find(info.synchtype==PulseTypes(j));
     end
     info.synch=synch;
+    
+    % If a movie run, keep actual synch channel and frame times
+    if strcmp(suf(1:3),'MOV')
+        info.fs=ti;
+        info.raw_synch=aux.aux1;        
+    end
 else
     synch=[];
 end
@@ -492,10 +528,26 @@ end
 
 %% Get grid and radius files into structure
 
-foo=load(['grid_',info.pad]);
-info.grid=foo.grid;
-foo=load(['radius_',info.pad]);
-info.Rad=foo.Rad;
+if exist(['Pad_',info.pad,'.mat'])
+    foo=load(['Pad_',info.pad]);
+    info.Pad_info=foo.info;
+else
+    foo=load(['grid_',info.pad]);
+    info.grid=foo.grid;
+    foo=load(['radius_',info.pad]);
+    info.Rad=foo.Rad;
+end
+
+if params.ND2 % Output data in newer format 181217)
+    % data is source-detector-wavelength-timepoints
+    M=reshape(M,[],size(M,4));
+    clipping=reshape(clipping,[],size(clipping,3));
+    info = converter_info(info, 'ND1 to ND2');
+    clipping=sum(clipping,2);
+        info.MEAS=table(cat(1,clipping(:),clipping(:))>0,...
+            'VariableNames', {'Clipped'});
+end
+
 
 if ( ~params.noMatFile )
 save([datafile2save,'.mat'],'M','info','I','Q','clipping','-v7.3')

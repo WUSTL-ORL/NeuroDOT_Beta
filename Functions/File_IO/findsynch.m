@@ -1,4 +1,4 @@
-function [synchpts,synchtype]=findsynch(synch)
+function [synchpts,synchtype]=findsynch(synch,m)
 
 % findsynch() interprets processed synchronization pulse time traces from
 % stimulus protocols. The raw synch trace should already have been
@@ -49,7 +49,9 @@ function [synchpts,synchtype]=findsynch(synch)
 synch1=squeeze(synch(1,:))-mean(synch(1,:)); 
 
 % set peak threshold
-m=0.25*max(synch1);
+if ~exist('m','var')
+    m=0.25*max(synch1);
+end
 dt=5;
 %m=2e-4;
 

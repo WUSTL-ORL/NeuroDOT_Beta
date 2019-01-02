@@ -1,4 +1,4 @@
-%% Script for model generation given an initial segmented vokumetric mask and optode set
+%% Script for model generation given an initial segmented volumetric mask and optode set
 
 % Volumetric segmentation is currently not supported, but there are many
 % options available (e.g., FreeSurfer). The starting point to this script

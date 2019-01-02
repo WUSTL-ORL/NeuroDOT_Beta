@@ -34,13 +34,6 @@ function Rad=Grid2Radius_180824(grid,dr)
 
 
 %% Parameters and Initialization
-if ~isfield(grid,'spos3')
-    grid.spos3=cat(2,grid.spos,zeros(size(grid.spos,1),1));
-end
-if ~isfield(grid,'dpos3')
-    grid.dpos3=cat(2,grid.dpos,zeros(size(grid.dpos,1),1));
-end
-if ~exist('dr','var'),dr=10;end
 
 if ~isfield(grid,'spos')
     if isfield(grid,'spos2')
@@ -56,6 +49,14 @@ if ~isfield(grid,'dpos')
         grid.dpos=grid.dpos3;
     end
 end
+
+if ~isfield(grid,'spos3')
+    grid.spos3=cat(2,grid.spos,zeros(size(grid.spos,1),1));
+end
+if ~isfield(grid,'dpos3')
+    grid.dpos3=cat(2,grid.dpos,zeros(size(grid.dpos,1),1));
+end
+if ~exist('dr','var'),dr=10;end
 
 Rad.srcnum=size(grid.spos3,1);
 Rad.detnum=size(grid.dpos3,1);

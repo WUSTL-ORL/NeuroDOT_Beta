@@ -1,12 +1,13 @@
 function [fwhm,stats]=Find_FWHM(Vin,prior,th,type)
 %
 % This function calculates the full width half maximum of an activation
-% given a prior. If desired, a threshold can be defined (default = 0.05).
+% given a prior. If desired, a threshold can be defined (default = 0.5).
 % Inputs:
 %   Vin     Volumetric data
 %   prior   Matlab indices of spatial prior to initialize FWHM search
 %   th      Relative threshold multiplier (0.5 = 50%)
-%   type    1=largest, 2=strongest continuous region
+%   type    keep island 0=with prior, 1=largest, 2=strongest continuous region
+%               If 1/2, prior may not lie within returned island.
 % 
 % Copyright (c) 2017 Washington University 
 % Created By: Adam T. Eggebrecht
@@ -38,28 +39,39 @@ function [fwhm,stats]=Find_FWHM(Vin,prior,th,type)
 
 if ~exist('th','var'), th=0.5;end
 
-if exist('prior','var')
-pVal=Vin(prior(1),prior(2),prior(3));
-pIdx= sub2ind(size(Vin),prior(1),prior(2),prior(3));
+if exist('prior','var') && ~isempty(prior)
+    pVal=Vin(prior(1),prior(2),prior(3));
+    pIdx= sub2ind(size(Vin),prior(1),prior(2),prior(3));
 else
     [pVal,pIdx]=max(Vin(:));
 end
-if ~exist('type','var'), type=1;end % 1 for biggest; 2 for strongest
+if ~exist('type','var'), type=0;end % 0: with prior, 1: biggest; 2: strongest
 
 
 %% Find islands
 test0=+(Vin>(th*pVal)); % Threshold and Binarize
 test1=bwconncomp(test0); % find islands
 if test1.NumObjects>1
-keep=zeros(test1.NumObjects,2);
-for j=1:test1.NumObjects 
-    keep(j,1)=sum(ismember(test1.PixelIdxList{j},pIdx)); % large
-    keep(j,2)=sum(Vin(test1.PixelIdxList{j})); % strong
-end
-test2=zeros(size(test0));
-test2(test1.PixelIdxList{keep(:,type)==1})=1; % 1 island w prior
-test2=test2.*Vin; % find max of Vin.*test2 and set new prior
-fwhm=Find_FWHM(test2);
+    keep=zeros(test1.NumObjects,3);
+    for j=1:test1.NumObjects
+        keep(j,1)=sum(ismember(test1.PixelIdxList{j},pIdx));    % w prior
+        keep(j,2)=length(test1.PixelIdxList{j});                % size
+        keep(j,3)=sum(Vin(test1.PixelIdxList{j}));              % strength
+    end
+    test2=zeros(size(test0));
+    switch type
+        case 0
+            test2(test1.PixelIdxList{keep(:,1)==1})=1; % Island w prior
+            fwhm=test2.*Vin;
+        case 1
+            test2(test1.PixelIdxList{keep(:,2)==max(keep(:,2))})=1; % Largest
+            test2=test2.*Vin; % Set new prior based on island max
+            fwhm=Find_FWHM(test2,[],th,type);
+        case 2
+            test2(test1.PixelIdxList{keep(:,3)==max(keep(:,3))})=1; % Strongest
+            test2=test2.*Vin; % Set new prior
+            fwhm=Find_FWHM(test2,[],th,type);
+    end
 else
     fwhm=zeros(size(test0));
     fwhm(test1.PixelIdxList{1})=Vin(test1.PixelIdxList{1});

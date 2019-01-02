@@ -121,14 +121,14 @@ param.SliceThickness  = sz;
 
 % Specify global tetrahedron size
 if ~isfield(param,'cell_size')
-switch type
-    case 'hd'
-        param.cell_size = 2.0 * min(sx, min(sy,sz)); 
-    case 'ld'
-        param.cell_size = 5.5 * min(sx, min(sy,sz)); 
-    case 'custom'
-        param.cell_size = value * min(sx, min(sy,sz)); 
-end
+    switch type
+        case 'hd'
+            param.cell_size = 2.0 * min(sx, min(sy,sz));
+        case 'ld'
+            param.cell_size = 5.5 * min(sx, min(sy,sz));
+        case 'custom'
+            param.cell_size = value * min(sx, min(sy,sz));
+    end
 end
 
 if ~isfield(param,'facet_size')

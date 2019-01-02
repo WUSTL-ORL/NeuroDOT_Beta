@@ -150,10 +150,33 @@ if NDtf
     data = reshape(data, [], Nt);
 end
 
+%% Use only time in synchpts if present
+if isfield(info, 'paradigm')
+    if isfield(info.paradigm, 'synchpts')
+        NsynchPts = length(info.paradigm.synchpts); % set timing of data
+        if NsynchPts > 2
+            tF = info.paradigm.synchpts(end);
+            t0 = info.paradigm.synchpts(2);
+        elseif NsynchPts == 2
+            tF = info.paradigm.synchpts(2);
+            t0 = infoparadigm.synchpts(1);
+        else
+            tF = size(data, 2);
+            t0 = 1;
+        end
+    else
+        tF = size(data, 2);
+        t0 = 1;
+    end
+else    
+    tF = size(data, 2);
+    t0 = 1;
+end
+
 
 %% Calculate power
 data=logmean(data);
-[ftmag, ftdomain] = fft_tts(data,fr);
+[ftmag, ftdomain] = fft_tts(data(:,t0:tF),fr);
 
 keep=info.pairs.r2d>=params.rlimits(1,1) & ...
         info.pairs.r2d<=params.rlimits(1,2) & ...

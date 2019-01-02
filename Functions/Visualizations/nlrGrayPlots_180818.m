@@ -9,7 +9,7 @@ function nlrGrayPlots_180818(nlrdata,info)
 [Nm,Nt]=size(nlrdata);
 LineColor='w';
 BkndColor='k';
-% Nrt=size(info.GVTD,1);
+if isfield(info,'GVTD'),Nrt=size(info.GVTD,1);end
 % M=max(abs(nlrdata(:)));
 wl=unique(info.pairs.lambda(info.pairs.WL==2));
 figure('Units','normalized','OuterPosition',[0.1 0.1 0.5 0.5],...
@@ -32,16 +32,20 @@ data1=cat(1,squeeze(nlrdata(keep.d1,:)),nan(SepSize,Nt),....*-M
     
 M=nanstd((data1(:))).*3;
 
+
 %% Line Plot of DVARS
-% subplot(2,1,1,'Position',[0.1,0.75,0.8,0.2])
-% plot([1:Nrt],info.GVTD(:),'r');
-% xlim([1,Nrt])
-% set(gca,'Color',BkndColor,'XColor',LineColor,'YColor',LineColor)
-% title(['GVTD'],'Color','w')
-% ylabel('a.u.');
+if isfield(info,'GVTD')
+    subplot(2,1,1,'Position',[0.1,0.75,0.8,0.2])
+    plot([1:Nrt],info.GVTD(:),'r');
+    xlim([1,Nrt])
+    set(gca,'Color',BkndColor,'XColor',LineColor,'YColor',LineColor)
+    title(['GVTD'],'Color','w')
+    ylabel('a.u.');
+    subplot(2,1,2,'Position',[0.1,0.05,0.8,0.6])
+end
+
 
 %% Gray Plot data
-% subplot(2,1,2,'Position',[0.1,0.05,0.8,0.6])
 imagesc(data1,[-1,1].*M)
 hold on
 

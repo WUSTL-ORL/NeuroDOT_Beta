@@ -115,3 +115,33 @@ switch Nm==Nlmm
         
         
 end
+
+% 
+% for j=1:5
+%     keep=info.MEAS.GI & info.pairs.r2d>10*(j-1) & info.pairs.r2d<=10*j;   
+%     subplot(2,2,1);
+%     loglog(Phi_0(keep),N_Phi_0(keep),'o','Color',cols(j,:))    
+%     subplot(2,2,2);    
+%     loglog(Phi_0(keep),Ny(keep),'o','Color',cols(j,:))
+%     subplot(2,2,3);
+%     loglog(info.pairs.r2d(keep),N_Phi_0(keep),'o','Color',cols(j,:))
+%     subplot(2,2,4);
+%     loglog(info.pairs.r2d(keep),Ny(keep),'o','Color',cols(j,:))
+% end
+% subplot(2,2,1);
+% legend([{'All','Rsd<20 GI','Rsd<30 GI','Rsd<40 GI','Rsd<50 GI',...
+%     'threshold'}],'Location','northwest')
+% 
+% 
+
+
+
+
+
+
+
+
+
+
+
+

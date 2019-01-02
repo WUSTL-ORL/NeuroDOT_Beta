@@ -110,6 +110,9 @@ end
 if ~isfield(params, 'view')  ||  isempty(params.view)
     params.view = 'lat';
 end
+if ~isfield(params, 'ctx')  ||  isempty(params.ctx)
+    params.ctx = 'std';
+end
 % Set c_max. Ignore setting Scale, just ask if it's there.
 if isfield(params, 'Scale')  &&  ~isempty(params.Scale)
     c_max = params.Scale;
@@ -218,11 +221,17 @@ axis off
 % title('Volumetric Surface Mapping', 'Color', LineColor, 'FontSize', 12)
 
 if params.CBar_on
-pos = get(gca, 'pos');
-colormap(CMAP)
-h2 = colorbar(gca, 'Color', LineColor, 'Location', 'southoutside');
-h2.Position = [pos(1)+pos(3)/4, pos(2), pos(3)/2, 0.035];
-set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);
+    pos = get(gca, 'pos');
+    colormap(CMAP)
+    switch params.view
+        case {'lat', 'med'}
+            h2 = colorbar(gca, 'Color', LineColor, 'Location', 'southoutside');
+            h2.Position = [pos(1)+pos(3)/4, pos(2), pos(3)/2, 0.035];
+            set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);
+        case {'post', 'dorsal'}
+            h2 = colorbar(gca, 'Color', LineColor, 'Location', 'eastoutside');
+            set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);
+    end
 end
 
 

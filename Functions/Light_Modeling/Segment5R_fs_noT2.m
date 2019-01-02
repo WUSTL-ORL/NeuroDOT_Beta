@@ -48,29 +48,10 @@ head_T1_bw=ExtractHead(T1n,params.Head_th);   % Extract T1 head shape
 head_T1_bw=imfill(head_T1_bw,'holes');
 head=+(head_T1_bw); %.*head_T2_bw);           % mask FOV based on T2 FOV
 head=imfill(head,'holes');
-head=+(smooth3(head,'gaussian',[7,7,7],2)>0.5);    % Smooth head
+head=+(imgaussfilt3(head,2)>0.5);             % Smooth head
 bknd=1-head;
 head_T1_data=T1n.*head;                     % masked T1
 
-
-%% Brain mask
-disp('<<< Correcting Tissue Masks')
-SS_bw=1-(bm+bknd);
-SS_T1=SS_bw.*head_T1_data;
-
-
-%% Scalp Skull separation
-brain_perim=imdilate(bm,SE_br);                             % Dilate brain
-brain_perim=+((brain_perim-bm)>0).*SS_bw;
-brain_perim=+(smooth3(brain_perim,'gaussian',[7,7,7],2)>0.25);% Smooth bone
-
-Scalp_bw=+((brain_perim.*SS_T1)>=params.Skull_th); 
-Skull_bw=(brain_perim-Scalp_bw).*SS_bw;
-Skull_bw=SingleContiguousRegion(Skull_bw);  % Skull SCR
-Skull_bw=imdilate(Skull_bw,SE_sa).*SS_bw;
-Skull_bw=imfill(Skull_bw,'holes');
-bkgnd=imdilate(bknd,SE_ba);                                 % Dilate bknd
-Scalp_bw=(SS_bw-Skull_bw).*(abs(1-bkgnd));                  % New Scalp
 
 
 %% Get fs brain segmentation
@@ -81,33 +62,39 @@ CSF_bw=mask1.CSF;
 clear mask1;
 
 
-%% Clean up CSF
-leftover=imfill(bm-GM_bw-WM_bw-CSF_bw,'holes');
-keep=intersect(find(leftover>0),find((leftover.*T1n)<=params.CSF_T1_th)); 
-CSF_bw(keep)=1;    
-CSF_bw(GM_bw==1)=0;
-CSF_bw(WM_bw==1)=0;
-
-
-%% Clean up skull
+%% Clean up CSF and GM in Brain mask
 leftover=+((bm-GM_bw-WM_bw-CSF_bw)>0);
-keep=intersect(find(leftover>0),find((leftover.*T1n)<=params.Skull_th));
-sk=zeros(size(Skull_bw));
-sk(keep)=1;
-sk=sk.*leftover;
-Skull_bw=+((Skull_bw+sk)>0); 
-leftover=+((bm-GM_bw-WM_bw-CSF_bw-Skull_bw-Scalp_bw)>0);
-GM_bw(leftover~=0)=1;
+csf2=((T1n)<=params.CSF_T1_th).*leftover;
+gm2=(T1n>params.CSF_T1_th).*leftover;
+CSF_bw=CSF_bw+csf2;
+GM_bw=+((GM_bw+gm2)>0);
+to_kill=((T1n<=params.CSF_T1_th)).*leftover;
+bm(to_kill==1)=0;
 
-Skull_bw((GM_bw+CSF_bw+WM_bw)>0)=0;
-Scalp_bw((GM_bw+CSF_bw+WM_bw)>0)=0;
+
+%% Brain mask
+disp('<<< Correcting Tissue Masks')
+SS_bw=1-(bm+bknd);
+SS_T1=SS_bw.*head_T1_data;
+
+
+%% Scalp Skull separation
+Skull_bw=(SS_T1<params.Skull_th).*SS_bw;
+Skull_bw=imdilate(Skull_bw,SE_sa);                  % Dilate Skull
+Skull_bw=SingleContiguousRegion(Skull_bw);          % Skull SCR
+Skull_bw=imfill(Skull_bw,'holes');                  % Fill holes in skull
+Skull_bw=imerode(Skull_bw,SE_sa);                   % Erode Skull
+Skull_bw=SingleContiguousRegion(Skull_bw).*SS_bw;   % Skull SCR
+Scalp_bw=SS_bw-Skull_bw;                            % Scalp
+
+
 
 %% Set values to region numbers: [1,2,3,4,5]=[csf,wm,gm,sk,sc]
 disp('<<< Smoothing head and setting mask values')
 
 head_bknd=1-head;
 head_bknd=+(imdilate(head_bknd,SE_sa2)>0);
-head_bknd=+(smooth3(head_bknd,'gaussian',[5,5,5],1.2)>0.5); % Smooth head
+head_bknd=+(imgaussfilt3(head_bknd,1.2)>0.5);             % Smooth head
 head_T1_bw=1-head_bknd;
 
 mask=head.*5;

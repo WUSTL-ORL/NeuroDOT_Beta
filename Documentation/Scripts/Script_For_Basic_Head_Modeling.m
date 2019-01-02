@@ -161,18 +161,36 @@ Ti=tic;[A,dim]=makeAnirfast(mesh,flags); % size(A)= [Nwl, Nmeas, Nvox]
 disp(['<makeAnirfast took ',num2str(toc(Ti))])
 
 
+%% Package data and save A with only 1st through 5th nearest neighbors to save space
 
-%% Package data and save A
+nn12345=1; % for 96x92 cap
+
 [Nwl,Nmeas,Nvox]=size(A);
 A=reshape(permute(A,[2,1,3]),Nwl*Nmeas,Nvox);
 
 info.tissue.dim=dim;
 info.tissue.affine=flags.t4;
-info.tissue.infoT1=flags.info;
+info.tissue.infoT1=infoT1;
 info.tissue.affine_target='MNI';
 info.tissue.flags=flags;
 
+if nn12345
+keep=info.pairs.NN<=5;
+temp=table;
+temp.Src=info.pairs.Src(keep);
+temp.Det=info.pairs.Det(keep);
+temp.NN=info.pairs.NN(keep);
+temp.WL=info.pairs.WL(keep);
+temp.lambda=info.pairs.lambda(keep);
+temp.Mod=info.pairs.Mod(keep);
+temp.r2d=info.pairs.r2d(keep);
+temp.r3d=info.pairs.r3d(keep);
+info.pairs=temp;
+A=A(keep,:);
+end
+
 save(['A_',flags.tag,'.mat'],'A','info','-v7.3')
+
 
 
 %% Visualize aspects of sensitivity profile
@@ -197,6 +215,3 @@ fooV=Good_Vox2vol(ffr,dim);
 fooV=fooV./max(fooV(:));
 pA.PD=1;pA.Scale=1;pA.Th.P=1e-2;pA.Th.N=-pA.Th.P;
 PlotSlices(t1,dim,pA,fooV)
-
-
-%

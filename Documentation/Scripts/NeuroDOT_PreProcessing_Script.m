@@ -1,4 +1,4 @@
-﻿%% NEURODOT PREPROCESSING SCRIPT
+%% NEURODOT PREPROCESSING SCRIPT
 % This script includes details on the Preprocessing pipeline.
 % A file of sample data is already designated below, but you can use the
 % "load" command to load your own optical data. In order to load the sample
