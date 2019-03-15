@@ -11,7 +11,7 @@ function [volume, header] = LoadVolumetricData(filename, pn, file_type)
 %   filename input, as long as the extension is included in the file name
 %   and matches a supported file type.
 % 
-%   Supported File Types/Extensions: '.4dfp' 4dfp, '.nii' NIFTI.
+%   Supported File Types/Extensions: '.4dfp' 4dfp, 'nii' NIFTI.
 % 
 %   NOTE: This function uses the NIFTI_Reader toolbox available on MATLAB
 %   Central. This toolbox has been included with NeuroDOT 2.

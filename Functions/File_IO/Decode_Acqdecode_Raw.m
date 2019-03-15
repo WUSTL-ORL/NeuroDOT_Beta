@@ -48,15 +48,15 @@ if ~isfield(params,'decode_type') % options: 'IQ','FFT'
     params.decode_type='FFT'; % Changed default to FFT 180131
 end 
 if ~isfield(params,'fftNh'),params.fftNh=1;end % options: 1,2
-if ~isfield(params,'nfft') % options: 'IQ','FFT'
-    params.nfft='spts'; % Changed default to FFT 180131
+if ~isfield(params,'nfft') % options: 'np2','spts'
+    params.nfft='spts'; % Changed default to spts 180213
 end 
-if ~isfield(params,'Wtype') % options: 'np2','spts'
-    params.Wtype='Hann'; % Changed default to spts 180213
+if ~isfield(params,'Wtype') % 
+    params.Wtype='Hann'; %  
 end 
 if ~isfield(params,'adcT') % Enforce adc transient 180213
-    params.adcT.i=12; % initial dead window (10?)
-    params.adcT.f=5; % ending dead window (4?)
+    params.adcT.i=10; % initial dead window (10?) (12?)
+    params.adcT.f=4; % ending dead window (4?) (5?)
     t0=params.adcT.i;
 else
     t0=0;
@@ -75,6 +75,9 @@ if ~isfield(params,'clipMinus')% clippling-
 end
 if ~isfield(params,'clipRange')%clipping range
     params.clipRange = 1 ;
+end
+if ~isfield(params,'New2pass')%clipping range
+    params.New2pass = 1 ;
 end
 
 if ~isfield(params,'noMatFile') % disable mat file saving
@@ -234,7 +237,13 @@ for d=1:Nd
         
         tIdx=bsxfun(@plus,ti,[t0:(t0+SamplesPerTimeStep(1)-1)])';
         d1=reshape(APDdata(tIdx(:)),SamplesPerTimeStep(1),[])';
-        clipping(ts,d,:)=DetectClipping(d1,params); 
+        clipped=DetectClipping(d1,params)';
+        for n=1:Nreg
+            if ( ts+((n-1)*Nts) <= info.srcnum )
+                clipping(ts+((n-1)*Nts),d,:)=clipped;
+            end
+        end
+            
         [M(ts,d,1,:),I(ts,d,1,:),Q(ts,d,1,:)]=MIQ_Decode_Raw_Acqdecode(...
             d1,sinF{1},cosF{1},HammF{1},EncCfg.div(1));% REGION 1, WL 1
         
@@ -246,7 +255,6 @@ for d=1:Nd
         if Nreg>1
         tIdx=bsxfun(@plus,ti,[t0:(t0+SamplesPerTimeStep(3)-1)])';
         d1=reshape(APDdata(tIdx(:)),SamplesPerTimeStep(3),[])';
-        clipping(ts+Nts,d,:)=DetectClipping(d1,params);  
         [M(ts+Nts,d,1,:),I(ts+Nts,d,1,:),Q(ts+Nts,d,1,:)]=...
             MIQ_Decode_Raw_Acqdecode(...
             d1,sinF{3},cosF{3},HammF{3},EncCfg.div(3));% REGION 2, WL 1
@@ -264,17 +272,19 @@ for d=1:Nd
     % Decode all frames at once: Full FFT
     for ts=1:Nts 
         % For a given time step, find start times for ea frame
-        ti=round(fs+(ts-1)*diff([fs;fs(end)])./Nts);ti(end)=[];
-        
-        tIdx=bsxfun(@plus,ti,[t0:(t0+SamplesPerTimeStep(1)-1)])';
-        d1=reshape(APDdata(tIdx(:)),SamplesPerTimeStep(1),[])';
+        ti=round(fs+(ts-1)*diff([fs;fs(end)])./Nts);ti(end)=[];        
 
         if ( params.fftIntPeriods == 1 )
             % Number of samples in FFT different for each frequency
-            %%%%%%%
-            % This clipping is for 1 region only
-            clipping(ts,d,:)=DetectClipping(d1,params); 
-            %%%%%%%
+            tIdx=bsxfun(@plus,ti,[t0:(t0+SamplesPerTimeStep(1)-1)])';
+            d1=reshape(APDdata(tIdx(:)),SamplesPerTimeStep(1),[])';
+            clipped=DetectClipping(d1,params)'; 
+            for n=1:Nreg
+                if ( ts+((n-1)*Nts) <= info.srcnum )
+                    clipping(ts+((n-1)*Nts),d,:)=clipped;
+                end
+            end
+            
             M(ts,d,1,:)=FFT_Decode_Raw_Acqdecode(...
                 d1,HammF{1},Ndft(1),idxF{1},EncCfg.div(1));
 
@@ -286,7 +296,6 @@ for d=1:Nd
             if Nreg>1
                 tIdx=bsxfun(@plus,ti,[t0:(t0+SamplesPerTimeStep(3)-1)])';
                 d1=reshape(APDdata(tIdx(:)),SamplesPerTimeStep(3),[])';
-                clipping(ts+Nts,d,:)=DetectClipping(d1,params); 
                 M(ts+Nts,d,1,:)=FFT_Decode_Raw_Acqdecode(...
                     d1,HammF{3},Ndft(3),idxF{3},EncCfg.div(3));
 
@@ -297,38 +306,132 @@ for d=1:Nd
             end
         else
             % Number of samples in FFT same for each frequency
+            tIdx=bsxfun(@plus,ti,[t0:(t0+SamplesPerTimeStep(1)-1)])';
+            d1=reshape(APDdata(tIdx(:)),SamplesPerTimeStep(1),[])';
+%             clipping(ts:Nts:end,d,:)=repmat(DetectClipping(d1,params)',Nreg,1,1); 
+            clipped=DetectClipping(d1,params)'; 
             mags = FFT_Decode_Raw_Acqdecode(...
                 d1,HammF{1},Ndft(1),idxF,EncCfg.div);
-            tsClipped = ((sum(abs(d1)>=params.clipM,2))+...
-                (abs(mean(d1,2))>=params.clipMu)+...
-                ((max(d1,[],2)-min(d1,[],2))>1))>0;
-            if ( Nreg == 1) 
-                M(ts,d,1:2,:) = mags(1:2,:) ;
-                clipping(ts,d,:) = tsClipped ;
-            else % Nreg>1
-                for j=0:floor(info.srcnum/Nts)
-                    if ( mod(j,2) == 0 )
-                        currRegMagsIdx = [1:2] ;
-                    else
-                        currRegMagsIdx = [3:4] ;
-                    end
-                    if ( ts+j*Nts <= info.srcnum )
-                        M(ts+j*Nts,d,1:2,:) = mags(currRegMagsIdx,:) ;
-                        clipping(ts+j*Nts,d,:) = tsClipped ;
-                    end
+            
+            for n=1:Nreg
+                m0=((n-1)*Nwl)+1;
+                mF=n*Nwl;
+                if ( ts+((n-1)*Nts) <= info.srcnum )
+                    M(ts+((n-1)*Nts),d,:,:) = mags(m0:mF,:);
+                    clipping(ts+((n-1)*Nts),d,:)=clipped;
                 end
             end
-        end
-        
-        
+        end       
     end
     
     end
 end
+clear APDdata
 
 
 %% If 2-pass, fix data and frames before synch
+% Idea is to keep hot data overall and replace clipped hot data with cool
+% break into even and odd
+% find hot half per region
+% make full hot set
+% find clipped in hot and replace with cool set
 if strfind(info.enc,'2pass')
+    
+    if params.New2pass
+        Nf_new=floor(size(M,4)/2); % Number of frames after merging hot and cool        
+        oM=M(:,:,:,1:2:(Nf_new*2));
+        eM=M(:,:,:,2:2:(Nf_new*2));
+        dMmu=mean(mean(eM-oM,4),3);
+        Mhot=zeros(size(oM));
+        Mcool=zeros(size(oM));
+        clippingHot=zeros(Ns,Nd,Nf_new);
+        clippingCool=zeros(Ns,Nd,Nf_new);
+        OddRegionHotness=zeros(Nreg,1);
+        for j=1:Nreg
+            si=Nts*(j-1)+1;
+            sf=Nts*j;
+            if sf>info.srcnum, sf=info.srcnum;end
+            clippingRegion = clipping(si:sf,:,(1:Nf_new*2));
+        
+            %%%% Find Region-specific hot and cool frames UPDATED 20190311
+            OddRegionHotness(j)=sum(sum(dMmu(si:sf,:),2))<0; 
+            if j>1
+                if strfind(info.enc,'Gates')
+                    OddRegionHotness(j)=sum(sum(dMmu(si:sf,:),2))<0;                    
+                else
+                    OddRegionHotness(j)=~OddRegionHotness(j-1);                    
+                end
+%                 
+%                 if EncCfg.freq(1)==EncCfg.freq(1+EncCfg.cnum)
+%                     OddRegionHotness(j)=~OddRegionHotness(j-1);
+%                 else
+%                     OddRegionHotness(j)=sum(sum(dMmu(si:sf,:),2))<0;
+%                 end
+            end
+            
+            if OddRegionHotness(j)
+                dHot=oM(si:sf,:,:,:);
+                dCool=eM(si:sf,:,:,:);
+                clippingRegionHot=clippingRegion(:,:,1:2:end);
+                clippingRegionCool=clippingRegion(:,:,2:2:end);
+                fsKeep=fs(1:2:end);
+                disp(['<<<Interpolating odd/even bright/dim data',...
+                    ' for Region ',num2str(j)])
+                info.system.framerate=info.framerate;
+                dHrs=resample_tts(dHot,info,2*info.framerate);
+                dHot=dHrs(:,:,:,2:2:end);
+                dHot(dHot<0)=eps;
+                clear dHrs
+            else
+                dHot=eM(si:sf,:,:,:);
+                dCool=oM(si:sf,:,:,:);
+                clippingRegionHot=clippingRegion(:,:,2:2:end);
+                clippingRegionCool=clippingRegion(:,:,1:2:end); 
+                fsKeep=fs(2:2:end);
+                disp(['<<<Interpolating even/odd bright/dim data',...
+                    ' for Region ',num2str(j)])
+                info.system.framerate=info.framerate;
+                dCrs=resample_tts(dCool,info,2*info.framerate);
+                dCool=dCrs(:,:,:,2:2:end);
+                dCool(dCool<0)=eps;
+                clear dCrs                
+            end
+            
+            %%%% Get Scaling for dc cool to hot and scale cool
+            Nset=(Nreg*Nwl);
+            DimScale=zeros(Nwl,1);
+            for wl=1:Nwl
+                DimScale(wl)=[sin(pi*info.EncCfg.dc(wl+(j-1)*Nwl))]/...
+                    [sin(pi*info.EncCfg.dc(wl+Nset+(j-1)*Nwl))];
+                DimScale(wl)=max(DimScale(wl),1/DimScale(wl));
+                dCool(:,:,wl,:)=dCool(:,:,wl,:).*DimScale(wl);
+            end
+            
+            % Re-populate temporary arrays
+            Mhot(si:sf,:,:,:)=dHot;
+            Mcool(si:sf,:,:,:)=dCool;
+            clippingHot(si:sf,:,:)=clippingRegionHot; 
+            clippingCool(si:sf,:,:)=clippingRegionCool;            
+        end
+        
+        % Put Cool data in with hot data
+        Mhot=reshape(Mhot,Ns*Nd,Nwl,[]);
+        Mcool=reshape(Mcool,Ns*Nd,Nwl,[]);
+        clippingHot=reshape(clippingHot,Ns*Nd,[]);
+        clippingCool=reshape(clippingCool,Ns*Nd,[]);
+        
+        Cool2Hot=sum(clippingHot,2)>0;
+        Mhot(Cool2Hot,:,:)=Mcool(Cool2Hot,:,:);
+        clippingHot(Cool2Hot,:)=clippingCool(Cool2Hot,:);
+        
+        MBestPassAllRegions = reshape(Mhot,Ns,Nd,Nwl,[]);
+        clippingAllRegions = reshape(clippingHot,Ns,Nd,[]);
+        
+    
+        
+        
+    else
+    
     for j = 0:Nreg-1
         % Get M, clipping for each region
         RegSrcStartIdx = j*Nts + 1 ;
@@ -339,16 +442,27 @@ if strfind(info.enc,'2pass')
         Nf_new=floor(size(M,4)/2); % Number of frames after merging hot and cool
         % Throw out last frame if there is an odd number so that 
         % dHot and dCool are the same size
-        MRegion = M(RegSrcStartIdx:RegSrcEndIdx,:,:,1:Nf_new*2); 
-        clippingRegion = clipping(RegSrcStartIdx:RegSrcEndIdx,:,1:Nf_new*2) ;
+        MRegion = M(RegSrcStartIdx:RegSrcEndIdx,:,:,1:(Nf_new*2)); 
+        clippingRegion = clipping(RegSrcStartIdx:RegSrcEndIdx,:,(1:Nf_new*2)) ;
         
-        DimScale(1)=sin(pi*info.EncCfg.dc(1+4*j))/sin(pi*info.EncCfg.dc(3+4*j));
-        DimScale(2)=sin(pi*info.EncCfg.dc(2+4*j))/sin(pi*info.EncCfg.dc(4+4*j));
-
+        % Scale each wavelengths data to correct for dc val
+        % scaling=[sin(pi * high dc)]/[sin(pi * low dc)]
+%       % indices must match Region/freq dc vals
+%         DimScale(1)=sin(pi*info.EncCfg.dc(1+4*j))/sin(pi*info.EncCfg.dc(3+4*j));
+%         DimScale(2)=sin(pi*info.EncCfg.dc(2+4*j))/sin(pi*info.EncCfg.dc(4+4*j));
         % We want the large ratio because we are going to scale up the
-        % lower duty cycle signal but we don't know which is which yet
-        DimScale(1)=max(DimScale(1),1/DimScale(1)) ;
-        DimScale(2)=max(DimScale(2),1/DimScale(2)) ;
+        % lower duty cycle signal but we don't know which is which yet        
+%         DimScale(1)=max(DimScale(1),1/DimScale(1)) ;
+%         DimScale(2)=max(DimScale(2),1/DimScale(2)) ;
+        
+        Nset=(Nreg*Nwl);
+        DimScale=zeros(Nwl,1);
+        for wl=1:Nwl
+            DimScale(wl)=[sin(pi*info.EncCfg.dc(wl+j*Nwl))]/...
+                [sin(pi*info.EncCfg.dc(wl+Nset+j*Nwl))];
+            DimScale(wl)=max(DimScale(wl),1/DimScale(wl));
+        end
+            
 
         
         % Only look for clipping for S/D dist < 4 cm to determine which 
@@ -404,7 +518,7 @@ if strfind(info.enc,'2pass')
                 fsKeep=fs(2:2:end);
                 repM=oF(:)>1;
 %                 clippingRegion=eF>0;
-                disp(['<<<Interpolating odd/even bright/dim data'])
+                disp(['<<<Interpolating odd/even bright/dim data for Region ',num2str(j+1)])
                 info.system.framerate=info.framerate;
                 dHrs=resample_tts(dHot,info,2*info.framerate);
                 dHot=dHrs(:,:,:,2:2:end);
@@ -419,18 +533,19 @@ if strfind(info.enc,'2pass')
                 fsKeep=fs(2:2:end);
                 repM=eF(:)>1;
 %                 clippingRegion=oF>0;
-                disp(['<<<Interpolating even/odd bright/dim data'])
+                disp(['<<<Interpolating even/odd bright/dim data for Region ',num2str(j+1)])
                 info.system.framerate=info.framerate;
                 dCrs=resample_tts(dCool,info,2*info.framerate);
                 dCool=dCrs(:,:,:,2:2:end);
                 dCool(dCool<0)=eps;
                 clear dCrs
             end
-
+            
             % scale dark data
-            dCool(:,:,1,:)=dCool(:,:,1,:).*DimScale(1);
-            dCool(:,:,2,:)=dCool(:,:,2,:).*DimScale(2);
-
+            for wl=1:Nwl
+                dCool(:,:,wl,:)=dCool(:,:,wl,:).*DimScale(wl);
+            end
+            
             % put dark data in with bright data
             dHot=reshape(dHot,size(dHot,1)*size(dHot,2),2,[]);
             dCool=reshape(dCool,size(dCool,1)*size(dCool,2),2,[]);
@@ -464,6 +579,7 @@ if strfind(info.enc,'2pass')
         MBestPassAllRegions(RegSrcStartIdx:RegSrcEndIdx,:,:,:) = MRegion ;
         clippingAllRegions(RegSrcStartIdx:RegSrcEndIdx,:,:) = clippingRegionCool ;
     end
+    end
     M = MBestPassAllRegions ;
     clipping = clippingAllRegions ;
     info.framerate=info.framerate/2; % % OR UP-SAMPLE????
@@ -473,7 +589,7 @@ end
 
 
 %% Load in aux channels and stim synch
-sprintf(['\n <<< Loading Stim Synch data\n'])
+disp(['<<< Loading Stim Synch data'])
 if info.naux
     aux_chan=[(FSchan-1):-1:(FSchan-info.naux)];
     
@@ -532,10 +648,20 @@ if exist(['Pad_',info.pad,'.mat'])
     foo=load(['Pad_',info.pad]);
     info.Pad_info=foo.info;
 else
+    
     foo=load(['grid_',info.pad]);
-    info.grid=foo.grid;
+    if isfield(foo,'grid')
+        info.grid=foo.grid;
+    else
+        info.grid=foo;
+    end
+    
     foo=load(['radius_',info.pad]);
-    info.Rad=foo.Rad;
+    if isfield(foo,'Rad')
+        info.Rad=foo.Rad;
+    else
+        info.Rad=foo;
+    end
 end
 
 if params.ND2 % Output data in newer format 181217)

@@ -1,4 +1,4 @@
-function PlotSD(spos,dpos,type,F,textColor)
+function PlotSD(spos,dpos,type,F,textColor,rad)
 
 % This function plots the source and detector positions for a cap.
 % If the user wants the positions placed onto a current figure, then
@@ -37,7 +37,8 @@ function PlotSD(spos,dpos,type,F,textColor)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 if nargin>3,set(0,'CurrentFigure',F);hold on;else figure;end
-if nargin<5, textColor='k';end
+if ~exist('textColor','var'), textColor='k';end
+if ~exist('rad','var'), rad=2;end
 
 if strcmp(textColor,'w')==1
     set(gcf,'Color','k');set(gca,'Color','k')
@@ -91,7 +92,7 @@ plot(dpos(:,1),dpos(:,2),'ob','MarkerEdgeColor','k','MarkerFaceColor',[0.5 0.5 1
 
 % If present, plot sources and detectors and anchors
 [x,y,z]=sphere(100);
-rad=2;
+% rad=2;
 for i=1:size(spos,1) 
     hh=patch(surf2patch(rad*x+spos(i,1),rad*y+spos(i,2),rad*z+spos(i,3)),...
        'EdgeColor','red','FaceColor','red','EdgeAlpha',0);

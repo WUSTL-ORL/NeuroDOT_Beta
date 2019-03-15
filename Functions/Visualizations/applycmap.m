@@ -242,6 +242,7 @@ else
     else
         thP = floor(params.Th.P / params.Scale * params.DR / 2 + (params.DR / 2));
         thN = ceil(params.Th.N / params.Scale * params.DR / 2 + (params.DR / 2));
+        if thN<1,thN=1;end
         map_out(thN:thP, :) = repmat(thresh_zone_color, thP-thN+1, 1);
     end
 end

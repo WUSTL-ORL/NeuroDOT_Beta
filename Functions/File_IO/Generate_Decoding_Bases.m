@@ -12,7 +12,7 @@ function [H,S,C]=Generate_Decoding_Bases(Nsamples,sr,freq,params)
 %% Parameters and Initialization
 if ~exist('params','var'),params.Wtype='Hann';end
 if strcmp(params.Wtype,'Bcar')
-    if ~isfield(params.BcarPts)
+    if ~isfield(params,'BcarPts')
         params.BcarPts=ones(max(Nsamples),1);
     end
 end

@@ -47,7 +47,7 @@ tic;[t,p] = pointLocation(TR,reshape(vox,[],3));toc
 
 % mytsearchn takes too long
 % tic;[t,p] = mytsearchn(mesh,reshape(vox,[],3));toc
-% tsearchn is unstable if possible nonconvexity...  : /
+% tsearchn is ONLY good if nice convex mesh!!  : /
 % [t,p] = tsearchn(mesh.nodes,mesh.elements,reshape(vox,[],3)); 
 
 disp('>Interpolating Greens Functions')

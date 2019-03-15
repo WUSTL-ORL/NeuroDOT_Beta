@@ -44,7 +44,7 @@ if ~isfield(flags.info,'mmppix'),flags.info.mmppix=[1,-1,-1];end
 %% Determine Threshold and nodes within the threshold range
 nodelevel=max(squeeze(sum(abs(G),1)),[],1);
 m=max(nodelevel);
-nkeep=find(nodelevel(:)>=flags.gthresh*m);
+nkeep=find(nodelevel>=flags.gthresh*m);
 
 xkeep=nodes(nkeep,1);
 xmin=floor(min(xkeep));
@@ -110,7 +110,7 @@ dim.nVt=dim.nVx*dim.nVy*dim.nVz;
 
 dim.sV=flags.voxmm;
 dim.acq=flags.info.acq;
-dim.orientation=flags.info.acq;
+dim.orien=flags.info.acq;
 dim.mmppix=[flags.voxmm,-flags.voxmm,-flags.voxmm];
 
 

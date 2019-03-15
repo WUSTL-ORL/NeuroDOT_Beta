@@ -71,10 +71,10 @@ if isstruct(param)
     if isfield(param,'r0')
 mesh.region(mesh.region==0)=param.r0; 
     else
-mesh.region(mesh.region==0)=5; 
+mesh.region(mesh.region==0)=Scalp; 
     end
 else
-mesh.region(mesh.region==0)=1; 
+mesh.region(mesh.region==0)=Scalp; 
 end
 
 disp('<<<Saving mesh')

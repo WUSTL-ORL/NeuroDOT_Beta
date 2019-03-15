@@ -40,6 +40,8 @@ ethresh=1;      % Energy minimum threshold
 dthresh=0.1;    % Difference threshold
 compnum=2;      % Back-iterations to compare
 
+% testSpot=[0,0,0];
+
 if isfield(rad,'optodes')  % ND2 structure
     Ns=size(rad.optodes.spos3,1);
     Nd=size(rad.optodes.dpos3,1);
@@ -69,32 +71,24 @@ info.srcnum=rad.srcnum;
 info.detnum=rad.detnum;
 end
 tpos=[spos3;dpos3];
-% tpos=[[tpos(:,1)],[tpos(:,2)],[tpos(:,1)]];
-% Move CM back to anchrs + 25
-% MuAnch=mean(anchor,1);
-% MuCap1=mean([tpos(anchorpts',:)],1);
-% deltaAnch=MuAnch-MuCap1;
-% for i=1:3
-%     tpos(:,i)=tpos(:,i)+deltaAnch(i);
-% end
-% tpos(:,1)=tpos(:,1)-35; % Move behind head
-% % tpos(:,2)=tpos(:,2)+5; % Move up on head
-% tpos=1.05*tpos;
-
 
 
 %% Initialize
 
 % Prep Mesh
 TR=TriRep(mesh.elements,mesh.nodes);% Make MATLAB triangulation class
-[elemb nodesb]=freeBoundary(TR);    % Get Boundary
+[elemb,nodesb]=freeBoundary(TR);    % Get Boundary
 TRb=TriRep(elemb,nodesb);           % triangulation of boundary
 faceb=incenters(TRb);               % centers of faces
-[~,MfInd]=max(faceb(:,2));    % furthest face in Y
-tempNorm=faceNormals(TRb);          % Get norms then test to chose direction
-if tempNorm(MfInd,2)<0, fn=-tempNorm;
-else fn=tempNorm;
-end
+
+% testSpot should be inside mesh, so use this to test if fn pos or neg
+% fn=faceNormals(TRb); % Normals of faces
+% nnb=knnsearch(faceb,testSpot);  % closest face
+% surfpos=faceb(nnb,:);   % position of face closest to testSpot
+% N=fn(nnb,:);            % the normal of this face.    
+% if dot(testSpot-surfpos,N)>0 % if testSpot inside head, then this is <0
+%     fn=-fn;
+% end
 
 % Initial Energy
 [nnb,surfsep]=knnsearch(faceb,tpos); % initial separation of all optodes from surface
@@ -107,7 +101,6 @@ for i=1:opnum
     % Find nn optodes, not measurements for given optode
     MeasOp=[find(info.meas(:,1)==i);find(info.meas(:,2)==i)];
     OnSpring=setxor(unique(info.meas(intersect(MeasOp,info.nn12),:)),i);
-    
     E(i)=springerror(tpos,i,OnSpring,anchor,anchorpts,...
         info,k,surfsep(i)); % initial energy
     E0=E0+E(i);
@@ -121,11 +114,8 @@ Eiter=E0;
 % Check to see how close we are to desired config.
 targetcheck(info,tpos,loopnum,looptry,loopmax,E0,onhead,surfsep);
 
-% pause
 
 %% Minimize energy of spring configuration
-
-% matlabpool open 8
 
 while 1  % do til converge
     loopnum=loopnum+1; % count iterations
@@ -140,14 +130,12 @@ while 1  % do til converge
     tic
     parfor op=1:opnum
         % (1)
-%         psizeOP(op)=psize0;
         surfpos=faceb(nnb(op),:);
-%         surfN=fn(nnb(op),:);
+        psize=psize0;
         
         % (2) 
         MeasOp=[find(info.meas(:,1)==op);find(info.meas(:,2)==op)];
         OnSpring=setxor(unique(info.meas(intersect(MeasOp,info.nn12),:)),op);
-
         pgrad=Egrad(tpos,op,OnSpring,info,anchorpts,anchor,k,surfpos);
 
         % (3) & (4)
@@ -161,9 +149,7 @@ while 1  % do til converge
             end
             
             % (3) Here is the new optode position
-            tpos2(op,:)=tpos(op,:)+psize0*pgrad;
-            
-            % Head issues pending... if optode is inside head
+            tpos2(op,:)=tpos(op,:)+psize*pgrad;
             
             % (4)Energy of new position
             [~,surfsep]=knnsearch(faceb,tpos2);
@@ -175,9 +161,9 @@ while 1  % do til converge
                 tpos1(op,:)=tpos2(op,:);
                 break
             else % try again with smaller step
-%                 psizeOP(op)=0.5*psizeOP(op);
+                psize=0.5*psize;
                 tpos1(op,:)=tpos(op,:);
-                continue
+%                 continue
             end
         end
         
@@ -257,9 +243,6 @@ pause(0.1)
 
 end
 
-% matlabpool close
-
-
 disp(['Total time = ',num2str(sum(t))])
 end
 
@@ -334,16 +317,21 @@ function [MaxTries,NN1ave,NN2ave,ADFH]=...
 % How far are we from desired optode separations?
 m1=0; % reset errors
 m2=0;
-for m=1:info.srcnum*info.detnum
-    s=info.meas(m,1);
-    d=info.meas(m,2);
-    sep=norm(tpos(s,:)-tpos(d,:));
+for j=1:length(info.nn12)%info.srcnum*info.detnum
+    
+    m=info.nn12(j);
     
     if ismember(m,info.nn1)
+        s=info.meas(m,1);
+        d=info.meas(m,2);
+        sep=norm(tpos(s,:)-tpos(d,:));
         m1=m1+sep;
     end
     
     if ismember(m,info.nn2)
+        s=info.meas(m,1);
+        d=info.meas(m,2);
+        sep=norm(tpos(s,:)-tpos(d,:));
         m2=m2+sep;
     end
 end

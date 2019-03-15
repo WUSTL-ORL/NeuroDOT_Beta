@@ -1,4 +1,4 @@
-function [A,dim,Gs,Gd,dc]=makeAnirfast(mesh,flags)
+function [A,dim,Gsd,Gs,Gd,dc]=makeAnirfast(mesh,flags)
 
 % This function (1) Calculates the green's functions, and 
 %               (2) generates the A-matrix.  
@@ -110,8 +110,9 @@ clear G
 
 %% (3) Create A matrix from Green's Funcions, mesh, and optical props.
 if flags.makeA
-[A,dim]= GtoAmat(Gs,Gd,mesh,dc,flags);
+[A,dim,Gsd]= GtoAmat(Gs,Gd,mesh,dc,flags);
 else
     A=[];
     dim=[];
+    Gsd=[];
 end

@@ -64,7 +64,7 @@ if isfield(info,'paradigm') % Add in experimental paradigm timing
 end
     
     subplot(3,Nwl,j+Nwl) 
-    imagesc(data(keep,:),[-1,1].*m); 
+    imagesc(data(keep,:),[-1,1].*m.*0.5); 
     colorbar('Location','northoutside');
     colormap gray
     xlabel('Time (samples)');ylabel('Measurement #')

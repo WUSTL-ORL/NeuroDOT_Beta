@@ -104,6 +104,20 @@ if nargin<3
     params.BG=[0,0,0];
 end
 
+if ~exist('params', 'var')
+    params = [];
+end
+
+% if ~isfield(params, 'PD'),      params.PD=1;end
+% if ~isfield(params, 'Cmap'),    params.Cmap.P=gray(1000);end
+% if ~isfield(params, 'Th'),      params.Th.P=0;params.Th.N=0;end
+% if ~isfield(params, 'Scale'),   params.Scale=max(underlay(:));end
+% if ~isfield(params, 'BG'),      params.BG=[0,0,0];end
+
+if ~exist('infoVol','var')
+    infoVol = [];
+end
+
 if ~exist('overlay', 'var')  ||  isempty(overlay)
     overlay = [];
 else
@@ -114,13 +128,6 @@ else
     if isfield(params,'BG'),params=rmfield(params,'BG');end
 end
 
-if ~exist('infoVol','var')
-    infoVol = [];
-end
-
-if ~exist('params', 'var')
-    params = [];
-end
 
 if ~isfield(params, 'fig_size')  ||  isempty(params.fig_size)
     params.fig_size = [20, 200, 1240, 420];

@@ -72,13 +72,19 @@ switch Nm==Nlmm
             'Position',[0.1,0.1,0.6,0.4]);
         
         subplot(1,2,1);
-        loglog(Phi_0,std_Phi_0,'k*')
+        loglog(Phi_0(~info.MEAS.GI),std_Phi_0(~info.MEAS.GI),'ko')
         xlabel(['\Phi_0']);ylabel(['\sigma (|\Phi|)']);hold on
-        loglog(Phi_0(info.MEAS.GI),std_Phi_0(info.MEAS.GI),'ro')
+        loglog(Phi_0(info.MEAS.GI),std_Phi_0(info.MEAS.GI),'b*')
+        
+        Ral_x=logspace(-6,2,50); % Raleigh-distributed data: snr=mu/std~1.91
+        Ral_y=Ral_x./1.91;
+        loglog(Ral_x,Ral_y,'k-'); 
+
         
         
         subplot(1,2,2);
-        loglog(Phi_0,std_Y(1:Nm),'k*');hold on;
+        loglog(Phi_0(info.MEAS.GI),std_Y(info.MEAS.GI(1:Nm)),'b*');hold on;
+        loglog(Phi_0(~info.MEAS.GI),std_Y(~info.MEAS.GI(1:Nm)),'ko');hold on;
         xM=ceil(max(log10(Phi_0)));
         xm=floor(min(log10(Phi_0)));
         loglog([10^xm,10^xM],[1,1].*0.075,'r')
