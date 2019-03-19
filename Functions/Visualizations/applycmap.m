@@ -68,6 +68,8 @@ function [mapped, map_out] = applycmap(overlay, underlay, params)
 img_size = size(overlay);
 overlay = overlay(:);
 mapped = zeros(length(overlay), 3);
+overlay(~isfinite(overlay))=0;
+underlay(~isfinite(underlay))=0;
 
 if ~exist('underlay', 'var')  ||  isempty(underlay)
     params.underlay = 0;
