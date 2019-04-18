@@ -11,12 +11,16 @@ function Draw_Foci(foci,faces)
 %% Parameters and Initialization
 if ~exist('faces','var'), faces=100;end
 if ~isfield(foci,'lighting'),foci.lighting='phong';end
+if ~isfield(foci,'AmbientStrength'),foci.AmbientStrength=0.02;end
 
 [x,y,z]=sphere(faces);
 Nfoci=size(foci.location,1);
 
 if ~isfield(foci,'color'),foci.color=zeros(Nfoci,3);end
+if size(foci.color,1)~=Nfoci,foci.color=repmat(foci.color,[Nfoci,1]);end
+
 if ~isfield(foci,'radius'),foci.radius=ones(Nfoci,1).*5;end
+if size(foci.radius,1)~=Nfoci,foci.radius=repmat(foci.radius,[Nfoci,1]);end
 
 
 %% Draw the foci
@@ -29,7 +33,7 @@ for j=1:Nfoci
         'EdgeColor',foci.color(j,:),'FaceColor',foci.color(j,:),...
         'EdgeAlpha',0);
     
-    set(hh,'FaceLighting',foci.lighting,'AmbientStrength',0.02);
+    set(hh,'FaceLighting',foci.lighting,'AmbientStrength',foci.AmbientStrength);
     
 end
 

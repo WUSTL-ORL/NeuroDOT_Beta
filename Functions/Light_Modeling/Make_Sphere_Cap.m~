@@ -1,4 +1,4 @@
-function [grid,Rad]=Make_Sphere_Cap(Ndy,Ndx,NN1sep,Srad,type)
+function [grid,Rad]=Make_Sphere_Cap(Ndy,Ndx,NN1sep,Srad)
 % 
 %
 % This function generates a flat cap with Ndy detectors in vertical and Ndx
@@ -36,7 +36,7 @@ function [grid,Rad]=Make_Sphere_Cap(Ndy,Ndx,NN1sep,Srad,type)
 
 
 %% Parameters and Initialization
-if ~exist('type','var'), type='hem';end
+if typ
 Nsy=Ndy-1;
 Nsx=Ndx+1;
 ddx=NN1sep*sqrt(2); % Like-column spacing
@@ -87,7 +87,7 @@ Rad.r2d=Rad.r;
 
 
 %% Add spherical curvature
-tpos3=Bend_Cap_Flat_to_Curved(tpos,Srad,type);
+tpos3=Bend_Cap_Flat_to_Curved(tpos,Srad,'hem');
 grid.spos3=tpos3(1:grid.srcnum,:);
 grid.dpos3=tpos3((grid.srcnum+1):end,:);
 n=0;

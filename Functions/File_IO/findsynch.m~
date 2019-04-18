@@ -55,10 +55,7 @@ function [synchpts,synchtype]=findsynch(synch,m,type)
 if ~exist('type','var'),type=1;end
 
 % first row contains the standard deviation in each frame
-if type 
-    synch1=squeeze(synch(1,:))-mean(synch(1,:)); 
-else
-    synch1=synch(1,:);
+if type  synch1=squeeze(synch(1,:))-mean(synch(1,:)); 
 end
 
 % set peak threshold

@@ -122,9 +122,6 @@ switch info.pad % These must show the max A/D channel for each system
     case 'Gates_128x125'
         FSchan=128; % Max focusrite channels as of 180705
 end
-else
-    FSchan=params.FSchan;
-end
 info.DecodingParams=params;
 
 
@@ -136,10 +133,7 @@ info.EncCfg=EncCfg;
 flashPerc=EncCfg.nisamp/(EncCfg.nisamp+EncCfg.niblank);
 periodSamp=sr./EncCfg.freq; % Number of samples per period for ea freq
 Nfreq=length(EncCfg.freq);
-
-if ~isfield(params,'FSchan')
-    if isfield(EncCfg,'adcmax'), FSchan=EncCfg.adcmax;end
-end
+if isfield(EncCfg,'adcmax'), FSchan=EncCfg.adcmax;end
 
 SSchan=FSchan-1; % stim synch (may not be used for now)
 

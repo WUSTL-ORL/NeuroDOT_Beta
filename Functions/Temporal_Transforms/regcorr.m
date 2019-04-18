@@ -13,7 +13,7 @@ function [data_out, R] = regcorr(data_in, info, hem)
 %   If y_{r} is the signal to be regressed out and y_{in} is a data
 %   time trace (either source-detector or imaged), then the output
 %   is the least-squares regression: 
-%   y_{out} = y_{in} - y_{r}(<y_{in},y_{r}>/|y_{r}|^2). 
+%   y_{out} = y_{in} - y_{in}(<y_{in},y_{r}>/|y_{r}|^2). 
 %   Additionally, the correlation coefficient is given by: 
 %   R=(<y_{in},y_{r}>/(|y_{in}|*|y_{r}|)).
 %

@@ -108,14 +108,27 @@ if ~isfield(params,'OL'), params.OL=0;end
 if ~isfield(params,'reg'), params.reg=1;end
 if ~isfield(params,'TC'),params.TC=0;end  
 if ~isfield(params,'PD'), params.PD=0;end
-if ~isfield(params,'EdgesON'), params.EdgesON=1;end
+if ~isfield(params,'FaceColor'), params.FaceColor=[0.25, 0.25, 0.25];end
 if ~isfield(params,'EdgeColor'), params.EdgeColor='k';end
+if ~isfield(params,'EdgesON'), params.EdgesON=1;end
 if ~params.EdgesON, params.EdgeColor='none';end
 if ~isfield(params, 'cbmode')  ||  isempty(params.cbmode)
     params.cbmode = 0;
 end
 if ~isfield(params, 'cboff')  
     params.cboff = 0;
+end
+
+if ~isfield(params, 'ctx')  ||  isempty(params.ctx)
+    params.ctx = 'std';
+end
+switch params.ctx
+    case 'std'
+        % do nothing
+    case 'inf'
+        mesh.nodes=mesh.Inodes;
+    case 'vinf'
+        mesh.nodes=mesh.VInodes;
 end
 
 
@@ -143,7 +156,7 @@ end
 if ~isfield(m,'data')       % NO DATA
     if ~isfield(m,'region') % no data, no regions
         cb=0;
-        FaceColor = [0.25, 0.25, 0.25];
+        FaceColor = params.FaceColor;
         EdgeColor = params.EdgeColor;
         FaceLighting = 'flat';
         AmbientStrength = 0.5;        
