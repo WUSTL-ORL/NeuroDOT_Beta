@@ -103,7 +103,8 @@ if ~isstruct(params.Cmap)
     params.Cmap.P = temp;
 end
 if ~isfield(params.Cmap,'P'), params.Cmap.P='gray';end
-if ~isfield(params,'alpha'), params.alpha=1;end % Transparency
+if ~isfield(params,'FaceAlpha'), params.FaceAlpha=1;end % Transparency
+if ~isfield(params,'EdgeAlpha'), params.EdgeAlpha=1;end % Transparency
 if ~isfield(params,'OL'), params.OL=0;end
 if ~isfield(params,'reg'), params.reg=1;end
 if ~isfield(params,'TC'),params.TC=0;end  
@@ -161,8 +162,9 @@ if ~isfield(m,'data')       % NO DATA
         FaceLighting = 'flat';
         AmbientStrength = 0.5;        
         h = patch('Faces', m.elements, 'Vertices',m.nodes,...
-            'EdgeColor', EdgeColor, 'FaceColor', FaceColor,...
-            'FaceLighting', FaceLighting,...
+            'EdgeColor', EdgeColor,'EdgeAlpha',params.EdgeAlpha,... 
+            'FaceColor', FaceColor,...
+            'FaceLighting', FaceLighting,'FaceAlpha',params.FaceAlpha,...
             'AmbientStrength', AmbientStrength);        
         
     else                      % data are regions               

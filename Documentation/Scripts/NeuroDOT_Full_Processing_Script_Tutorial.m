@@ -138,7 +138,7 @@ PlotSlices(MNI_dim,A.info.tissue.dim,Params,tp_Eg);
 % Explore the block-averaged data a bit more interactively
 Params.Scale=0.8*max(abs(badata_HbOvol(:)));
 Params.Th.P=0;
-Params.Th.N=-Params.Th.P;
+Params.Th.N=-Params.Th.P;PlotSlices(vol1,infoV1)
 PlotSlicesTimeTrace(MNI_dim,A.info.tissue.dim,Params,badata_HbOvol,info)
 
 % Explore the not-block-averaged data a bit more interactively

@@ -21,9 +21,9 @@ function stimbase=Create_Retinotopy_Bases(stimsize,NumChecksRad,NumChecksTH)
 
 
 %% Parameters and Initialization
-% stimsize=1023;              % Granularity of stim images
-% NumChecksRad=16;            % Number of checks in radial direction; hcp=12
-% NumChecksTH=24;             % Number of check in the angular direction; hcp=24
+if ~exist('stimsize','var'),stimsize=1023;end         % Granularity of stim images
+if ~exist('NumChecksRad','var'),NumChecksRad=16; end  % Number of checks in radial direction; hcp=12
+if ~exist('NumChecksTH','var'),NumChecksTH=24; end    % Number of check in the angular direction; hcp=24
 
 maxrad=floor(stimsize/2)+1;
 Dtheta=360/NumChecksTH;     % Angular width of checks (degrees)
@@ -75,7 +75,8 @@ wRe=bsxfun(@ge,stimbase.r(:),rad(2:2:(end-1))).*...
 
 stimA=zeros(stimsize*stimsize,1);
 for th=1:NumChecksTH
-    stimA=stimA+(sum(wRo.*wTh(:,th),2)-sum(wRe.*wTh(:,th),2)).*((-1)^th); 
+    stimA=stimA+(sum(bsxfun(@times,wRo,wTh(:,th)),2)-...
+        sum(bsxfun(@times,wRe,wTh(:,th)),2)).*((-1).^th); 
 end
 stimA=reshape(stimA,stimsize,stimsize);
 
@@ -91,7 +92,11 @@ fields=fieldnames(stimbase);
 figure;set(gcf,'Color','w')
 for i=1:6
     subplot(2,3,i);   
+    if any(strcmp(fields{i},{'On','Off'}))
+        imshow(stimbase.([fields{i}]))
+    else
     imagesc(stimbase.([fields{i}]))
+    end
     axis image
     title([fields{i}])
 end

@@ -63,17 +63,21 @@ if ~exist('params', 'var')  ||  isempty(params)
     params = [];
 end
 
+
+%% Interpolate surface mesh into maps.
+mapL = vol2surf_mesh(meshL, volume, dim, params);
+mapR = vol2surf_mesh(meshR, volume, dim, params);
+
+
+%% Set Scale and Thresholds if not passed
 if ~isfield(params, 'Scale')  ||  isempty(params.Scale)
-    params.Scale = 0.9 * max(volume(:));
+    params.Scale = 0.9 * max(cat(1,mapL.data(:),mapR.data(:)));
 end
 if ~isfield(params, 'Th')  ||  isempty(params.Th)
     params.Th.P = 0.25 * params.Scale;
     params.Th.N = -params.Th.P;
 end
 
-%% Interpolate surface mesh into maps.
-mapL = vol2surf_mesh(meshL, volume, dim, params);
-mapR = vol2surf_mesh(meshR, volume, dim, params);
 
 %% Image the left and right maps.
 PlotLRMeshes(mapL, mapR, params);

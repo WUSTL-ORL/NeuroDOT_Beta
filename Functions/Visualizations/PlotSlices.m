@@ -219,6 +219,16 @@ if ~isfield(params, 'orientation')  ||  isempty(params.orientation)
         params.orientation = 't'; % This needs to come before params.slices!
     end
 end
+% Adjust aspect ratio relative to dim 1
+if isfield(infoVol,'mmx')
+    arX=infoVol.mmx./infoVol.mmx;
+    arY=infoVol.mmx./infoVol.mmy;
+    arZ=infoVol.mmx./infoVol.mmz;
+else
+    arX=1;
+    arY=1;
+    arZ=1;
+end
 if ~isfield(params, 'slices')  ||  isempty(params.slices)
     S = [round(nVx / 2), round(nVy / 2), round(nVz / 2)];
     lookon = 1;
@@ -268,6 +278,8 @@ switch params.orientation
         xflip = [1, 1, 0]; % DO NOT TOUCH! These flip the axes labels.
         ylist = {'MR Dim 2' , 'MR Dim 1', 'MR Dim 2'};
         yflip = [1, 1, 1];
+        arXYZ=[arZ,arY,arX;arZ,arX,arY;arX,arY,arZ];
+        
     case 't'
         orlist = {'Sagittal', 'Coronal', 'Transverse'};
         dimlist = {nVx, nVy, nVz};
@@ -284,6 +296,7 @@ switch params.orientation
         xflip = [0, 1, 1];
         ylist = {'MR Dim 3', 'MR Dim 3', 'MR Dim 2'};
         yflip = [1, 1, 1];
+        arXYZ=[arY,arZ,arX;arX,arZ,arY;arX,arY,arZ];
 end
 
 %% Apply color mapping.
@@ -368,6 +381,9 @@ while ~any(button == [2, 27, 81, 113]) % 2 = middle mouse button, 27 = Esc, 81 =
                 h.YTickLabel(h.YTick == 1) = [];
                 h.YTick(h.YTick == 1) = [];
             end
+            
+            % Fix Aspect Ratio
+            daspect(arXYZ(a,:))
             
             % This saves the axes as an object to be used later in
             % navigation.

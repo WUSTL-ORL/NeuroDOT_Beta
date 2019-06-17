@@ -57,7 +57,7 @@ end
 dims = size(data);
 Nt = dims(end); % Assumes time is always the last dimension.
 NDtf = (ndims(data) > 2);
-if GVwin>(Nt-1), GVwin=(Nt-1);end
+if GVwin>NDtf, GVwin=NDtf;end
 
 
 %% N-D Input.
@@ -68,8 +68,8 @@ end
 %% Crop data to synchpts if necessary.
 keep=info_in.pairs.r2d<20 & info_in.pairs.WL==2;
 foo=squeeze(data(keep,:)); 
-foo=highpass(foo,0.02,info_in.system.framerate);% bandpass filter, omega_hp=0.02;    
-foo=lowpass(foo,1,info_in.system.framerate);% bandpass filter, omega_lp=1;    
+foo=highpass(foo,0.02,info_in.framerate);% bandpass filter, omega_hp=0.02;    
+foo=lowpass(foo,1,info_in.framerate);% bandpass filter, omega_lp=1;    
 foo=foo-circshift(foo,1,2);
 foo(:,1)=0;
 foob=rms(foo,1);

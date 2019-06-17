@@ -164,23 +164,23 @@ if Mode
     nirfast_mesh.elements=double(e(:,1:4));
     nirfast_mesh.nodes=p;
 else
-mesh.ele = e;
-mesh.node = p;
-mesh.nnpe = 4;
-mesh.dim = 3;
-
-% Change mesh type based on type of analysis being performed. Accepted 
-% values are: 'stnd', 'spec', 'stnd_spn', 'fluor'
-disp('Generating Nirfast-compliant mesh')
-if ~isfield(param,'meshtype')
-    meshtype = 'stnd';
-else
-    meshtype=param.meshtype;
-end
-solidmesh2nirfast(mesh,[meshname],meshtype);
-
-%% Load nirfast mesh
-nirfast_mesh = load_mesh([meshname]);
+    mesh.ele = e;
+    mesh.node = p;
+    mesh.nnpe = 4;
+    mesh.dim = 3;
+    
+    % Change mesh type based on type of analysis being performed. Accepted
+    % values are: 'stnd', 'spec', 'stnd_spn', 'fluor'
+    disp('Generating Nirfast-compliant mesh')
+    if ~isfield(param,'meshtype')
+        meshtype = 'stnd';
+    else
+        meshtype=param.meshtype;
+    end
+    solidmesh2nirfast(mesh,[meshname],meshtype);
+    
+    %% Load nirfast mesh
+    nirfast_mesh = load_mesh([meshname]);
 end
 
 %% Check Mesh Quality and visualize

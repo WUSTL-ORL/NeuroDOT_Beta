@@ -6,7 +6,7 @@ function stim=Create_Retinotopy_Annuli(stimbase,NcheckRadout,NcheckRad)
 
 %% Parameters and Initialization
 % NcheckRadout=12;
-% NcheckRad=2;
+% NminradcheckRad=2;
 rad=stimbase.rad;           
 radCH=84;
 radCenter=87;
@@ -50,14 +50,14 @@ end
 
 
 %% Fix wrap-around
-if NcheckRad>1
-    for j=1:NcheckRad-1
-idx=find(stim.((['stim',num2str(1),'a']))~=...
-    stim.((['stim',num2str(j+NcheckRad-1),'a'])));
-
-stim.(['stim',num2str(NcheckRadout-j+1),'a'])(idx)=...
-    stim.((['stim',num2str(1),'a']))(idx);
-stim.(['stim',num2str(NcheckRadout-j+1),'b'])(idx)=...
-    stim.((['stim',num2str(1),'b']))(idx);
-    end
-end
+% if NcheckRad>1
+%     for j=1:NcheckRad-1
+% idx=find(stim.((['stim',num2str(1),'a']))~=...
+%     stim.((['stim',num2str(j+NcheckRad-1),'a'])));
+% 
+% stim.(['stim',num2str(NcheckRadout-j+1),'a'])(idx)=...
+%     stim.((['stim',num2str(1),'a']))(idx);
+% stim.(['stim',num2str(NcheckRadout-j+1),'b'])(idx)=...
+%     stim.((['stim',num2str(1),'b']))(idx);
+%     end
+% end

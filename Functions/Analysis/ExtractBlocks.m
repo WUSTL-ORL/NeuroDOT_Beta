@@ -1,11 +1,11 @@
-function [A,dim,Gsd]=GtoAmat(Gs,Gd,mesh,dc,flags)
-
-% This function take a set of Green's functions and a mesh and creates an
-% A-matrix.
+function blocks = ExtractBlocks(data_in, pulse, dt)
 %
-% 
+%   blocks = ExtractBlocks(data_in, pulse, dt) takes a data array "data_in"
+%   and uses the pulse and dt information to cut that data timewise into
+%   blocks of equal length (dt).
+%
 % Copyright (c) 2017 Washington University 
-% Created By: Adam T. Eggebrecht
+% Created By: Adam T. Eggebrecht, slightly adapted by Zachary E. Markow
 % Eggebrecht et al., 2014, Nature Photonics; Zeff et al., 2007, PNAS.
 %
 % Washington University hereby grants to you a non-transferable, 
@@ -30,50 +30,36 @@ function [A,dim,Gsd]=GtoAmat(Gs,Gd,mesh,dc,flags)
 % IN BREACH OF CONTRACT, TORT OR OTHERWISE, EVEN IF SUCH PARTY IS 
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
-%% Paramters
-flags.keepmeth='glevel';
-if ~isfield(flags,'gthresh'),flags.gthresh=10^-3;end
-if ~isfield(flags,'voxmm'),flags.voxmm=2;end
-flags.GV=1;
+
+%% Parameters and Initialization.
+dims = size(data_in);
+Nt = dims(end); % Assumes time is always the last dimension.
+NDtf = (ndims(data_in) > 2); %#ok<ISMAT>
+Nbl = length(pulse);
 
 
-%% Interpolate  
-disp('>Finding Voxel Grid and Cropping Limits')
-[vox,dim]=getvox(mesh.nodes,cat(2,Gs,Gd),flags);
-
-disp('>Finding Mesh to Voxel Converstion')
-tic;TR=triangulation(mesh.elements,mesh.nodes);toc
-tic;[t,p] = pointLocation(TR,reshape(vox,[],3));toc
-
-% mytsearchn takes too long
-% tic;[t,p] = mytsearchn(mesh,reshape(vox,[],3));toc
-% tsearchn is ONLY good if nice convex mesh!!  : /
-% [t,p] = tsearchn(mesh.nodes,mesh.elements,reshape(vox,[],3)); 
-
-disp('>Interpolating Greens Functions')
-Gs=voxel(Gs,t,p,mesh.elements);
-Gd=voxel(Gd,t,p,mesh.elements);
-
-disp('>Interpolating Optical Properties')
-dc=voxel(dc,t,p,mesh.elements);
-
-
-%% Create dim.Good_Vox
-if flags.GV==1
-    [Gs,Gd,dc,dim]=Make_Good_Vox(Gs,Gd,dc,dim,mesh,flags);
+% Check to make sure that the block after the last synch point for this
+% pulse does not exceed the data's time dimension. 
+if (dt + pulse(end)) > Nt
+    Nbl = Nbl - 1;
 end
 
+%% N-D Input (for 3-D or N-D voxel spaces).
+if NDtf
+    data_in = reshape(data_in, [], Nt);
+end
 
-%% Save voxellated G etc
-disp('Saving Voxellated Green''s Functions')
-save(['GFunc_',flags.tag,'_VOX.mat'],'Gs','Gd','dim','flags',...
-    't','p','dc','vox','-v7.3')
-clear vox p t mesh
+%% Cut data into blocks.
+Nm=size(data_in,1);
+blocks=zeros(Nm,dt,Nbl);
+for k = 1:Nbl
+    blocks(:, :, k) = data_in(:, pulse(k):(pulse(k) + dt - 1));
+end
 
+%% N-D Output.
+if NDtf
+    blocks = reshape(blocks, [dims(1:(end-1)), dt, Nbl]);
+end
 
-%% Create A-matrix
-disp('>Making A-Matrix')
-[A,Gsd]=g2a(Gs,Gd,dc,dim,flags);
-clear Gs Gd 
-disp('>Saving A-Matrix')
-save(['A_',flags.tag],'A','dim','flags','Gsd','-v7.3')
+%% End of function.
+end
