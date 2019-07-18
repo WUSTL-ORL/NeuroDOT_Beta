@@ -84,8 +84,9 @@ end
 
     
     subplot(3,Nwl,j+2*Nwl);
-    [ftmag,ftdomain] = fft_tts(mData,...
+    [ftmag0,ftdomain] = fft_tts(data(keep,:),...
         info.system.framerate); % Generate average spectrum
+    ftmag=rms(ftmag0,1);
     semilogx(ftdomain,ftmag);
     xlabel('Frequency (Hz)');ylabel('|X(f)|');xlim([1e-3 1])
 

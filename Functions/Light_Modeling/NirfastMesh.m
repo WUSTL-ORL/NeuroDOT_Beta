@@ -159,6 +159,17 @@ t=tic;
 [e,p] = RunCGALMeshGenerator(stack,param);
 disp(['>>Mesh Generation took ',num2str(toc(t)),' seconds'])
 
+
+%% Fix Offset if non-zero and x-dim is flipped
+if any(param.Offset)
+    if length(unique(sign(param.Offset)))>1
+        if param.Offset(1)>0
+            p(:,1)=-p(:,1)+2*param.Offset(1);
+        end
+    end
+end
+
+
 %% Call conversion to nirfast mesh
 if Mode
     nirfast_mesh.elements=double(e(:,1:4));
