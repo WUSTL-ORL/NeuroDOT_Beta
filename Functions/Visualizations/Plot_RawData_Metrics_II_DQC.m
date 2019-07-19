@@ -111,15 +111,19 @@ subplot(3,2,5,'Position',[0.05,0.05,0.4,0.3])
 keep=(info.pairs.lambda==max(wls)) & info.MEAS.GI & ...
         info.pairs.r3d>=params.rlimits(1,1) & ...
         info.pairs.r3d<=params.rlimits(1,2);
-WL2reg_a=mean(squeeze(lmdata(keep,:)),1);
-[ftmag, ftdomain] = fft_tts(WL2reg_a,fr);
+% WL2reg_a=mean(squeeze(lmdata(keep,:)),1);
+WL2reg_a=lmdata(keep,:);
+[ftmag0, ftdomain] = fft_tts(WL2reg_a,fr);
+ftmag=rms(ftmag0,1);
 semilogx(ftdomain,ftmag,'--r','LineWidth',1);hold on
 
 keep=(info.pairs.lambda==max(wls)) & info.MEAS.GI & ...
         info.pairs.r3d>=params.rlimits(2,1) & ...
         info.pairs.r3d<=params.rlimits(2,2);
-WL2reg_b=mean(squeeze(lmdata(keep,:)),1);
-[ftmag, ftdomain] = fft_tts(WL2reg_b,fr);
+% WL2reg_b=mean(squeeze(lmdata(keep,:)),1);
+WL2reg_b=lmdata(keep,:);
+[ftmag0, ftdomain] = fft_tts(WL2reg_b,fr);
+ftmag=rms(ftmag0,1);
 semilogx(ftdomain,ftmag,'-m','LineWidth',1);    
 xlim([1e-3,fr/2])
 xlabel('Frequency [Hz]');
