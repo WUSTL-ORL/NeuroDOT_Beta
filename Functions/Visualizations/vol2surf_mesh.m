@@ -72,27 +72,17 @@ X = ((-center(1) + nVx * dr(1)):-dr(1):(-center(1) + dr(1)))'; %R2L -dr(1)/2
 Y = ((-center(2) + nVy * dr(2)):-dr(2):(-center(2) + dr(2)))'; %V2D -dr(2)/2
 Z = ((-center(3) + nVz * dr(3)):-dr(3):(-center(3) + dr(3)))'; %P2A -dr(3)/2
 
+
 %% Get coordinates for surface mesh
 x = Smesh.nodes(:, 1);
 y = Smesh.nodes(:, 2);
 z = Smesh.nodes(:, 3);
 
-%% Correct for nodes just outside of volume 
-x(x < min(X)) = min(X);
-x(x > max(X)) = max(X);
-
-y(y < min(Y)) = min(Y);
-y(y > max(Y)) = max(Y);
-
-z(z < min(Z)) = min(Z);
-z(z > max(Z)) = max(Z);
 
 %% Interpolate
 for k = 1:Ncols
     Smesh.data(:, k) = interp3(Y, X, Z, squeeze(volume(:, :, :, k)),...
         y, x, z, method, extrapval);
 end
-
-
 
 %

@@ -49,6 +49,10 @@ if isempty(aux_chan)
     error(['** ReadAux: No .raw files were found for ', name, ' ***'])
 end
 
+if size(aux_chan,1)>1
+    aux_chan=aux_chan(size(aux_chan,1)-1);
+end
+
 %% Load files.
 n = 0;
 for chan = aux_chan

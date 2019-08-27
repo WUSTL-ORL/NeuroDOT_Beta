@@ -36,7 +36,8 @@ function PlotSD(spos,dpos,type,F,textColor,rad)
 % IN BREACH OF CONTRACT, TORT OR OTHERWISE, EVEN IF SUCH PARTY IS 
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
-if nargin>3,set(0,'CurrentFigure',F);hold on;else figure;end
+if ~exist('type','var'), type='norm';end
+if exist('F','var'),set(0,'CurrentFigure',F);hold on;else figure;end
 if ~exist('textColor','var'), textColor='k';end
 if ~exist('rad','var'), rad=2;end
 
