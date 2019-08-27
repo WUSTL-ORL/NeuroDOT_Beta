@@ -79,6 +79,17 @@ y = Smesh.nodes(:, 2);
 z = Smesh.nodes(:, 3);
 
 
+%% Correct for nodes just outside of volume (MNI and TT atlas space cuts off occipital pole and part of dorsal tip and lateral extremes).
+x(x < min(X)) = min(X);
+x(x > max(X)) = max(X);
+
+y(y < min(Y)) = min(Y);
+y(y > max(Y)) = max(Y);
+
+z(z < min(Z)) = min(Z);
+z(z > max(Z)) = max(Z);
+
+
 %% Interpolate
 for k = 1:Ncols
     Smesh.data(:, k) = interp3(Y, X, Z, squeeze(volume(:, :, :, k)),...
