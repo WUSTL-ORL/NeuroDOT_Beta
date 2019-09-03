@@ -130,6 +130,10 @@ switch params.ctx
         mesh.nodes=mesh.Inodes;
     case 'vinf'
         mesh.nodes=mesh.VInodes;
+    case 'MTH'
+        mesh.nodes=mesh.MTHnodes;
+    case 'SPH'
+        mesh.nodes=mesh.SPHnodes;
 end
 
 
@@ -305,6 +309,7 @@ end
 
 
 %% Set colorbar properties and add colorbar if desired
+if ~params.cboff
 if cb
     params.cbmode=1;
     if isfield(params, 'Scale')  &&  ~isempty(params.Scale)
@@ -384,6 +389,7 @@ if cb
             set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);
         end
     end
+end
 end
 
 

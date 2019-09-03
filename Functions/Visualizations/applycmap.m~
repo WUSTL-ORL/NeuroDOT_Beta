@@ -1,4 +1,4 @@
-function [mapped,map_out,params] = applycmap(overlay, underlay, params)
+function [mapped, map_out,] = applycmap(overlay, underlay, params)
 
 % APPLYCMAP Performs color mapping and fuses images with anatomical
 % models.
