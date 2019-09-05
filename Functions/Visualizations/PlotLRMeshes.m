@@ -107,6 +107,9 @@ end
 if ~isfield(params, 'alpha')  ||  isempty(params.alpha)
     params.alpha = 1;
 end
+if ~isfield(params, 'lighting')  ||  isempty(params.lighting)
+    params.lighting = 'gouraud';
+end
 if ~isfield(params, 'view')  ||  isempty(params.view)
     params.view = 'lat';
 end
@@ -202,14 +205,14 @@ set(params.fig_handle, 'Units', 'pixels');
 [dataL, CMAP] = applycmap(meshL.data, [], params);
 patch('Faces', meshL.elements(:, 1:3), 'Vertices', Lnodes,...
     'EdgeColor', 'none', 'FaceColor', FaceColor, 'FaceVertexCData', dataL,...
-    'FaceLighting', 'gouraud', 'FaceAlpha', params.alpha,...
+    'FaceLighting', params.lighting, 'FaceAlpha', params.alpha,...
     'AmbientStrength', 0.25, 'DiffuseStrength', .75, 'SpecularStrength', .1);
 
 %% Image Right Side.
 [dataR, CMAP] = applycmap(meshR.data, [], params);
 patch('Faces', meshR.elements(:, 1:3), 'Vertices', Rnodes,...
     'EdgeColor', 'none', 'FaceColor', FaceColor, 'FaceVertexCData', dataR,...
-    'FaceLighting', 'gouraud', 'FaceAlpha', params.alpha,...
+    'FaceLighting', params.lighting, 'FaceAlpha', params.alpha,...
     'AmbientStrength', 0.25, 'DiffuseStrength', .75, 'SpecularStrength', .1);
 
 %% Visual Formatting.
