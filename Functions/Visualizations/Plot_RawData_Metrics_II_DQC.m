@@ -66,7 +66,9 @@ if Nt<(60/fr)
     tf=Nt;
 elseif Nt
     ti=round(Nt/2)-round(5*fr);
+    if ti<1, ti=1;end
     tf=round(Nt/2)+round(5*fr);
+    if tf>=Nt, tf=Nt;end
 end
 
 

@@ -66,7 +66,9 @@ if Nt<(60/fr)
     tf=Nt;
 elseif Nt
     ti=round(Nt/2)-round(5*fr);
+    if ti<1, ti=1;end
     tf=round(Nt/2)+round(5*fr);
+    if tf>=Nt, tf=Nt;end
 end
 
 
@@ -89,7 +91,7 @@ yM=10^M;
 subplot(3,6,[1,2,7,8],'Position',[0.05,0.42,0.28,0.55]) 
 r=info.pairs.r3d(info.pairs.lambda==wls(1));
 semilogy(r,reshape(Phi_0,Nm,[]),'.');
-axis([0,100,1e-6,yM])
+axis([0,100,(yM/1e7),yM])
 xlabel('Source-Detector Separation ( mm )','Color','w')
 ylabel('{\Phi_0} ( {\mu}W )','Color','w')
 set(gca,'XColor','w','YColor','w','Xgrid','on','Ygrid','on','Color','k')
