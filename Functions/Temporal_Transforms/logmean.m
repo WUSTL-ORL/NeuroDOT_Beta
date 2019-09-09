@@ -90,6 +90,11 @@ else
     dims(1)=2*dims(1);
 end
 
+
+%% Fix any NaNs
+data_out(~isfinite(data_out))=0;
+
+
 %% N-D Output.
 if NDtf
     data_out = reshape(data_out,dims);
