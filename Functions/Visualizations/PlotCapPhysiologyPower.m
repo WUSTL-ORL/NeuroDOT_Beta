@@ -195,14 +195,16 @@ floIdx=idxPm+idxP1-BWfc;
 fhiIdx=idxPm+idxP1+BWfc;
 
 Pmax=sum(ftmag(:,(floIdx):(fhiIdx)).^2,2); % sum pulse power
-fNoise=setdiff([1:length(ftdomain)],(floIdx):(fhiIdx));
-Control=std(ftmag(:,fNoise).^2,[],2); 
+fNoise=setdiff([(idxPm-BWfc):(idxPM+BWfc)],(floIdx):(fhiIdx));
+fNoise(fNoise<1)=[];
+fNoise(fNoise>max(length(ftdomain)))=[];
+Control=median(ftmag(:,fNoise).^2,2).*BWfc.*2; 
 % Control=2.*BWfc.*median(ftmag(:,idxPm:end),2).^2;
 
-Plevels=1e5.*Pmax./Control;           % SNR of signal
+% Plevels=1e5.*Pmax./Control;           % SNR of signal
 % Plevels=1e0.*Pmax./Control;           % SNR of signal
 
-Plevels=10.*log10(Plevels); % SNR in dB
+Plevels=10.*log10(Pmax./Control); % SNR in dB
 
 
 %% Populate metric for visualizations
@@ -210,7 +212,7 @@ for s=1:Ns
     Sgood=keep & info.pairs.Src==s;
     if sum(Sgood)>0
     Cvalue=mean(Plevels(Sgood)); % Average across measurements
-    else Cvalue=1;
+    else, Cvalue=1;
     end
     llfo(s)=Cvalue;
 end
@@ -218,16 +220,18 @@ for d=1:Nd
     Dgood=keep & info.pairs.Det==d;
     if sum(Dgood)>0
     Cvalue=mean(Plevels(Dgood)); % Average across measurements
-    else Cvalue=1;
+    else, Cvalue=1;
     end
     llfo(Ns+d)=Cvalue;
 end
 
 %% Scaling and colormapping
 M=max(llfo(:));
-m=M/2;
-params.Scale=M/2;
-llfo=llfo-M/2;
+param.Th.P=max([min(llfo),0]);
+m=param.Th.P;
+% m=M/2;
+params.Scale=M;%/2;
+% llfo=llfo-M/2;
 params.Cmap.P='hot';
 [SDRGB, CMAP] = applycmap(llfo, [], params);
 SrcRGB = SDRGB(1:Ns, :);

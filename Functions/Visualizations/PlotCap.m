@@ -51,8 +51,10 @@ Ns = length(unique(info.pairs.Src));
 Nd = length(unique(info.pairs.Det));
 LineColor = 'w';
 BkgdColor = 'k';
-SMarkerColor = [1, 0.75, 0.75];
-DMarkerColor = [0.55, 0.55, 1];
+if ~exist('params','var'),params=struct;end
+if ~isfield(params,'SrcColor'),params.SrcColor=[1, 0.75, 0.75];end
+if ~isfield(params,'DetColor'),params.DetColor=[0.55, 0.55, 1];end
+
 
 params.mode = 'textpatch';
 
@@ -78,8 +80,8 @@ else
     end
 end
 
-SrcRGB = repmat(SMarkerColor, Ns, 1);
-DetRGB = repmat(DMarkerColor, Nd, 1);
+SrcRGB = repmat(params.SrcColor, Ns, 1);
+DetRGB = repmat(params.DetColor, Nd, 1);
 
 %% Send to PlotCapData.
 PlotCapData(SrcRGB, DetRGB, info, params)

@@ -415,43 +415,43 @@ while ~any(button == [2, 27, 81, 113]) % 2 = middle mouse button, 27 = Esc, 81 =
         [gx, gy, button] = ginput(1);
         gx = round(gx);
         gy = round(gy);
-        if gx < 1, gx = 1;end;
-        if gy < 1, gy = 1;end;
+        if gx < 1, gx = 1;end
+        if gy < 1, gy = 1;end
         if button == 1
             switch params.orientation
                 case 't'
                     switch gca
                         case sagax
-                            if gx > nVy, gx = nVy;end;
-                            if gy > nVz, gy = nVz;end;
+                            if gx > nVy, gx = nVy;end
+                            if gy > nVz, gy = nVz;end
                             S(2) = gx;
                             S(3) = nVz - gy + 1;
                         case corax
-                            if gx > nVx, gx = nVx;end;
-                            if gy > nVz, gy = nVz;end;
+                            if gx > nVx, gx = nVx;end
+                            if gy > nVz, gy = nVz;end
                             S(1) = gx;
                             S(3) = nVz - gy + 1;
                         case traax
-                            if gx > nVx, gx = nVx;end;
-                            if gy > nVy, gy = nVy;end;
+                            if gx > nVx, gx = nVx;end
+                            if gy > nVy, gy = nVy;end
                             S(1) = gx;
                             S(2) = nVy - gy + 1;
                     end
                 case 's'
                     switch gca
                         case sagax
-                            if gx > nVx, gx = nVx;end;
-                            if gy > nVy, gy = nVy;end;
+                            if gx > nVx, gx = nVx;end
+                            if gy > nVy, gy = nVy;end
                             S(1) = gx;
                             S(2) = nVy - gy + 1;
                         case corax
-                            if gx > nVz, gx = nVz;end;
-                            if gy > nVy, gy = nVy;end;
+                            if gx > nVz, gx = nVz;end
+                            if gy > nVy, gy = nVy;end
                             S(2) = nVy - gy + 1;
                             S(3) = nVz - gx + 1;
                         case traax
-                            if gy > nVx, gy = nVx;end;
-                            if gx > nVz, gx = nVz;end;
+                            if gy > nVx, gy = nVx;end
+                            if gx > nVz, gx = nVz;end
                             S(1) = nVx - gy + 1;
                             S(3) = nVz - gx + 1;
                     end

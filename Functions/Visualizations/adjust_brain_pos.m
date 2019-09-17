@@ -91,13 +91,27 @@ if strcmp(params.ctx, 'std')
     end
 end
 
+
 %% Normalize L and R nodes to their max and min, respectively.
+switch params.ctx
+    case 'std'
+        str = 'nodes';
+    case 'inf'
+        str = 'Inodes';
 Lnodes(:, 1) = Lnodes(:, 1) - max(Lnodes(:, 1));
 Rnodes(:, 1) = Rnodes(:, 1) - min(Rnodes(:, 1));
 
+    case 'vinf'
+        str = 'VInodes';
+Lnodes(:, 1) = Lnodes(:, 1) - max(Lnodes(:, 1));
+Rnodes(:, 1) = Rnodes(:, 1) - min(Rnodes(:, 1));
+end
+
+
 %% Rotate if necessary
 if strcmp(params.view, 'lat')  ||  strcmp(params.view, 'med')
-    cmL = mean(Lnodes, 1); % rotate right hemi  for visualization
+
+cmL = mean(Lnodes, 1); % rotate right hemi  for visualization
     cmR = mean(Rnodes, 1);
     rm = rotation_matrix('z', pi);
     
