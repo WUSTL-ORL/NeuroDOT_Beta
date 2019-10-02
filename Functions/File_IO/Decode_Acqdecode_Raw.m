@@ -125,7 +125,6 @@ end
 else
     FSchan=params.FSchan;
 end
-info.DecodingParams=params;
 
 
 %% Load encoding pattern cfg file
@@ -208,7 +207,8 @@ for j=1:Nfreq % indices associated w mod freqs
     end
 end
 
-
+params.SamplesPerTimeStep=SamplesPerTimeStep;
+info.DecodingParams=params;
 
 %% Set up Hamm window and sin/cos basic functions for ea freq
 [HammF,sinF,cosF]=Generate_Decoding_Bases(...

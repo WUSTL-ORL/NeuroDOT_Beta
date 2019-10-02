@@ -105,9 +105,9 @@ params.fig_handle=figure('Units','Normalized',...
 
 %% Light level fall off
 Phi_0=mean(data,2);
-M=ceil(max(log10(Phi_0(:))));
+M=ceil(max(log10(data(:))));
 yM=10^M;
-m=ceil(min(log10(Phi_0(:))))-2;
+m=ceil(min(log10(Phi_0(:))))-1;
 ym=10^m;
 subplot(3,6,[1,2,7,8],'Position',[0.05,0.42,0.28,0.55]) 
 r=info.pairs.r3d(info.pairs.lambda==wls(1));
@@ -122,14 +122,12 @@ if istablevar(info.MEAS,'Clipped')
     hold on;
     keep=info.MEAS.Clipped;
     semilogy(info.pairs.r3d(keep),Phi_0(keep),'xw');
-    leg1=cat(1,leg,'Clipped');
-    legend(leg1,'Color','k','TextColor','w')
-end 
+    legend(cat(1,leg,'Clipped'),'Color','k','TextColor','w')
+end
 
 if params.NEPth
     hold on
     semilogy([0:100],ones(101,1).*NEPth,'--w');
-    legend(cat(1,leg1,'Noise Floor Estimate'),'Color','k','TextColor','w')
 end
 
 %% <fft> for max wavelength at 2 distances
