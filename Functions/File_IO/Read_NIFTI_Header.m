@@ -66,9 +66,9 @@ header.nVy = nii.hdr.dime.dim(3);
 header.nVz = nii.hdr.dime.dim(4);
 header.nVt = nii.hdr.dime.dim(5);
 
-header.mmx = nii.hdr.dime.pixdim(1);
-header.mmy = nii.hdr.dime.pixdim(2);
-header.mmz = nii.hdr.dime.pixdim(3);
+header.mmx = nii.hdr.dime.pixdim(2);
+header.mmy = nii.hdr.dime.pixdim(3);
+header.mmz = nii.hdr.dime.pixdim(4);
 
 if ~isempty(nii.hdr.hist.flip_orient)
     if nii.hdr.hist.flip_orient(1)

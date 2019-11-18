@@ -72,8 +72,8 @@ normdata = bsxfun(@minus,data,mean(data,2));
 ftdomain = (framerate / 2) * linspace(0, 1, Nf); % domain of FFT: [zero:Nyquist]
 
 %% Perform FFT.
-ftmag = fft(normdata, Ndft, 2) / Ndft; % Do FFT in TIME dimension and normalize by Ndft.
-ftmag = sqrt(2) * abs(ftmag(:, 1:Nf)); % Take positive frequencies, x2 for negative frequencies.
+P = fft(normdata, Ndft, 2) / Ndft; % Do FFT in TIME dimension and normalize by Ndft.
+ftmag = sqrt(2) * abs(P(:, 1:Nf)); % Take positive frequencies, x2 for negative frequencies.
 
 %% N-D Output.
 if NDtf
@@ -82,7 +82,7 @@ end
 
 %% Other outputs.
 ftpower = abs(ftmag) .^ 2;
-ftphase = angle(ftmag);
+ftphase = angle(P(:, 1:Nf));
 
 
 
