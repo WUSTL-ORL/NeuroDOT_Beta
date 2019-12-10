@@ -33,6 +33,7 @@ if ~isfield(params,'killY'),params.killY=[1:20]; end    % ventral removal
 
 SE_sa = strel('ball', params.Rsa, 0); % skull dilate: skull thickness
 SE_sa2 = strel('ball', params.Rba2, 0);% bknd dilate(2): final scalp boundary
+killY=[1:20];                                   % Remove extra neck, etc
 
 [Nx,Ny,Nz]=size(T1n);
 

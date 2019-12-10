@@ -1,12 +1,14 @@
-function [BA_out,BSTD_out,BT_out] = BlockAverage(data_in, pulse, dt)
+function tpos_out = scale_cap(tpos_in, M)
 
-% BLOCKAVERAGE Averages data by stimulus blocks.
-%
-%   data_out = BLOCKAVERAGE(data_in, pulse, dt) takes a data array
-%   "data_in" and uses the pulse and dt information to cut that data 
-%   timewise into blocks of equal length (dt), which are then averaged 
-%   together and output as "data_out".
-%
+% SCALE_CAP Scales a cap grid.
+% 
+%   tpos_out = SCALE_CAP(tpos_in, M) scales the full cap grid given in
+%   "tpos_in" by a factor of "M" around its centroid, and outputs it as
+%   "tpos_out". If M is a 3-component vector, then the cap is scaled about
+%   its centroid by a factor
+% 
+% See Also: CAP_FITTER.
+% 
 % Copyright (c) 2017 Washington University 
 % Created By: Adam T. Eggebrecht
 % Eggebrecht et al., 2014, Nature Photonics; Zeff et al., 2007, PNAS.
@@ -32,46 +34,22 @@ function [BA_out,BSTD_out,BT_out] = BlockAverage(data_in, pulse, dt)
 % THE SOFTWARE, THE USE OF THE SOFTWARE, OR THIS AGREEMENT, WHETHER 
 % IN BREACH OF CONTRACT, TORT OR OTHERWISE, EVEN IF SUCH PARTY IS 
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-%
-% See Also: NORMALIZE2RANGE_TTS.
 
 %% Parameters and Initialization.
-dims = size(data_in);
-Nt = dims(end); % Assumes time is always the last dimension.
-NDtf = (ndims(data_in) > 2); %#ok<ISMAT>
-Nbl = length(pulse);
-
-
-% Check to make sure that the block after the last synch point for this
-% pulse does not exceed the data's time dimension. 
-if (dt + pulse(end)) > Nt
-    Nbl = Nbl - 1;
+if numel(M) == 1
+    M_new = repmat(M,3,1);
+else
+    M_new = M;
 end
 
-%% N-D Input (for 3-D or N-D voxel spaces).
-if NDtf
-    data_in = reshape(data_in, [], Nt);
-end
+centroid = mean(tpos_in, 1);
+centroid_mat = repmat(centroid, [size(tpos_in, 1), 1]);
 
-%% Cut data into blocks.
-Nm=size(data_in,1);
-blocks=zeros(Nm,dt,Nbl);
-for k = 1:Nbl
-    blocks(:, :, k) = data_in(:, pulse(k):(pulse(k) + dt - 1));
-end
+scaling_mat = diag(M_new);
 
-%% Average blocks and return.
-BA_out = mean(blocks, 3);
-BSTD_out = std(blocks, [],3);
-BA_out = bsxfun(@minus,BA_out,mean(BA_out,2));
-BT_out = BA_out./BSTD_out;
-BT_out(~isfinite(BT_out))=0;
+%% Do Scaling.
+tpos_out = (tpos_in - centroid_mat) * scaling_mat + centroid_mat;
 
 
-%% N-D Output.
-if NDtf
-    BA_out = reshape(BA_out, [dims(1:end-1), dt]);
-    BSTD_out = reshape(BSTD_out, [dims(1:end-1), dt]);
-    BT_out = reshape(BT_out, [dims(1:end-1), dt]);
-    blocks=reshape(blocks,
-end
+
+%

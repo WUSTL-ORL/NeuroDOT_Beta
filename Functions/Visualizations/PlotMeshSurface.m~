@@ -112,21 +112,8 @@ if ~isfield(params,'PD'), params.PD=0;end
 if ~isfield(params,'FaceColor'), params.FaceColor=[0.25, 0.25, 0.25];end
 if ~isfield(params,'EdgeColor'), params.EdgeColor='k';end
 if ~isfield(params,'EdgesON'), params.EdgesON=1;end
-if isfield(params,'AmbientStrength'), 
-    AmbientStrength=params.AmbientStrength;
-else
-    AmbientStrength=0.25;
-end
-if isfield(params,'DiffuseStrength'), 
-    DiffuseStrength=params.DiffuseStrength;
-else
-    DiffuseStrength=0.75;
-end
-if isfield(params,'SpecularStrength'), 
-    SpecularStrength=params.SpecularStrength;
-else
-    SpecularStrength=0.1;
-end
+if ~isfield(params,'AmbientStrength'), 
+    AmbientStrength=params.AmbientStrength1;end
 if ~params.EdgesON, params.EdgeColor='none';end
 if ~isfield(params, 'cbmode')  ||  isempty(params.cbmode)
     params.cbmode = 0;
@@ -179,13 +166,12 @@ if ~isfield(m,'data')       % NO DATA
         FaceColor = params.FaceColor;
         EdgeColor = params.EdgeColor;
         FaceLighting = 'flat';
-%         AmbientStrength = 0.5;        
+        AmbientStrength = 0.5;        
         h = patch('Faces', m.elements, 'Vertices',m.nodes,...
             'EdgeColor', EdgeColor,'EdgeAlpha',params.EdgeAlpha,... 
             'FaceColor', FaceColor,...
             'FaceLighting', FaceLighting,'FaceAlpha',params.FaceAlpha,...
-            'AmbientStrength', AmbientStrength,'DiffuseStrength',... 
-            DiffuseStrength,'SpecularStrength', SpecularStrength);        
+            'AmbientStrength', AmbientStrength);        
         
     else                      % data are regions               
         params.PD=1;
@@ -211,9 +197,9 @@ if ~isfield(m,'data')       % NO DATA
         EdgeColor = params.EdgeColor;
         FaceColor = 'flat';
         FaceLighting = 'gouraud';
-%         AmbientStrength = 0.25;
-%         DiffuseStrength = 0.75; % or 0.75
-%         SpecularStrength = 0.1;        
+        AmbientStrength = 0.25;
+        DiffuseStrength = 0.75; % or 0.75
+        SpecularStrength = 0.1;        
         FV_CData=params.Cmap.P(mode(reshape(m.region(m.elements(:)),[],3),2),:);        
         h = patch('Faces', m.elements, 'Vertices', m.nodes,...
             'EdgeColor', EdgeColor, 'FaceColor', FaceColor,...
@@ -234,9 +220,9 @@ else                        % DATA
     EdgeColor = params.EdgeColor;
     FaceColor = 'interp';
     FaceLighting = 'gouraud';
-%     AmbientStrength = 0.25;
-%     DiffuseStrength = 0.75; % or 0.75
-%     SpecularStrength = 0.5;
+    AmbientStrength = 0.25;
+    DiffuseStrength = 0.75; % or 0.75
+    SpecularStrength = 0.5;
     h = patch('Faces', m.elements, 'Vertices', m.nodes,...
         'EdgeColor', EdgeColor, 'FaceColor', FaceColor,...
         'FaceVertexCData', FV_CData, 'FaceLighting', FaceLighting,...

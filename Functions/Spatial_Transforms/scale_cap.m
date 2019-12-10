@@ -4,12 +4,13 @@ function tpos_out = scale_cap(tpos_in, M)
 % 
 %   tpos_out = SCALE_CAP(tpos_in, M) scales the full cap grid given in
 %   "tpos_in" by a factor of "M" around its centroid, and outputs it as
-%   "tpos_out".
+%   "tpos_out". If M is a 3-component vector, then the cap is scaled about
+%   its centroid by a factor of M(1) in x, M(2) in y, and M(3) in z.
 % 
 % See Also: CAP_FITTER.
 % 
 % Copyright (c) 2017 Washington University 
-% Created By: Adam T. Eggebrecht
+% Created By: Adam T. Eggebrecht, Zachary E. Markow
 % Eggebrecht et al., 2014, Nature Photonics; Zeff et al., 2007, PNAS.
 %
 % Washington University hereby grants to you a non-transferable, 
@@ -35,12 +36,16 @@ function tpos_out = scale_cap(tpos_in, M)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %% Parameters and Initialization.
+if numel(M) == 1
+    M_new = repmat(M,3,1);
+else
+    M_new = M;
+end
+
 centroid = mean(tpos_in, 1);
 centroid_mat = repmat(centroid, [size(tpos_in, 1), 1]);
 
-scaling_mat = [M, 0, 0;...
-    0, M, 0;...
-    0, 0, M];
+scaling_mat = diag(M_new);
 
 %% Do Scaling.
 tpos_out = (tpos_in - centroid_mat) * scaling_mat + centroid_mat;

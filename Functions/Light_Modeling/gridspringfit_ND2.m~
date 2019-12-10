@@ -32,11 +32,6 @@ function tpos=gridspringfit_ND2(mesh,rad,spos3,dpos3,params)
 if ~exist('params','var'),params=struct;end
 if ~isfield(params,'anchorpts'),anchorpts=[];else anchorpts=params.anchorpts;end
 if ~isfield(params,'anchor'),anchor=[];else anchor=params.anchor;end
-
-k.h=1;          % Head Spring constant
-k.a=1.5;        % Anchor Spring constant
-k.nn=1.5; %1;   % Nearest Neighbor Spring constant
-
 if isfield(params,'k')
     if isfield(params.k,'h')
         k.h=params.k.h;
@@ -47,6 +42,10 @@ if isfield(params,'k')
     if isfield(params.k,'a')
         k.a=params.k.a;
     end
+else
+    k.h=1;          % Head Spring constant
+    k.a=1.5;        % Anchor Spring constant
+    k.nn=1.5; %1;   % Nearest Neighbor Spring constant
 end
 
 psize0=10^-1;   % Step size (for head)

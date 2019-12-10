@@ -94,7 +94,7 @@ switch lower(file_type)
         volume = flip(nii.img, 1); % NIFTI loads in RAS orientation. We want LAS, so we flip first dim.
         
 end
-
+volume=double(volume);
 
 
 %
