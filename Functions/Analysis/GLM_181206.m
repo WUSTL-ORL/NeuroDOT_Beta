@@ -41,6 +41,7 @@ if ~isfield(params,'GVTD_censor_post_win'),params.GVTD_censor_post_win=0;end
 if ~isfield(params,'GVTD_censor_pre_win'),params.GVTD_censor_pre_win=0;end
 if ~isfield(params,'GVTD_th'),params.GVTD_th=1e-3;end
 if ~isfield(params,'DoFilter'),params.DoFilter=0;end
+if isfield(params,'event_length'), EL=params.event_length;else EL=0;end
 if ~isfield(info,'flags')
     info.flags=struct;
 end
@@ -54,50 +55,50 @@ else
 end
 
 if params.DoFilter
-if isfield(params,'omega_hp')           % high pass filter cutoff
-    omega_hp=params.omega_hp;
-elseif isfield(info.flags,'omega_hp')
-    omega_hp=info.flags.omega_hp;
-else
-    omega_hp=0.02;
-end
-
-if isfield(params,'omega_lp')           % low pass filter cutoff
-    omega_lp=params.omega_lp;
-elseif isfield(info.flags,'omega_lp')
-    omega_lp=info.flags.omega_lp;
-elseif isfield(info.flags,'lowpass3')
-    if info.flags.lowpass3
-        omega_lp=info.flags.omega_lp3;
+    if isfield(params,'omega_hp')           % high pass filter cutoff
+        omega_hp=params.omega_hp;
+    elseif isfield(info.flags,'omega_hp')
+        omega_hp=info.flags.omega_hp;
+    else
+        omega_hp=0.02;
     end
-elseif isfield(info.flags,'lowpass2')
-    if info.flags.lowpass2
-        omega_lp=info.flags.omega_lp2;
+    
+    if isfield(params,'omega_lp')           % low pass filter cutoff
+        omega_lp=params.omega_lp;
+    elseif isfield(info.flags,'omega_lp')
+        omega_lp=info.flags.omega_lp;
+    elseif isfield(info.flags,'lowpass3')
+        if info.flags.lowpass3
+            omega_lp=info.flags.omega_lp3;
+        end
+    elseif isfield(info.flags,'lowpass2')
+        if info.flags.lowpass2
+            omega_lp=info.flags.omega_lp2;
+        end
+    elseif isfield(info.flags,'lowpass1')
+        if info.flags.lowpass1
+            omega_lp=info.flags.omega_lp1;
+        end
+    else
+        omega_lp=0.5;                       % high pass filter cutoff
     end
-elseif isfield(info.flags,'lowpass1')
-    if info.flags.lowpass1
-        omega_lp=info.flags.omega_lp1;
+    
+    if isfield(info,'system')               % framerate of data
+        if isfield(info.system,'framerate')
+            fr=info.system.framerate;
+        end
+    elseif isfield(info,'framerate')
+        fr=info.framerate;
+    else
+        fr=1;
     end
-else
-    omega_lp=0.5;                       % high pass filter cutoff
-end
-
-if isfield(info,'system')               % framerate of data
-    if isfield(info.system,'framerate')
-        fr=info.system.framerate;
+    
+    if omega_lp>(fr/2)                      % fix if above Nyquist
+        omega_lp=fr/2;
     end
-elseif isfield(info,'framerate')
-    fr=info.framerate;
-else
-    fr=1;
-end
-
-if omega_lp>(fr/2)                      % fix if above Nyquist
-    omega_lp=fr/2;
-end
-if omega_lp==(fr/2)                     % fix if at Nyquist
-    omega_lp=omega_lp.*0.95;
-end
+    if omega_lp==(fr/2)                     % fix if at Nyquist
+        omega_lp=omega_lp.*0.95;
+    end
 end
 
 if isfield(info,'GVTD_filt_rs')
@@ -114,9 +115,17 @@ end
 %% Set up Experimental Design matrix
 EDM=zeros(Nt,Nevents);
 for j=1:(Nevents-1)
+    if EL
+        if (info.paradigm.synchpts(j)+EL-1)<Nt
+        EDM(info.paradigm.synchpts(j):(info.paradigm.synchpts(j)+EL-1),j)=1;
+        else
+        EDM(info.paradigm.synchpts(j):Nt,j)=1;            
+        end
+    else
     EDM(info.paradigm.synchpts(j):(info.paradigm.synchpts(j+1)-1),j)=1;
+    end
 end
-EDM(info.paradigm.synchpts(Nevents):end,Nevents)=1;
+EDM(info.paradigm.synchpts(end):end,Nevents)=1;
 
 if strcmp(params.type,'events')
     EDMu=zeros(Nt,NuniqueEvents);
@@ -128,7 +137,7 @@ end
 
 
 %% Convolve Event design matrix with HDR
-DM=conv2(EDM,hrf');
+DM=conv2(EDM,hrf(:));
 DM=DM(1:Nt,:);
 
 

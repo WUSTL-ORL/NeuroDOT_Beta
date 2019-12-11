@@ -38,7 +38,7 @@ function cortex_mu_a = reconstruct_img(lmdata, iA)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %% Parameters and Initialization.
-units_scaling = 1/100; % Assuming OptProp in mm^-1
+units_scaling = 1/100; % Assuming OptProp in mm^-1 %% Will move to 10 shortly.
 
 %% Reconstruct.
 cortex_mu_a = iA * lmdata;
