@@ -51,6 +51,13 @@ if ~exist('file_type', 'var')  &&  ~exist('pn', 'var')
     file_type = file_type(2:end);
 end
 
+if header.nVt~=size(volume,4)
+    disp(['Warning: Stated header 4th dimension size ',...
+        num2str(header.nVt),' does not equal the size of the volume ',...
+        num2str(size(volume,4)),'. Updating header info.'])
+    header.nVt=size(volume,4);
+end
+
 switch lower(file_type)
     case '4dfp'
         %% Write 4dfp header.
@@ -78,8 +85,76 @@ switch lower(file_type)
         %% Call NIFTI_Reader functions.
         volume = flip(volume, 1); % Convert back from LAS to RAS for NIFTI.
         
-        nii = Write_NIFTI(volume, header, fullfile(pn, filename));
-        
+        if isfield(header,'original_header') % was loaded as nii
+            nii.img=volume;
+            nii.hdr=header.original_header.hdr;
+            nii.hdr.dime.dim=[length(size(volume)),size(volume,1),...
+                                size(volume,2),size(volume,3),...
+                                size(volume,4),1 1 1];
+            
+        else % Build nii header from information in ND_Beta header
+             % nii headers require hdr.hk, hdr.dime, hdr.hist
+             disp(['Output to nii without previous nii header is not yet supported'])
+             return
+%             nii.img=volume;
+%             
+%             % nii.hdr.hk
+%             nii.hdr.hk.sizeof_hdr=348;
+%             nii.hdr.hk.data_type='';
+%             nii.hdr.hk.db_name='';
+%             nii.hdr.hk.extents=0;
+%             nii.hdr.hk.session_error=0;
+%             nii.hdr.hk.regular='r';
+%             nii.hdr.hk.dim_info=0;
+%             
+%             % nii.hdr.dime
+%             nii.hdr.dime.dim=[length(size(volume)),size(volume,1),...
+%                                 size(volume,2),size(volume,3),...
+%                                 size(volume,4),1 1 1];
+%             nii.hdr.dime.intent_p1=0;
+%             nii.hdr.dime.intent_p2=0;
+%             nii.hdr.dime.intent_p3=0;
+%             nii.hdr.dime.intent_code=0;
+%             nii.hdr.dime.datatype=16;
+%             nii.hdr.dime.bitpix=32;
+%             nii.hdr.dime.slice_start=0;
+%             nii.hdr.dime.pixdim=[1,header.mmx,header.mmy,header.mmz,1,0,0,0];
+%             nii.hdr.dime.vox_offset=352;
+%             nii.hdr.dime.scl_slope=1;
+%             nii.hdr.dime.scl_inter=0;
+%             nii.hdr.dime.slice_end=0;
+%             nii.hdr.dime.slice_code=0;
+%             nii.hdr.dime.xyzt_units=10;
+%             nii.hdr.dime.cal_max=0;
+%             nii.hdr.dime.cal_min=0;
+%             nii.hdr.dime.slice_duration=0;
+%             nii.hdr.dime.toffset=0;
+%             nii.hdr.dime.glmax=max(volume(:));
+%             nii.hdr.dime.glmin=0;
+%             
+%             % nii.hdr.hist
+%             nii.hdr.hist.descrip='NDBeta2.0';
+%             nii.hdr.hist.aux_file='';
+%             nii.hdr.hist.qform_code=0;
+%             nii.hdr.hist.sform_code=0;
+%             nii.hdr.hist.quatern_b=0;
+%             nii.hdr.hist.quatern_c=1;
+%             nii.hdr.hist.quatern_d=0;
+% %             nii.hdr.hist.qoffset_x=51.5625
+% %             nii.hdr.hist.qoffset_y=-84.1719
+% %             nii.hdr.hist.qoffset_z=-38.7188
+% %             nii.hdr.hist.srow_x=[-0.8594 0 0 51.5625]
+% %             nii.hdr.hist.srow_y=[0 0.8594 0 -84.1719]
+% %             nii.hdr.hist.srow_z=[0 0 0.8594 -38.7188]
+% %             nii.hdr.hist.intent_name=''
+% %             nii.hdr.hist.magic='n+1'
+% %             nii.hdr.hist.originator=[57 98.9455 46.0545 0 -32768]
+% %             nii.hdr.hist.rot_orient=[1 2 3]
+% %             nii.hdr.hist.flip_orient=[3 0 0]
+            
+            
+        end
+               
         save_nii(nii, [fullfile(pn, filename), '.nii']);
         
 end

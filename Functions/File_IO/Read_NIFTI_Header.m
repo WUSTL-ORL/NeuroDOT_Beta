@@ -66,7 +66,7 @@ header.nVy = nii.hdr.dime.dim(3);
 header.nVz = nii.hdr.dime.dim(4);
 header.nVt = nii.hdr.dime.dim(5);
 
-header.mmx = nii.hdr.dime.pixdim(2);
+header.mmx = nii.hdr.dime.pixdim(2);% updated from 1:3 191117
 header.mmy = nii.hdr.dime.pixdim(3);
 header.mmz = nii.hdr.dime.pixdim(4);
 
