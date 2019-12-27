@@ -65,8 +65,8 @@ if params.DoFilter
     
     if isfield(params,'omega_lp')           % low pass filter cutoff
         omega_lp=params.omega_lp;
-    elseif isfield(info.flags,'omega_lp')
-        omega_lp=info.flags.omega_lp;
+    elseif isfield(info.flags,'omega_lp1')
+        omega_lp=info.flags.omega_lp1;
     elseif isfield(info.flags,'lowpass3')
         if info.flags.lowpass3
             omega_lp=info.flags.omega_lp3;

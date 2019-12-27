@@ -69,7 +69,7 @@ else
     % nii.hdr.dime.datatype assigned below.
     % nii.hdr.dime.bitpix assigned in NIFTI Reader.
     nii.hdr.dime.slice_start = 0;
-    nii.hdr.dime.pixdim = [1, 1, 1, 1, 1, 0, 0, 0]; % This *would* be read
+%     nii.hdr.dime.pixdim = [1, 1, 1, 1, 1, 0, 0, 0]; % This *would* be read
     % from mmppix, but NIFTI requires these values anyways.
     nii.hdr.dime.vox_offset = 0;
     nii.hdr.dime.scl_slope = 1;
@@ -261,6 +261,8 @@ nii.hdr.dime.dim(2) = lengths(revorder(1));
 nii.hdr.dime.dim(3) = lengths(revorder(2));
 nii.hdr.dime.dim(4) = lengths(revorder(3));
 nii.hdr.dime.dim(5) = lengths(revorder(4));
+
+nii.hdr.dime.pixdim=[1,header.mmx,header.mmy,header.mmz,1,0,0,0];
 
 %% Other stuff.
 nii.fileprefix = filename;
