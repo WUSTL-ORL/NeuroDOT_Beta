@@ -68,9 +68,9 @@ else
 end
 
 %% Define coordinate space of volumetric data
-X = ((-center(1) + nVx * dr(1)):-dr(1):(-center(1) + dr(1)))'; %R2L -dr(1)/2
-Y = ((-center(2) + nVy * dr(2)):-dr(2):(-center(2) + dr(2)))'; %V2D -dr(2)/2
-Z = ((-center(3) + nVz * dr(3)):-dr(3):(-center(3) + dr(3)))'; %P2A -dr(3)/2
+X = (dr(1).*[nVx:-1:1]-center(1))';
+Y = (dr(2).*[nVy:-1:1]-center(2))';
+Z = (dr(3).*[nVz:-1:1]-center(3))';
 
 
 %% Get coordinates for surface mesh

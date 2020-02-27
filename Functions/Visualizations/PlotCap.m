@@ -47,8 +47,10 @@ function PlotCap(info, params)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %% Parameters and Initialization.
-Ns = length(unique(info.pairs.Src));
-Nd = length(unique(info.pairs.Det));
+% Ns = length(unique(info.pairs.Src));
+% Nd = length(unique(info.pairs.Det));
+Ns = length(info.optodes.spos2);
+Nd = length(info.optodes.dpos2);
 LineColor = 'w';
 BkgdColor = 'k';
 if ~exist('params','var'),params=struct;end

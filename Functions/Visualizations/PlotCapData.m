@@ -52,12 +52,13 @@ function PlotCapData(SrcRGB, DetRGB, info, params)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %% Parameters and Initialization.
-Srcs = unique(info.pairs.Src);
-Dets = unique(info.pairs.Det);
 
-Nm = height(info.pairs);
-Ns = length(Srcs);
-Nd = length(Dets);
+% Nm = height(info.pairs);
+Ns = length(info.optodes.spos2);
+Nd = length(info.optodes.dpos2);
+
+Srcs = [1:Ns];%unique(info.pairs.Src);
+Dets = [1:Nd];%unique(info.pairs.Det);
 
 BkgdColor = [0, 0, 0]; % KEEP THESE LIKE THIS!
 % LineColor = [1, 1, 1]; % They are read as RGB triplets by later functions.
@@ -95,8 +96,8 @@ switch params.dimension
         spos = info.optodes.spos3;
         dpos = info.optodes.dpos3;
         
-        FieldColor = [0.25, 0.25, 0.25];
-        [xdir, ydir, zdir] = CheckOrientation(info);
+%         FieldColor = [0.25, 0.25, 0.25];
+%         [xdir, ydir, zdir] = CheckOrientation(info);
         
         % Default figure size.
         if ~isfield(params, 'fig_handle')

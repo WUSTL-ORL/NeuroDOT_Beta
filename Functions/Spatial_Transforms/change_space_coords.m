@@ -53,9 +53,9 @@ nV = size(coord_in, 1);
 coord_out = zeros(size(coord_in));
 
 %% Create coordinates for each voxel index.
-X = ((-centerA(1) + nVxA * drA(1)):(-drA(1)):(-centerA(1) + drA(1)))';
-Y = ((-centerA(2) + nVyA * drA(2)):(-drA(2)):(-centerA(2) + drA(2)))';
-Z = ((-centerA(3) + nVzA * drA(3)):(-drA(3)):(-centerA(3) + drA(3)))';
+X = (drA(1).*[nVxA:-1:1]-centerA(1))';
+Y = (drA(2).*[nVyA:-1:1]-centerA(2))';
+Z = (drA(3).*[nVzA:-1:1]-centerA(3))';
 
 %% Convert coordinates to new space.
 switch input_type
@@ -94,7 +94,7 @@ switch input_type
             [~, coord_out(j, 2)] = min(abs(coord_in(j, 2) - Y));
             [~, coord_out(j, 3)] = min(abs(coord_in(j, 3) - Z));
         end
-    case 'idxC'
+    case 'idxC' % MATLAB INDEX SPACE WITH NO ROUNDING
         for j = 1:nV
             [~, foo] = min(abs(coord_in(j, 1) - X));
             coord_out(j, 1) = foo + (X(foo) - coord_in(j, 1)) / drA(1);

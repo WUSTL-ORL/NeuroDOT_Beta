@@ -31,6 +31,9 @@ tic;mesh=NirfastMesh_Region(mask,meshname,param);toc
 
 pM.orientation='coord';pM.Cmap.P='gray';
 PlotMeshSurface(mesh,pM)
+%%%% IF you get an error, this is due to NIRFAST using an old version of
+%%%% mode. Go into NIRFAST/toolbox, change mode.m to modeOLD.m. Then the
+%%%% correct version of mode will be used and this visualization will work.
 
 % Put coordinates back in true space
 mesh.nodes=change_space_coords(mesh.nodes,infoT1,'coord');

@@ -113,6 +113,7 @@ for pairs = temp
             header.center = str2num(value);
     end
 end
+if ~isfield(header,'byte'),header.byte = 'b';end
 
 %% Close file.
 fclose(fid);
