@@ -57,12 +57,16 @@ end
 Nm=size(data_in,1);
 blocks=zeros(Nm,dt,Nbl);
 for k = 1:Nbl
-    blocks(:, :, k) = data_in(:, pulse(k):(pulse(k) + dt - 1));
+    if (pulse(k) + dt - 1)<=Nt
+        blocks(:, :, k) = data_in(:, pulse(k):(pulse(k) + dt - 1));
+    else
+        blocks(:, :, k) =nan;
+    end
 end
 
 %% Average blocks and return.
-BA_out = mean(blocks, 3);
-BSTD_out = std(blocks, [],3);
+BA_out = nanmean(blocks, 3);
+BSTD_out = nanstd(blocks, [],3);
 BA_out = bsxfun(@minus,BA_out,mean(BA_out,2));
 BT_out = BA_out./BSTD_out;
 BT_out(~isfinite(BT_out))=0;
