@@ -45,6 +45,7 @@ elseif size(params.rlimits,1)==2
 end
 Rlimits=params.rlimits;
 if ~isfield(params, 'mode'),params.mode = 'good';end
+if ~isfield(params, 'useGM'),params.useGM = 1;end
 if ~isreal(data),data=abs(data);end
 
 params.fig_handle=figure('Units','Normalized',...

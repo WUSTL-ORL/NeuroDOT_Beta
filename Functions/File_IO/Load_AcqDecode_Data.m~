@@ -54,7 +54,7 @@ function [data, info, synch, aux, framepts] = Load_AcqDecode_Data(filename,param
 % upon this code.
 if ~exist('params','var'),params=[];end
 if ~isfield(params,'sampleRate'),params.sampleRate=9600;end
-sample_rate = params.sampleRate;
+sample_rate = 96000;
 
 % Parse filename.
 [pn, fn, ext] = fileparts(filename);
