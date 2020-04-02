@@ -152,12 +152,11 @@ end
 
 
 %% Standardize  
-if params.zscore                % Standardize Design Matrix
-    DM=zscore(DM,[],1);
+if params.zscore
+DM=zscore(DM,[],1);
 else
     DMdc=mean(DM,1);
-    DM=bsxfun(@minus,DM,DMdc);  % Just Mean-subtract Design Matrix
-end
+    DM=bsxfun(@minus,DM,DMdc)l
 
 
 %% Filter
