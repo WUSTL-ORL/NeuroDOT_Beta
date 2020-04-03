@@ -53,7 +53,7 @@ function [data, info, synch, aux, framepts] = Load_AcqDecode_Data(filename,param
 % manually as needed, but we have no formal plans just yet to elaborate
 % upon this code.
 if ~exist('params','var'),params=[];end
-if ~isfield(params,'sampleRate'),params.sampleRate=9600;end
+if ~isfield(params,'sampleRate'),params.sampleRate=96000;end
 sample_rate = params.sampleRate;
 
 % Parse filename.
