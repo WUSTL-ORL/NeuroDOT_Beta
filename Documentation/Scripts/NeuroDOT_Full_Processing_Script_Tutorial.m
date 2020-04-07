@@ -234,7 +234,7 @@ title('r \in [10, 16], 850 nm')
 % Showing superficial and cortical layers for before and after SSR.
 params.rlimits = [10, 16; 27, 33];
 params.fig_handle = figure('Color', 'k');
-PlotPowerSpectrumMean(lp1data, info, params)
+PlotPowerSpectrumMean(lmdata, info, params)
 title('LPF1')
 
 
