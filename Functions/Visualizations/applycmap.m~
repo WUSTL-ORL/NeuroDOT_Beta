@@ -66,7 +66,7 @@ function [mapped,map_out,params] = applycmap(overlay, underlay, params)
 
 %% Parameters and initialization.
 img_size = size(overlay);
-overlay = +overlay(:);                  % Make sure not logical
+overlay = overlay(:);
 mapped = zeros(length(overlay), 3);
 overlay(~isfinite(overlay))=0;
 underlay(~isfinite(underlay))=0;
@@ -139,6 +139,7 @@ end
 
 %% Get Background.
 bg = find(overlay == 0);
+bg0=intersect(find(abs(overlay)<params.
 
 %% Truecolor
 if params.TC

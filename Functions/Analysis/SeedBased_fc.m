@@ -27,7 +27,7 @@ if ~isfield(params,'seed_rad'),params.seed_rad=5;end
 if ~isfield(params,'tmask'),params.tMask=ones(Nt,1);end
 
 if strcmp(params.seed_type,'coord')
-    ROI = change_space_coords(ROI, dim, 'coord');
+    ROI = change_space_coords(ROI, dim, 'idx');
 end
 
 kern=floor(params.seed_rad/2);
