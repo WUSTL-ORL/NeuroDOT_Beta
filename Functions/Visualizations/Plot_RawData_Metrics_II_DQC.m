@@ -99,7 +99,7 @@ legend(leg,'Color','w')
 
 if istablevar(info.MEAS,'Clipped')
     hold on;
-    keep=info.MEAS.Clipped;
+    keep=info.MEAS.Clipped==1;
     semilogy(info.pairs.r3d(keep),Phi_0(keep),'xw');
     legend(cat(1,leg,'Clipped'),'Color','k','TextColor','w')
 end

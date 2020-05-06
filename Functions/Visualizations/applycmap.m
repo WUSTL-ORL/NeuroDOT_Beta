@@ -70,6 +70,12 @@ overlay = +overlay(:);                  % Make sure not logical
 mapped = zeros(length(overlay), 3);
 overlay(~isfinite(overlay))=0;
 underlay(~isfinite(underlay))=0;
+if ~sum(abs(overlay(overlay~=0)))
+    disp(['The Overlay has only elements equal to zero'])
+    mapped=[];
+    map_out=[];
+    return
+end
 
 if ~exist('underlay', 'var')  ||  isempty(underlay)
     params.underlay = 0;

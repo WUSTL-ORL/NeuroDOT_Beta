@@ -302,8 +302,10 @@ end
 %% Apply color mapping.
 if isempty(overlay)
     [FUSED, CMAP] = applycmap(underlay, [], params);
+    if isempty(FUSED),return;end
 else
     [FUSED, CMAP] = applycmap(overlay, underlay, params);
+    if isempty(FUSED),return;end
 end
 
 %% Display the views on three subplots in a while loop for point-and-click navigation.

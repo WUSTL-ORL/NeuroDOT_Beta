@@ -63,6 +63,8 @@ for pairs = [temp{1}'; temp{2}']
             io.Nd = str2double(val);
         case 'NSRC'
             io.Ns = str2double(val);
+        case 'ENCPASSN'
+            io.EncPassN = str2double(val);
         case {'P', 'W'}
             io.(key) = str2double(val);
         case {'NAME', 'DATE', 'TIME', 'TAG', 'COMMENT', 'GI', 'E', 'CENT', 'SMETH',...

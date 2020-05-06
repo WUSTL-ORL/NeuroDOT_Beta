@@ -103,7 +103,7 @@ end
 
 %% Reshaping.
 switch ext
-    case '.mag'
+    case {'.mag','.min','.max'}
         % OLD COMMENT: Shape raw stream into Colors x Sources x Detectors x
         % Time (fastest -> slowest looping, see encoding scheme).
         data = reshape(data, Nwl, Ns, Nd, TTL);
@@ -116,8 +116,9 @@ switch ext
         data = data(:, :, :, 2:end);
         framepts = framepts(2:end);
         
-        %% Checking for missing data.
+        % Checking for missing data.
         [data, info, framepts] = Check4MissingData(data, info, framepts);
+        
     case '.iq'
         sdata = data(1:2:end);
         cdata = data(2:2:end);
@@ -130,15 +131,33 @@ switch ext
         data.sin = permute(sdata, [2, 3, 1, 4]);
         data.cos = permute(cdata, [2, 3, 1, 4]);
         
-        %% Checking for missing data.
+        % Checking for missing data.
         [data.sin, info, framepts] = Check4MissingData(data.sin, info, framepts);
         [data.cos, info, framepts] = Check4MissingData(data.cos, info, framepts);
         
+    otherwise
+        % OLD COMMENT: Shape raw stream into Colors x Sources x Detectors x
+        % Time (fastest -> slowest looping, see encoding scheme).
+        data = reshape(data, Nwl, Ns, Nd, TTL);
+        
+        % Rearrange to original standard orientation: Sources x Detectors x
+        % Colors x Time
+        data = permute(data, [2, 3, 1, 4]);
+        
+        % Remove first frame from data and framesynch.
+        data = data(:, :, :, 2:end);
+        framepts = framepts(2:end);
+        
+        % Checking for missing data.
+        [data, info, framepts] = Check4MissingData(data, info, framepts);
 end
+
 
 %% Set frame fields.
 info.io.nframe = numel(framepts); % number of acquired frames
-info.system.framerate = sample_rate / info.io.framesize; % calculate empirical frame rate (MOTU @ 96kHz)
+info.system.framerate = sample_rate / info.io.framesize; % calculate empirical frame rate
+if ~isfield(info.io,'EncPassN'),info.io.EncPassN=1;end 
+info.system.framerate=info.system.framerate./info.io.EncPassN;
 info.system.init_framerate = info.system.framerate;
 
 if strcmp(ext, '.iq')  &&  (TTL ~= info.io.nframe)
@@ -188,13 +207,21 @@ end
 info = orderfields(info);
 info.io = orderfields(info.io);
 
+
 %% Save original data dimensions.
 [info.io.Ns, info.io.Nd, info.io.Nwl, info.io.Nt] = size(data);
+
 
 %% If .mag, reshape data.
 if strcmp(ext, '.mag')
     data = reshape(data, [], info.io.Nt);
 end
+
+%% Set Clipping array
+% clipping=(sum(data==realmax,2) ~= 0) ;
+% info.MEAS=table(cat(1,clipping(:),clipping(:))>0,...
+%             'VariableNames', {'Clipped'});
+
 
 
 % %% Check data measurement number compared to info file
