@@ -72,8 +72,8 @@ overlay(~isfinite(overlay))=0;
 underlay(~isfinite(underlay))=0;
 if ~sum(abs(overlay(overlay~=0)))
     disp(['The Overlay has only elements equal to zero'])
-    mapped=[];
-    map_out=[];
+    mapped=mapped+0.5;
+    map_out=[0.5,0.5,0.5];
     return
 end
 

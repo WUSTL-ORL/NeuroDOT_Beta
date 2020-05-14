@@ -210,7 +210,28 @@ if params.GVTD_censor
 end
 
 
+%% Adjust in case there are any zero columns of DM
+isZero=sum(abs(DM),1)==0; % check for zero column
+FixDM=any(isZero);
+if FixDM
+  fixIdx=find(isZero);
+  Nfix=length(fixIdx);
+  DM=DM(:,~isZero);
+end
+
+
 %% Calculate beta map and residuals
 indcc=pinv(DM'*DM);
 b=(indcc*DM'*data')';
 e=(data'-DM*b')';
+
+%% Fix beta maps to be zero in correct spots if DM zeros
+if FixDM
+    for j=1:Nfix
+        if fixIdx(j)<=size(b,2)
+            b=cat(2,b(:,1:fixIdx(j)-1),zeros(size(b,1),1),b(:,fixIdx(j):end));
+        else
+            b=cat(2,b(:,1:fixIdx(j)-1),zeros(size(b,1),1));
+        end
+    end
+end

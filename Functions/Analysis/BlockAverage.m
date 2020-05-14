@@ -60,7 +60,9 @@ for k = 1:Nbl
     if (pulse(k) + dt - 1)<=Nt
         blocks(:, :, k) = data_in(:, pulse(k):(pulse(k) + dt - 1));
     else
-        blocks(:, :, k) =nan;
+        dtb=pulse(k)+dt-1-Nt;
+        blocks(:, :, k) =cat(2,data_in(:,pulse(k):end),NaN(size(data_in,1),dtb));
+%         blocks(:, :, k) =nan;
     end
 end
 
