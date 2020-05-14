@@ -69,7 +69,7 @@ end
 %% Average blocks and return.
 BA_out = nanmean(blocks, 3);
 BSTD_out = nanstd(blocks, [],3);
-BA_out = bsxfun(@minus,BA_out,mean(BA_out,2));
+BA_out = bsxfun(@minus,BA_out,nanmean(BA_out,2));
 BT_out = BA_out./BSTD_out;
 BT_out(~isfinite(BT_out))=0;
 
