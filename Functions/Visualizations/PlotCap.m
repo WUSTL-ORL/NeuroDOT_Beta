@@ -57,6 +57,7 @@ if ~exist('params','var'),params=struct;end
 if ~isfield(params,'SrcColor'),params.SrcColor=[1, 0.75, 0.75];end
 if ~isfield(params,'DetColor'),params.DetColor=[0.55, 0.55, 1];end
 
+if ~isfield(params,'rhombus'),params.rhombus=1;end
 
 params.mode = 'textpatch';
 

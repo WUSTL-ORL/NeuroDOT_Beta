@@ -73,6 +73,9 @@ end
 if ~isfield(params, 'dimension')  ||  isempty(params.dimension)
     params.dimension = '2D'; % '2D' | '3D'
 end
+
+if ~isfield(params,'rhombus'),params.rhombus=1;end
+
 if ~isfield(params,'LineColor'),params.LineColor=[1,1,1];end
 switch params.dimension
     case '2D'
@@ -80,10 +83,18 @@ switch params.dimension
         spos = info.optodes.spos2;
         dpos = info.optodes.dpos2;
         
-        % Calculate side length and create square vectors.
-        l = norm(spos(1, :) - spos(2, :)) / 2;
-        xsq = [l, 0, -l, 0]; % Okay, they're really rhombi, but you get the point.
-        ysq = [0, -l, 0, l];
+        if params.rhombus
+            % Calculate side length and create square vectors.
+            l = norm(spos(1, :) - spos(2, :)) / 2;
+            xsq = [l, 0, -l, 0]; % Okay, they're really rhombi, but you get the point.
+            ysq = [0, -l, 0, l];
+        else
+            % Calculate side length and create square vectors.
+            l = norm(spos(1, :) - dpos(1, :)) / 2;
+            xsq = [l, -l, -l, l]; % Okay, they're really rhombi, but you get the point.
+            ysq = [l, l, -l, -l];
+        end
+            
         
         % Default figure size.
         if ~isfield(params, 'fig_handle')

@@ -1,0 +1,10 @@
+function data2=normrND(data)
+%
+% This function returns a row-normed matrix. It is assumed that the matrix
+% is 2D.
+
+%%
+% data=bsxfun(@rdivide,data,vecnorm(data,2,2));
+data2=data.^2;
+data2=sum(data2,2);
+data2=sqrt(data2);

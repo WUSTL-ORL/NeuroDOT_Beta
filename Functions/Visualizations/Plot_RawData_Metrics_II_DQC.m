@@ -146,7 +146,7 @@ if isfield(info.paradigm, 'synchpts')
         t0 = info.paradigm.synchpts(2);
     elseif NsynchPts == 2
         tF = info.paradigm.synchpts(2);
-        t0 = infoparadigm.synchpts(1);
+        t0 = info.paradigm.synchpts(1);
     else
         tF = size(data, 2);
         t0 = 1;

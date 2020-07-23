@@ -24,7 +24,7 @@ end
 if ~exist('params','var'), params=struct;end
 if ~isfield(params,'seed_type'),params.seed_type='idx';end
 if ~isfield(params,'seed_rad'),params.seed_rad=5;end
-if ~isfield(params,'tMask'),params.tMask=ones(Nt,1);end
+if ~isfield(params,'tmask'),params.tMask=ones(Nt,1);end
 
 if strcmp(params.seed_type,'coord')
     ROI = change_space_coords(ROI, dim, 'idx');
@@ -60,7 +60,7 @@ for k=1:Nseeds
     roi=zeros(dim.nVx,dim.nVy,dim.nVz);
     roi(ROI(k,1),ROI(k,2),ROI(k,3))=1;
     roi=convn(roi,kernel,'same');
-    Ns=nansum(roi(:));
+    Ns=sum(roi(:));
     
     % Generate Seed Time Trace
     seedTT(:,k)=[sum(reshape(bsxfun(@times,data,roi),[],Nt),1)./Ns]';

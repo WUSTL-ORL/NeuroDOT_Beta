@@ -34,10 +34,10 @@ function tpos3=Bend_Cap_Flat_to_Curved(tpos,hrad,type,aX)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %%
+if ~exist('aX','var'),aX='y';end
 Npos=size(tpos,1);
 CofM=mean(tpos,1);
 tpos3=zeros(Npos,3);
-if ~exist('aX','var'),aX='y';end
 
 
 switch type
