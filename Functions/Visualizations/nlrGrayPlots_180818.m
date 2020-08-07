@@ -36,7 +36,7 @@ M=nanstd((data1(:))).*3;
 %% Line Plot of DVARS
 if isfield(info,'GVTD')
     subplot(2,1,1,'Position',[0.1,0.75,0.8,0.2])
-    plot([1:Nrt],info.GVTD(:),'r');
+    plot([1:Nrt],info.GVTD(:),'r','LineWidth',2);
     xlim([1,Nrt])
     set(gca,'Color',BkndColor,'XColor',LineColor,'YColor',LineColor)
     title(['GVTD'],'Color','w')
