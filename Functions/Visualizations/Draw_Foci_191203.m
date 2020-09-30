@@ -10,9 +10,10 @@ function Draw_Foci_191203(foci,params)
 
 %% Parameters and Initialization
 if ~exist('params','var'), params=struct;end
-if ~isfield(params,'faces'),   params.faces=100;end
+if ~isfield(params,'faces'),   params.faces=10;end
 if ~isfield(params,'lighting'),params.lighting='phong';end
 if ~isfield(params,'AmbientStrength'),params.AmbientStrength=0.02;end
+if ~isfield(params,'FaceAlpha'),params.FaceAlpha=1;end
 
 Nfoci=size(foci,1);
 
@@ -30,7 +31,7 @@ for j=1:Nfoci
     
     hh=patch(surf2patch(rad*x+foci(j,1),rad*y+foci(j,2),rad*z+foci(j,3)),...
         'EdgeColor',params.color(j,:),'FaceColor',params.color(j,:),...
-        'EdgeAlpha',0);
+        'EdgeAlpha',0,'FaceAlpha',params.FaceAlpha);
     
     set(hh,'FaceLighting',params.lighting,...
         'AmbientStrength',params.AmbientStrength);    

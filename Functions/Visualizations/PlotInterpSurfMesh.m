@@ -1,4 +1,4 @@
-function PlotInterpSurfMesh(volume, meshL, meshR, dim, params)
+function [mapL,mapR,hPatchesL,hPatchesR,params2] = PlotInterpSurfMesh(volume, meshL, meshR, dim, params)
 
 % PLOTINTERPSURFMESH Interpolates volumetric data onto hemispheric meshes for
 % display.
@@ -70,7 +70,7 @@ mapR = vol2surf_mesh(meshR, volume, dim, params);
 
 
 %% Image the left and right maps.
-PlotLRMeshes(mapL, mapR, params);
+[hPatchesL,hPatchesR,params2] = PlotLRMeshes(mapL, mapR, params);
 
 
 

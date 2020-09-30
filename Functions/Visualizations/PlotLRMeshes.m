@@ -1,4 +1,4 @@
-function PlotLRMeshes(meshL, meshR, params)
+function [hPatchesL,hPatchesR,params2] = PlotLRMeshes(meshL, meshR, params)
 
 % PLOTLRMESHES Renders a pair of hemispheric meshes.
 %
@@ -33,6 +33,7 @@ function PlotLRMeshes(meshL, meshR, params)
 % 
 % Copyright (c) 2017 Washington University 
 % Created By: Adam T. Eggebrecht
+% Other Contributor(s): Zachary E. Markow
 % Eggebrecht et al., 2014, Nature Photonics; Zeff et al., 2007, PNAS.
 %
 % Washington University hereby grants to you a non-transferable, 
@@ -89,7 +90,9 @@ else
         case 'figure'
             set(groot, 'CurrentFigure', params.fig_handle);
         case 'axes'
-            set(gcf, 'CurrentAxes', params.fig_handle);
+            parentFig = get(params.fig_handle,'Parent');
+            set(groot, 'CurrentFigure', parentFig);
+            set(parentFig, 'CurrentAxes', params.fig_handle);
     end
 end
 % Slotted this in before 'Scale' to create the "gray mode" when no data is
@@ -202,15 +205,15 @@ end
 set(params.fig_handle, 'Units', 'pixels');
 
 %% Image Left Side.
-[dataL, CMAP] = applycmap(meshL.data, [], params);
-patch('Faces', meshL.elements(:, 1:3), 'Vertices', Lnodes,...
+[dataL, CMAP, params2] = applycmap(meshL.data, [], params);
+hPatchesL = patch('Faces', meshL.elements(:, 1:3), 'Vertices', Lnodes,...
     'EdgeColor', 'none', 'FaceColor', FaceColor, 'FaceVertexCData', dataL,...
     'FaceLighting', params.lighting, 'FaceAlpha', params.alpha,...
     'AmbientStrength', 0.25, 'DiffuseStrength', .75, 'SpecularStrength', .1);
 
 %% Image Right Side.
-[dataR, CMAP] = applycmap(meshR.data, [], params);
-patch('Faces', meshR.elements(:, 1:3), 'Vertices', Rnodes,...
+[dataR, CMAP, params2] = applycmap(meshR.data, [], params);
+hPatchesR = patch('Faces', meshR.elements(:, 1:3), 'Vertices', Rnodes,...
     'EdgeColor', 'none', 'FaceColor', FaceColor, 'FaceVertexCData', dataR,...
     'FaceLighting', params.lighting, 'FaceAlpha', params.alpha,...
     'AmbientStrength', 0.25, 'DiffuseStrength', .75, 'SpecularStrength', .1);

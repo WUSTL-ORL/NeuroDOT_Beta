@@ -122,7 +122,9 @@ else
             set(gcf, 'CurrentAxes', params.fig_handle);
     end
 end
-
+if ~isfield(params, 'cboff')  
+    params.cboff = 0;
+end
 if ~isfield(params, 'cbmode')  ||  isempty(params.cbmode)
     params.cbmode = 0;
 end
@@ -339,6 +341,9 @@ colormap(gca,CMAP)
 h2 = colorbar('Color', LineColor);
 if params.cbmode
     set(h2, 'Ticks', params.cbticks, 'TickLabels', params.cblabels);
+end
+if params.cboff
+   set(h2,'Visible','off') 
 end
 
 %
