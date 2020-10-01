@@ -1,4 +1,4 @@
-function PlotCapPhysiologyPower(data, info, params)
+function Plevels=PlotCapPhysiologyPower(data, info, params)
 
 % PlotCapPhysiologyPower A visualization of band limited power OR
 % band-referenced SNR for each optode.
