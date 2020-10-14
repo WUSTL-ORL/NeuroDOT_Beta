@@ -78,16 +78,16 @@ dim=struct('xmin',xmin,'xmax',xmax,...
 switch sign(min(nodes(:)))
     case -1 % coordinate based mesh nodes
 % Have to flip x bc coord (mesh) vs indexing (vox) conventions.
-dim.xv=dim.xmax:(-flags.voxmm):dim.xmin;
-dim.yv=dim.ymin:flags.voxmm:dim.ymax;
-dim.zv=dim.zmin:flags.voxmm:dim.zmax;
+dim.xv=[dim.xmax:(-flags.voxmm):dim.xmin]+0;
+dim.yv=[dim.ymin:flags.voxmm:dim.ymax]+0;
+dim.zv=[dim.zmin:flags.voxmm:dim.zmax]+0;
 
 MPR111 = change_space_coords(...
     [flags.info.nVx,flags.info.nVy,flags.info.nVz], ...
     flags.info,'coord');
 dim111=[dim.xv(end),dim.yv(end),dim.zv(end)];
 dr=(MPR111-dim111);
-dim.center=flags.info.center+dr;
+dim.center=flags.info.center+dr-[0,2,2]; % fixed 201213
 
 
     case 1 % index based mesh nodes

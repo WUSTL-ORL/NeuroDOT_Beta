@@ -121,6 +121,10 @@ switch info.pad % These must show the max A/D channel for each system
         FSchan=128; % Max focusrite channels as of 180705
     case 'Gates_128x125'
         FSchan=128; % Max focusrite channels as of 180705
+    case 'Matador_255x252_201009_half_a'
+        FSchan=128; % Max focusrite channels as of 180705
+    case 'Matador_255x252_201009_half_b'
+        FSchan=128; % Max focusrite channels as of 180705
 end
 else
     FSchan=params.FSchan;
