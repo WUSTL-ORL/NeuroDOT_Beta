@@ -1,4 +1,4 @@
-function Plot_RawData_Cap_DQC(data,info,params)
+function info=Plot_RawData_Cap_DQC(data,info,params)
 %
 % This function generates plots of data quality as related to the cap
 % layout including: relative average light levels for 2 sets of distances
@@ -60,7 +60,7 @@ end
 %% Mean signal level at each optode
 subplot(4,2,1);
 params.rlimits=Rlimits(1,:);
-PlotCapMeanLL(data, info, params);
+info.MEAS.Phi_o=PlotCapMeanLL(data, info, params);
 
 subplot(4,2,2);
 params.rlimits=Rlimits(2,:);
@@ -77,11 +77,11 @@ PlotCapGoodMeas(info, params);
 params=rmfield(params,'mode');
 subplot(4,2,3);                             % Close neighborgood
 params.rlimits=Rlimits(1,:);
-PlotCapPhysiologyPower(data, info, params);
+info.MEAS.Pulse_SNR_R1=PlotCapPhysiologyPower(data, info, params);
 
 subplot(4,2,4);                             % 2nd neighborgood
 params.rlimits=Rlimits(2,:);
-PlotCapPhysiologyPower(data, info, params);
+info.MEAS.Pulse_SNR_R2=PlotCapPhysiologyPower(data, info, params);
 
 
 

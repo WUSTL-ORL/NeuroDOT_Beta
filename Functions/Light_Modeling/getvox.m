@@ -87,7 +87,7 @@ MPR111 = change_space_coords(...
     flags.info,'coord');
 dim111=[dim.xv(end),dim.yv(end),dim.zv(end)];
 dr=(MPR111-dim111);
-dim.center=flags.info.center+dr-[0,2,2]; % fixed 201213
+dim.center=flags.info.center+dr-[0,2,2]; % fixed 201013
 
 
     case 1 % index based mesh nodes

@@ -1,8 +1,8 @@
 function [b,e,DM,EDM]=GLM_181206(data,hrf,info,params)
 %
 % This code creates a general linear model (GLM) based on a model of the
-% hemodynamic response function (hrf) and a set of stimulus times 
-% (info.paradigm.synchpts). 
+% hemodynamic response function (hrf) and a set of stimulus times
+% (info.paradigm.synchpts).
 % The GLM is then applied to the data to generate Beta maps and residuals.
 % It is assumed that the data is [voxels X time].
 % The hrf is a modelled hemodynamic response.
@@ -106,7 +106,7 @@ if isfield(info,'GVTD_filt_rs')
     GVTD=info.GVTD_filt_rs;
 elseif isfield(info,'misc')
     if isfield(info.misc,'GVTD_filt_rs')
-    GVTD=info.misc.GVTD_filt_rs;
+        GVTD=info.misc.GVTD_filt_rs;
     end
 elseif isfield(params,'GVTD')
     GVTD=params.GVTD;
@@ -118,12 +118,12 @@ EDM=zeros(Nt,Nevents);
 for j=1:(Nevents-1)
     if EL
         if (info.paradigm.synchpts(j)+EL-1)<Nt
-        EDM(info.paradigm.synchpts(j):(info.paradigm.synchpts(j)+EL-1),j)=1;
+            EDM(info.paradigm.synchpts(j):(info.paradigm.synchpts(j)+EL-1),j)=1;
         else
-        EDM(info.paradigm.synchpts(j):Nt,j)=1;            
+            EDM(info.paradigm.synchpts(j):Nt,j)=1;
         end
     else
-    EDM(info.paradigm.synchpts(j):(info.paradigm.synchpts(j+1)-1),j)=1;
+        EDM(info.paradigm.synchpts(j):(info.paradigm.synchpts(j+1)-1),j)=1;
     end
 end
 EDM(info.paradigm.synchpts(end):end,Nevents)=1;
@@ -147,11 +147,11 @@ if params.GVTDreg
     DM=cat(2,DM,GVTD(:));
 end
 if params.Nuisance_Reg
-    DM=cat(2,DM,params.Nuisance_Regs);    
+    DM=cat(2,DM,params.Nuisance_Regs);
 end
 
 
-%% Standardize  
+%% Standardize
 if params.zscore                % Standardize Design Matrix
     DM=zscore(DM,[],1);
 else
@@ -214,9 +214,9 @@ end
 isZero=sum(abs(DM),1)==0; % check for zero column
 FixDM=any(isZero);
 if FixDM
-  fixIdx=find(isZero);
-  Nfix=length(fixIdx);
-  DM=DM(:,~isZero);
+    fixIdx=find(isZero);
+    Nfix=length(fixIdx);
+    DM=DM(:,~isZero);
 end
 
 

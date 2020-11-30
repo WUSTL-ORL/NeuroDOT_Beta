@@ -104,6 +104,7 @@ if ~isstruct(params.Cmap)
 end
 if ~isfield(params.Cmap,'P'), params.Cmap.P='gray';end
 if ~isfield(params,'FaceAlpha'), params.FaceAlpha=1;end % Transparency
+if ~isfield(params,'FaceAlphaType'),params.FaceAlphaType='default';end
 if ~isfield(params,'EdgeAlpha'), params.EdgeAlpha=1;end % Transparency
 if ~isfield(params,'OL'), params.OL=0;end
 if ~isfield(params,'reg'), params.reg=1;end
@@ -160,6 +161,9 @@ switch size(mesh.elements, 2)
         [m.elements, m.nodes] = freeBoundary(TR);
         [~, Ib] = ismember(m.nodes, mesh.nodes, 'rows');
         Ib(Ib == 0) = []; % Clear zero indices.
+        if strcmp(params.FaceAlphaType,'data')
+            
+        end
         if isfield(mesh,'region'), m.region=mesh.region(Ib);end
         if isfield(mesh,'data'), m.data=mesh.data(Ib);end
     case 3
