@@ -1,4 +1,4 @@
-function [data, info, synch, aux, framepts] = Load_AcqDecode_Data(filename,params)
+function [data, info, synch, aux, framepts, clipping] = Load_AcqDecode_Data(filename,params)
 
 % LOAD_ACQDECODE_DATA Loads a single AcqDecode file.
 %
@@ -218,6 +218,16 @@ if strcmp(ext, '.mag')
 end
 
 %% Set Clipping array
+clipping=[];
+if exist([fn,'.clipping'],'file')
+    fid = fopen([fn,'.clipping']);
+    clipping = fread(fid, 'double');
+    fclose(fid);
+    clipping=reshape(clipping,[],size(clipping,3));
+    clipped=sum(clipping,2);
+    info.MEAS=table(cat(1,clipped(:),clipped(:))>0,...
+            'VariableNames', {'Clipped'});
+end
 % clipping=(sum(data==realmax,2) ~= 0) ;
 % info.MEAS=table(cat(1,clipping(:),clipping(:))>0,...
 %             'VariableNames', {'Clipped'});

@@ -150,8 +150,8 @@ try
     
     %% Fill in remaining fields with defaults.
     info.optodes.CapName = '';
-    info.optodes.spos2 = [];
-    info.optodes.dpos2 = [];
+    info.optodes.spos2 = info.optodes.spos3;
+    info.optodes.dpos2 = info.optodes.dpos3;
     info.optodes.plot3orientation.i = 'R2L';
     info.optodes.plot3orientation.j = 'P2A';
     info.optodes.plot3orientation.k = 'D2V';

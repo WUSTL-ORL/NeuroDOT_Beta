@@ -1,4 +1,4 @@
-function [A,dim,Gsd]=GtoAmat(Gs,Gd,mesh,dc,flags)
+function [A,dim,Gsd,Gs,Gd,dc]=GtoAmat(Gs,Gd,mesh,dc,flags)
 
 % This function take a set of Green's functions and a mesh and creates an
 % A-matrix.
@@ -72,8 +72,14 @@ clear vox p t mesh
 
 
 %% Create A-matrix
+if flags.makeA
 disp('>Making A-Matrix')
 [A,Gsd]=g2a(Gs,Gd,dc,dim,flags);
 clear Gs Gd 
 disp('>Saving A-Matrix')
 save(['A_',flags.tag],'A','dim','flags','Gsd','-v7.3')
+
+else
+    A=[];
+    Gsd=[];
+end

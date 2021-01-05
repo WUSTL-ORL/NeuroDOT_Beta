@@ -202,24 +202,28 @@ axis square;colormap(gca,cMap);
 
 
 %% std(Y) WL 1
-if isfield(info.paradigm, 'synchpts')
-    NsynchPts = length(info.paradigm.synchpts); % set timing of data
-    if NsynchPts > 2
-        tF = info.paradigm.synchpts(end);
-        t0 = info.paradigm.synchpts(2);
-    elseif NsynchPts == 2
-        tF = info.paradigm.synchpts(2);
-        t0 = info.paradigm.synchpts(1);
+if isfield(info,'paradigm')
+    if isfield(info.paradigm, 'synchpts')
+        NsynchPts = length(info.paradigm.synchpts); % set timing of data
+        if NsynchPts > 2
+            tF = info.paradigm.synchpts(end);
+            t0 = info.paradigm.synchpts(2);
+        elseif NsynchPts == 2
+            tF = info.paradigm.synchpts(2);
+            t0 = info.paradigm.synchpts(1);
+        else
+            tF = size(data, 2);
+            t0 = 1;
+        end
+        stdY=std(lmdata(:, t0:tF),[],2);
     else
-        tF = size(data, 2);
-        t0 = 1;
+        stdY=std(lmdata,[],2);
     end
-    stdY=std(lmdata(:, t0:tF),[],2);
 else
     stdY=std(lmdata,[],2);
 end
 sdFull(Ia)=stdY(Ib);
-subplot(3,6,9,'Position',[0.37,0.36,0.14,0.35])       
+subplot(3,6,9,'Position',[0.37,0.36,0.14,0.35])
 imagesc(sdFull,[0,0.2]);
 colormap(gca,cMap);
 title(['\sigma (Y) ',num2str(wls(1)),' nm'],'Color','w');xlabel('Detector')

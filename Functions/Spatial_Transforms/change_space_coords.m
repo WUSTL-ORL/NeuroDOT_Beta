@@ -1,10 +1,10 @@
-function coord_out = change_space_coords(coord_in, space_info, input_type)
+function coord_out = change_space_coords(coord_in, space_info, output_type)
 
 % CHANGE_SPACE_COORDS Applies a look up to change 3D coordinates into a new
 % space.
 % 
-%   coord_out = CHANGE_SPACE_COORDS(coord_in, space_info, input_type) takes
-%   a set of coordinates "coord_in" of the initial space "input_type", and
+%   coord_out = CHANGE_SPACE_COORDS(coord_in, space_info, output_type) takes
+%   a set of coordinates "coord_in" of the initial space "output_type", and
 %   converts them into the new space defined by the structure "space_info",
 %   which is then output as "coord_out".
 % 
@@ -37,8 +37,8 @@ function coord_out = change_space_coords(coord_in, space_info, input_type)
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 %% Parameters and initialization
-if ~exist('input_type', 'var')
-    input_type = 'coord';
+if ~exist('output_type', 'var')
+    output_type = 'coord';
 end
 
 % Define the voxel space.
@@ -58,7 +58,7 @@ Y = (drA(2).*[nVyA:-1:1]-centerA(2))';
 Z = (drA(3).*[nVzA:-1:1]-centerA(3))';
 
 %% Convert coordinates to new space.
-switch input_type
+switch output_type
     case 'coord' % ATLAS/4DFP/ETC COORDINATE SPACE
         for j = 1:nV
             x = coord_in(j, 1);

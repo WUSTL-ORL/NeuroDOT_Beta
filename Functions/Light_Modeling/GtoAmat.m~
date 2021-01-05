@@ -1,7 +1,7 @@
-function Mout=voxel(M,t,p,elements)
+function [A,dim,Gsd,Gs,Gd,dc]=GtoAmat(Gs,Gd,mesh,dc,flags)
 
-% Voxelate data (M) based on a node space (described by t,p,elements) into
-% a space defined by dim.
+% This function take a set of Green's functions and a mesh and creates an
+% A-matrix.
 %
 % 
 % Copyright (c) 2017 Washington University 
@@ -30,26 +30,57 @@ function Mout=voxel(M,t,p,elements)
 % IN BREACH OF CONTRACT, TORT OR OTHERWISE, EVEN IF SUCH PARTY IS 
 % ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
-%% Initialize and prepare
-dims = size(M);
-M2=reshape(M,[],dims(end));
-Nm=size(M2,1);
-Nvox=size(t,1);
-Mout=zeros(Nm,Nvox); % Noptodes*Ncolors, Nvox
+%% Paramters
+flags.keepmeth='glevel';
+if ~isfield(flags,'gthresh'),flags.gthresh=10^-3;end
+if ~isfield(flags,'voxmm'),flags.voxmm=2;end
+flags.GV=1;
 
-%% Voxellate only for voxels that actually contain nodes of the mesh
-keep=~isnan(t);
-Nkeep=sum(keep);
-elementList=elements(t(keep),:);
 
-% Interpolate
-for n=1:Nm                                % For each measurement
-    Jam = zeros(Nkeep,4);
-    for j = 1:Nkeep                         % For each good voxel
-        j
-        Jam(j,:) = M2(n,elementList(j,:));
-    end
-    Mout(n,keep) = sum(p(keep,:).*Jam,2);
+%% Interpolate  
+disp('>Finding Voxel Grid and Cropping Limits')
+[vox,dim]=getvox(mesh.nodes,cat(2,Gs,Gd),flags);
+
+disp('>Finding Mesh to Voxel Converstion')
+tic;TR=triangulation(mesh.elements,mesh.nodes);toc
+tic;[t,p] = pointLocation(TR,reshape(vox,[],3));toc
+
+% mytsearchn takes too long
+% tic;[t,p] = mytsearchn(mesh,reshape(vox,[],3));toc
+% tsearchn is unstable if possible nonconvexity...  : /
+% [t,p] = tsearchn(mesh.nodes,mesh.elements,reshape(vox,[],3)); 
+
+disp('>Interpolating Greens Functions')
+Gs=voxel(Gs,t,p,mesh.elements);
+Gd=voxel(Gd,t,p,mesh.elements);
+
+disp('>Interpolating Optical Properties')
+dc=voxel(dc,t,p,mesh.elements);
+
+
+%% Create dim.Good_Vox
+if flags.GV==1
+    [Gs,Gd,dc,dim]=Make_Good_Vox(Gs,Gd,dc,dim,mesh,flags);
 end
 
-Mout=reshape(Mout,[dims(1:(end-1)),Nvox]);
+
+%% Save voxellated G etc
+disp('Saving Voxellated Green''s Functions')
+save(['GFunc_',flags.tag,'_VOX.mat'],'Gs','Gd','dim','flags',...
+    't','p','dc','vox','-v7.3')
+clear vox p t mesh
+
+
+%% Create A-matrix
+if flags.makeA
+disp('>Making A-Matrix')
+[A,Gsd]=g2a(Gs,Gd,dc,dim,flags);
+clear Gs Gd 
+disp('>Saving A-Matrix')
+save(['A_',flags.tag],'A','dim','flags','Gsd','-v7.3')
+
+else
+    A=[];
+    dim=[];
+    Gsd=[];
+end
