@@ -9,7 +9,7 @@ Table of Contents:
 
 1. Installation
 
-Note: NeuroDOT is optimized for use in MATLAB 2015b on Windows and Unix. If you do not have MATLAB, contact your IT department or go to www.mathworks.com for more information on MATLAB. Your results may vary with other versions or operating systems.
+Note: This is a Beta version of NeuroDOT. The most up-to-date release of NeuroDOT is available at: https://github.com/WUSTL-ORL/NeuroDOT. NeuroDOT is optimized for use in MATLAB 2015b on Windows and Unix. If you do not have MATLAB, contact your IT department or go to www.mathworks.com for more information on MATLAB. Your results may vary with other versions or operating systems.
 
 To install NeuroDOT Beta, copy the unzipped folder into the directory of your choosing. Then open MATLAB and either click on the "Set Path" button on the "Home" tab of the main MATLAB console, or copy and paste the following command into your command line, substituting the bracketed words for the path into which you unzipped NeuroDOT:
 
